@@ -1,20 +1,13 @@
 import React from 'react';
-import {SafeAreaView, useColorScheme} from 'react-native';
+import {NavigationContainer} from '@react-navigation/native';
 
-import {Colors} from 'react-native/Libraries/NewAppScreen';
-import SignInScreen from './screens/SignInScreen';
+import AuthStack from './navigation/AuthStack';
 
 const App = () => {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <SignInScreen />
-    </SafeAreaView>
+    <NavigationContainer>
+      <AuthStack />
+    </NavigationContainer>
   );
 };
 
