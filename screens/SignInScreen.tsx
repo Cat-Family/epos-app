@@ -20,9 +20,12 @@ import {useTheme} from 'react-native-paper';
 import {useNavigation} from '@react-navigation/native';
 import {AuthNavigationProp} from '../navigation/AuthStack';
 import {AuthContext} from '../components/context';
+import AsyncStorage from '@react-native-community/async-storage';
 
 const SignInScreen = () => {
   const {colors} = useTheme();
+  const {signIn} = React.useContext(AuthContext);
+  const [secureTextEntry, setSecureTextEntry] = React.useState(true);
   const navigation = useNavigation<AuthNavigationProp>();
   const {
     control,
@@ -35,15 +38,13 @@ const SignInScreen = () => {
       password: '',
     },
   });
-  const onSubmit = (data: {
+  const onSubmit = async (data: {
     password: string;
     storeCode: string;
     userName: string;
-  }) => console.log(data);
-
-  const [secureTextEntry, setSecureTextEntry] = React.useState(true);
-
-  const {signIn} = React.useContext(AuthContext);
+  }) => {
+    signIn();
+  };
 
   const updateSecureTextEntry = () => {
     setSecureTextEntry(!secureTextEntry);
@@ -51,7 +52,7 @@ const SignInScreen = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor="#009387" barStyle="light-content" />
+      <StatusBar backgroundColor="#096BDE" barStyle="light-content" />
       <View style={styles.header}>
         <Text style={styles.text_header}>Welcome!</Text>
       </View>
@@ -60,16 +61,16 @@ const SignInScreen = () => {
         style={[
           styles.footer,
           {
-            backgroundColor: colors.background,
+            // backgroundColor: colors.background,
           },
         ]}>
         <Controller
           control={control}
-          rules={{
-            required: true,
-            maxLength: 4,
-            minLength: 4,
-          }}
+          // rules={{
+          //   required: true,
+          //   maxLength: 4,
+          //   minLength: 4,
+          // }}
           render={({field: {onChange, onBlur, value}}) => (
             <>
               <Text
@@ -121,9 +122,9 @@ const SignInScreen = () => {
 
         <Controller
           control={control}
-          rules={{
-            required: true,
-          }}
+          // rules={{
+          //   required: true,
+          // }}
           render={({field: {onChange, onBlur, value}}) => (
             <>
               <Text
@@ -170,9 +171,9 @@ const SignInScreen = () => {
 
         <Controller
           control={control}
-          rules={{
-            required: true,
-          }}
+          // rules={{
+          //   required: true,
+          // }}
           render={({field: {onChange, onBlur, value}}) => (
             <>
               <Text

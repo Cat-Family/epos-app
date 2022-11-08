@@ -9,13 +9,14 @@ import ProfileScreen from '../screens/ProfileScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
 import TabNavigator from './TabNavigator';
+import CustomDrawer from '../components/CustomDrawer';
 
 const Drawer = createDrawerNavigator();
 
 const AppStack = () => {
   return (
     <Drawer.Navigator
-      // drawerContent={props => <CustomDrawer {...props} />}
+      drawerContent={props => <CustomDrawer {...props} />}
       screenOptions={{
         headerShown: true,
         drawerActiveBackgroundColor: '#aa18ea',

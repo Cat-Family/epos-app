@@ -1,5 +1,5 @@
-import React, {useEffect} from 'react';
-import {View, ActivityIndicator} from 'react-native';
+import React, {useContext, useEffect} from 'react';
+import {View, ActivityIndicator, Image} from 'react-native';
 import {
   NavigationContainer,
   DefaultTheme as NavigationDefaultTheme,
@@ -11,145 +11,120 @@ import {
   DefaultTheme as PaperDefaultTheme,
   MD3DarkTheme as PaperDarkTheme,
 } from 'react-native-paper';
+import * as Animatable from 'react-native-animatable';
 
 import AuthStack from './navigation/AuthStack';
 import AppStack from './navigation/AppStack';
 
 import {AuthContext} from './components/context';
-
 import AsyncStorage from '@react-native-community/async-storage';
 
 const App = () => {
-  const [isDarkTheme, setIsDarkTheme] = React.useState(false);
-
-  const initialLoginState = {
-    isLoading: true,
-    userName: null,
-    userToken: null,
-  };
-
-  const CustomDefaultTheme = {
-    ...NavigationDefaultTheme,
-    ...PaperDefaultTheme,
-    colors: {
-      ...NavigationDefaultTheme.colors,
-      ...PaperDefaultTheme.colors,
-      background: '#ffffff',
-      text: '#333333',
+  const [state, dispatch] = React.useReducer(
+    (prevState: any, action: {type: any; token?: any}) => {
+      switch (action.type) {
+        case 'RESTORE_TOKEN':
+          return {
+            ...prevState,
+            userToken: action.token,
+            isLoading: false,
+          };
+        case 'SIGN_IN':
+          return {
+            ...prevState,
+            isSignout: false,
+            userToken: action.token,
+          };
+        case 'SIGN_OUT':
+          return {
+            ...prevState,
+            isSignout: true,
+            userToken: null,
+          };
+      }
     },
-  };
-
-  const CustomDarkTheme = {
-    ...NavigationDarkTheme,
-    ...PaperDarkTheme,
-    colors: {
-      ...NavigationDarkTheme.colors,
-      ...PaperDarkTheme.colors,
-      background: '#333333',
-      text: '#ffffff',
+    {
+      isLoading: true,
+      isSignout: false,
+      userToken: null,
     },
-  };
-
-  const theme = isDarkTheme ? CustomDarkTheme : CustomDefaultTheme;
-
-  const loginReducer = (prevState, action) => {
-    switch (action.type) {
-      case 'RETRIEVE_TOKEN':
-        return {
-          ...prevState,
-          userToken: action.token,
-          isLoading: false,
-        };
-      case 'LOGIN':
-        return {
-          ...prevState,
-          userName: action.id,
-          userToken: action.token,
-          isLoading: false,
-        };
-      case 'LOGOUT':
-        return {
-          ...prevState,
-          userName: null,
-          userToken: null,
-          isLoading: false,
-        };
-      case 'REGISTER':
-        return {
-          ...prevState,
-          userName: action.id,
-          userToken: action.token,
-          isLoading: false,
-        };
-    }
-  };
-
-  const [loginState, dispatch] = React.useReducer(
-    loginReducer,
-    initialLoginState,
   );
+
+  React.useEffect(() => {
+    // Fetch the token from storage then navigate to our appropriate place
+    const bootstrapAsync = async () => {
+      let userToken;
+
+      try {
+        userToken = await AsyncStorage.getItem('authInfo');
+        // userToken = await AsyncStorage.getItem('userInfo');
+      } catch (error) {
+        console.log(error);
+      }
+
+      // After restoring token, we may need to validate it in production apps
+
+      // This will switch to the App screen or Auth screen and this loading
+      // screen will be unmounted and thrown away.
+      dispatch({type: 'RESTORE_TOKEN', token: userToken});
+    };
+
+    bootstrapAsync();
+  }, []);
 
   const authContext = React.useMemo(
     () => ({
-      signIn: async (authUserInfo: any) => {
-        try {
-          await AsyncStorage.setItem('authUserInfo', authUserInfo);
-        } catch (e) {
-          console.log(e);
-        }
-        dispatch({type: 'LOGIN', id: authUserInfo});
+      signIn: async data => {
+        // In a production app, we need to send some data (usually username, password) to server and get a token
+        // We will also need to handle errors if sign in failed
+        // After getting token, we need to persist the token using `SecureStore`
+        // In the example, we'll use a dummy token
+
+        dispatch({type: 'SIGN_IN', token: 'dummy-auth-token'});
       },
       signOut: async () => {
-        // setUserToken(null);
-        // setIsLoading(false);
-        try {
-          await AsyncStorage.removeItem('authUserInfo');
-        } catch (e) {
-          console.log(e);
-        }
-        dispatch({type: 'LOGOUT'});
+        await AsyncStorage.removeItem('authInfo');
+        dispatch({type: 'SIGN_OUT'});
       },
-      signUp: () => {
-        // setUserToken('fgkj');
-        // setIsLoading(false);
-      },
-      toggleTheme: () => {
-        setIsDarkTheme(isDarkTheme => !isDarkTheme);
+      signUp: async data => {
+        // In a production app, we need to send user data to server and get a token
+        // We will also need to handle errors if sign up failed
+        // After getting token, we need to persist the token using `SecureStore`
+        // In the example, we'll use a dummy token
+
+        dispatch({type: 'SIGN_IN', token: 'dummy-auth-token'});
       },
     }),
     [],
   );
 
-  useEffect(() => {
-    setTimeout(async () => {
-      // setIsLoading(false);
-      let userToken;
-      userToken = null;
-      try {
-        userToken = await AsyncStorage.getItem('authUserInfo');
-      } catch (e) {
-        console.log(e);
-      }
-      // console.log('user token: ', userToken);
-      dispatch({type: 'RETRIEVE_TOKEN', token: userToken});
-    }, 1000);
-  }, []);
-
-  if (loginState.isLoading) {
+  if (state.isLoading) {
+    // We haven't finished checking for the token yet
     return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <ActivityIndicator size="large" />
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#fff',
+        }}>
+        <Image
+          source={require('./assets/logo.png')}
+          resizeMode="cover"
+          style={{height: 200, width: 200}}
+        />
       </View>
     );
   }
+
   return (
-    <PaperProvider theme={theme}>
-      <AuthContext.Provider value={authContext}>
-        <NavigationContainer theme={theme}>
-          {loginState.userToken !== null ? <AppStack /> : <AuthStack />}
+    <AuthContext.Provider value={authContext}>
+      <PaperProvider>
+        <NavigationContainer>
+          {state.userToken ? <AppStack /> : <AuthStack />}
         </NavigationContainer>
-      </AuthContext.Provider>
-    </PaperProvider>
+      </PaperProvider>
+    </AuthContext.Provider>
   );
 };
 
