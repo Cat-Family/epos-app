@@ -13,11 +13,41 @@ import * as Animatable from 'react-native-animatable';
 import LinearGradient from 'react-native-linear-gradient';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {useForm, Controller} from 'react-hook-form';
 
 import {useTheme} from 'react-native-paper';
+import {useNavigation} from '@react-navigation/native';
+import {AuthNavigationProp} from '../navigation/AuthStack';
+import {AuthContext} from '../components/context';
 
-const SignInScreen = ({}) => {
+const SignInScreen = () => {
   const {colors} = useTheme();
+  const navigation = useNavigation<AuthNavigationProp>();
+  const {
+    control,
+    handleSubmit,
+    formState: {errors},
+  } = useForm({
+    defaultValues: {
+      storeCode: '',
+      userName: '',
+      password: '',
+    },
+  });
+  const onSubmit = (data: {
+    password: string;
+    storeCode: string;
+    userName: string;
+  }) => console.log(data);
+
+  const [secureTextEntry, setSecureTextEntry] = React.useState(true);
+
+  const {signIn} = React.useContext(AuthContext);
+
+  const updateSecureTextEntry = () => {
+    setSecureTextEntry(!secureTextEntry);
+  };
 
   return (
     <View style={styles.container}>
@@ -33,100 +63,173 @@ const SignInScreen = ({}) => {
             backgroundColor: colors.background,
           },
         ]}>
-        <Text
-          style={[
-            styles.text_footer,
-            {
-              color: colors.secondary,
-            },
-          ]}>
-          Username
-        </Text>
-        <View style={styles.action}>
-          <FontAwesome name="user-o" color={colors.secondary} size={20} />
-          <TextInput
-            placeholder="Your Username"
-            placeholderTextColor="#666666"
-            style={[
-              styles.textInput,
-              {
-                color: colors.secondary,
-              },
-            ]}
-            autoCapitalize="none"
-            // onChangeText={val => textInputChange(val)}
-            // onEndEditing={e => handleValidUser(e.nativeEvent.text)}
-          />
-          {/* {data.check_textInputChange ? (
-            <Animatable.View animation="bounceIn">
-              <Feather name="check-circle" color="green" size={20} />
-            </Animatable.View>
-          ) : null} */}
-        </View>
-        {/* {data.isValidUser ? null : (
-          <Animatable.View animation="fadeInLeft" duration={500}>
-            <Text style={styles.errorMsg}>
-              Username must be 4 characters long.
-            </Text>
-          </Animatable.View>
-        )} */}
+        <Controller
+          control={control}
+          rules={{
+            required: true,
+            maxLength: 4,
+            minLength: 4,
+          }}
+          render={({field: {onChange, onBlur, value}}) => (
+            <>
+              <Text
+                style={[
+                  styles.text_footer,
+                  {
+                    color: colors.shadow,
+                  },
+                ]}>
+                商家码
+              </Text>
+              <View style={styles.action}>
+                <MaterialIcons
+                  name="storefront"
+                  color={colors.secondary}
+                  size={20}
+                />
+                <TextInput
+                  placeholder="商家码"
+                  placeholderTextColor="#666666"
+                  style={[
+                    styles.textInput,
+                    {
+                      color: colors.secondary,
+                    },
+                  ]}
+                  value={value}
+                  autoCapitalize="none"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                />
+                {!errors.userName ? (
+                  <Animatable.View animation="bounceIn">
+                    <Feather name="check-circle" color="green" size={20} />
+                  </Animatable.View>
+                ) : null}
+              </View>
+              {errors.storeCode && (
+                <Animatable.View animation="fadeInLeft" duration={500}>
+                  <Text style={styles.errorMsg}>
+                    {errors.storeCode.message}
+                  </Text>
+                </Animatable.View>
+              )}
+            </>
+          )}
+          name="storeCode"
+        />
 
-        <Text
-          style={[
-            styles.text_footer,
-            {
-              color: colors.secondary,
-              marginTop: 35,
-            },
-          ]}>
-          Password
-        </Text>
-        <View style={styles.action}>
-          <Feather name="lock" color={colors.secondary} size={20} />
-          <TextInput
-            placeholder="Your Password"
-            placeholderTextColor="#666666"
-            // secureTextEntry={data.secureTextEntry ? true : false}
-            style={[
-              styles.textInput,
-              {
-                color: colors.secondary,
-              },
-            ]}
-            autoCapitalize="none"
-            // onChangeText={val => handlePasswordChange(val)}
-          />
-          <TouchableOpacity
-          // onPress={updateSecureTextEntry}
-          >
-            {/* {data.secureTextEntry ? (
-              <Feather name="eye-off" color="grey" size={20} />
-            ) : (
-              <Feather name="eye" color="grey" size={20} />
-            )} */}
-          </TouchableOpacity>
-        </View>
-        {/* {data.isValidPassword ? null : (
-          <Animatable.View animation="fadeInLeft" duration={500}>
-            <Text style={styles.errorMsg}>
-              Password must be 8 characters long.
-            </Text>
-          </Animatable.View>
-        )} */}
+        <Controller
+          control={control}
+          rules={{
+            required: true,
+          }}
+          render={({field: {onChange, onBlur, value}}) => (
+            <>
+              <Text
+                style={[
+                  styles.text_footer,
+                  {
+                    color: colors.shadow,
+                    marginTop: 24,
+                  },
+                ]}>
+                用户名
+              </Text>
+              <View style={styles.action}>
+                <FontAwesome name="user-o" color={colors.secondary} size={20} />
+                <TextInput
+                  placeholder="用户名"
+                  placeholderTextColor="#666666"
+                  style={[
+                    styles.textInput,
+                    {
+                      color: colors.secondary,
+                    },
+                  ]}
+                  autoCapitalize="none"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+                {!errors.userName ? (
+                  <Animatable.View animation="bounceIn">
+                    <Feather name="check-circle" color="green" size={20} />
+                  </Animatable.View>
+                ) : null}
+              </View>
+              {errors.userName && (
+                <Animatable.View animation="fadeInLeft" duration={500}>
+                  <Text style={styles.errorMsg}>{errors.userName.message}</Text>
+                </Animatable.View>
+              )}
+            </>
+          )}
+          name="userName"
+        />
 
-        <TouchableOpacity>
-          <Text style={{color: '#009387', marginTop: 15}}>
-            Forgot password?
-          </Text>
+        <Controller
+          control={control}
+          rules={{
+            required: true,
+          }}
+          render={({field: {onChange, onBlur, value}}) => (
+            <>
+              <Text
+                style={[
+                  styles.text_footer,
+                  {
+                    color: colors.shadow,
+                    marginTop: 24,
+                  },
+                ]}>
+                密码
+              </Text>
+              <View style={styles.action}>
+                <Feather name="lock" color={colors.secondary} size={20} />
+                <TextInput
+                  placeholder="密码"
+                  placeholderTextColor="#666666"
+                  secureTextEntry={secureTextEntry ? true : false}
+                  style={[
+                    styles.textInput,
+                    {
+                      color: colors.secondary,
+                    },
+                  ]}
+                  autoCapitalize="none"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+                <TouchableOpacity onPress={updateSecureTextEntry}>
+                  {errors.password ? (
+                    <Feather name="eye" color="grey" size={20} />
+                  ) : (
+                    <Feather name="eye-off" color="grey" size={20} />
+                  )}
+                </TouchableOpacity>
+              </View>
+              {errors.password && (
+                <Animatable.View animation="fadeInLeft" duration={500}>
+                  <Text style={styles.errorMsg}>{errors.password.type}</Text>
+                </Animatable.View>
+              )}
+            </>
+          )}
+          name="password"
+        />
+
+        <TouchableOpacity
+          onPress={() => navigation.navigate('FindPasswordScreen')}>
+          <Text style={{color: '#096BDE', marginTop: 15}}>忘记密码?</Text>
         </TouchableOpacity>
         <View style={styles.button}>
           <TouchableOpacity
             style={styles.signIn}
-            onPress={() => {
-              // loginHandle(data.username, data.password);
-            }}>
+            onPress={handleSubmit(onSubmit)}>
             <LinearGradient
-              colors={['#08d4c4', '#01ab9d']}
+              colors={['#096BDE', '#3990FF']}
               style={styles.signIn}>
               <Text
                 style={[
@@ -135,17 +238,17 @@ const SignInScreen = ({}) => {
                     color: '#fff',
                   },
                 ]}>
-                Sign In
+                登录
               </Text>
             </LinearGradient>
           </TouchableOpacity>
 
           <TouchableOpacity
-            // onPress={() => navigation.navigate('SignUpScreen')}
+            onPress={() => navigation.navigate('SignUpScreen')}
             style={[
               styles.signIn,
               {
-                borderColor: '#009387',
+                borderColor: '#096BDE',
                 borderWidth: 1,
                 marginTop: 15,
               },
@@ -154,10 +257,10 @@ const SignInScreen = ({}) => {
               style={[
                 styles.textSign,
                 {
-                  color: '#009387',
+                  color: '#096BDE',
                 },
               ]}>
-              Sign Up
+              注册商家
             </Text>
           </TouchableOpacity>
         </View>
@@ -171,7 +274,7 @@ export default SignInScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#009387',
+    backgroundColor: '#096BDE',
   },
   header: {
     flex: 1,
