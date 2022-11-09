@@ -21,29 +21,100 @@ import {useNavigation} from '@react-navigation/native';
 import {AuthNavigationProp} from '../navigation/AuthStack';
 import {AuthContext} from '../components/context';
 import AsyncStorage from '@react-native-community/async-storage';
+import {object, string, TypeOf} from 'yup';
+import {yupResolver} from '@hookform/resolvers/yup';
+import CryptoJS from 'crypto-js';
+import JSEncrypt from 'jsencrypt';
+import axiosInstance from '../utils/request';
 
 const SignInScreen = () => {
+  const validationSchema = object({
+    storeCode: string()
+      .required('商家码不能为空')
+      .matches(/^[A-Z]{4}$/, '商家码格式错误'),
+    userName: string().required('用户名不能为空'),
+    password: string().required('密码不能为空'),
+  });
+
+  type ValidationInput = TypeOf<typeof validationSchema>;
+
   const {colors} = useTheme();
-  const {signIn} = React.useContext(AuthContext);
+  const {signIn} = React.useContext<any>(AuthContext);
+  const [loading, setLoading] = React.useState<boolean>(false);
+
   const [secureTextEntry, setSecureTextEntry] = React.useState(true);
   const navigation = useNavigation<AuthNavigationProp>();
   const {
     control,
     handleSubmit,
     formState: {errors},
-  } = useForm({
-    defaultValues: {
-      storeCode: '',
-      userName: '',
-      password: '',
-    },
+  } = useForm<ValidationInput>({
+    resolver: yupResolver(validationSchema),
   });
-  const onSubmit = async (data: {
-    password: string;
-    storeCode: string;
-    userName: string;
-  }) => {
-    signIn();
+  const onSubmit = async (value: any) => {
+    setLoading(true);
+    if (value.storeCode && value.userName && value.password) {
+      const jsencrypt = new JSEncrypt({});
+      jsencrypt.setPublicKey(
+        'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1d/4OjtZKvWDgp9yFaAiQmhAB0EvupK38QgcrdxcPjuK/BNhTHXgXAPPV1GNNN5dEctHpS2V10DFgqcjBT4iUm9U0edbexYhOmmoJhBp7IGwE1joM7lw0Ik8MfrLKJfDq2R6D8EnqnnBmVBc88jDRdhyw/W9PDxbAcTVAw0pmqLQpkuVID54gutjolt259Sb/70cHJT0fr9hqytUMl83yDy/6bw1rUBjjlr2ICDOZpsPaMB/blqDBRkfpBTwkJT2Xvax6Ik2e5I409RDQA9c/TDfsQYoWp8MqxzErHL66mPpQf05w7uFRB1CTsaaSIw9myHsi4m0FwYCziDs7pEv+QIDAQAB',
+      );
+      const password = jsencrypt.encrypt(
+        CryptoJS.SHA3(value.password as string, {
+          outputLength: 512,
+        }).toString(CryptoJS.enc.Base64),
+      );
+
+      try {
+        const {data} = await axiosInstance.post(
+          '/api/user/userLogin/magicApiJSON.do',
+          {
+            ...value,
+            password: password,
+            authInfo: {
+              reqUid: CryptoJS.MD5(new Date().getTime().toString()).toString(),
+            },
+          },
+        );
+
+        await AsyncStorage.setItem(
+          'authInfo',
+          JSON.stringify(data.loginInfo.authInfo),
+        );
+
+        const res = await axiosInstance.post(
+          '/api/user/userInfo/magicApiJSON.do',
+          {
+            authInfo: {
+              ...data.loginInfo.authInfo,
+              reqTime: new Date().getTime(),
+              reqUid: CryptoJS.MD5(
+                new Date().getTime() +
+                  data.loginInfo.authInfo.tenantId +
+                  data.loginInfo.authInfo.userName,
+              ).toString(),
+            },
+          },
+        );
+
+        await AsyncStorage.setItem(
+          'userInfo',
+          JSON.stringify(res.data.userInfo),
+        );
+
+        signIn(data.loginInfo.authInfo, res.data.userInfo);
+      } catch (error: any) {
+        console.log(error);
+        Alert.alert('登录失败', error.message || '网络异常', [
+          {
+            text: '确定',
+            style: 'cancel',
+          },
+        ]);
+      }
+    }
+
+    setLoading(false);
+    // signIn();
   };
 
   const updateSecureTextEntry = () => {
@@ -54,7 +125,7 @@ const SignInScreen = () => {
     <View style={styles.container}>
       <StatusBar backgroundColor="#096BDE" barStyle="light-content" />
       <View style={styles.header}>
-        <Text style={styles.text_header}>Welcome!</Text>
+        <Text style={styles.text_header}>欢迎!</Text>
       </View>
       <Animatable.View
         animation="fadeInUpBig"
@@ -66,11 +137,6 @@ const SignInScreen = () => {
         ]}>
         <Controller
           control={control}
-          // rules={{
-          //   required: true,
-          //   maxLength: 4,
-          //   minLength: 4,
-          // }}
           render={({field: {onChange, onBlur, value}}) => (
             <>
               <Text
@@ -122,9 +188,6 @@ const SignInScreen = () => {
 
         <Controller
           control={control}
-          // rules={{
-          //   required: true,
-          // }}
           render={({field: {onChange, onBlur, value}}) => (
             <>
               <Text
@@ -171,9 +234,6 @@ const SignInScreen = () => {
 
         <Controller
           control={control}
-          // rules={{
-          //   required: true,
-          // }}
           render={({field: {onChange, onBlur, value}}) => (
             <>
               <Text
@@ -213,7 +273,7 @@ const SignInScreen = () => {
               </View>
               {errors.password && (
                 <Animatable.View animation="fadeInLeft" duration={500}>
-                  <Text style={styles.errorMsg}>{errors.password.type}</Text>
+                  <Text style={styles.errorMsg}>{errors.password.message}</Text>
                 </Animatable.View>
               )}
             </>
