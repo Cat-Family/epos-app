@@ -6,14 +6,9 @@ import axios, {
   AxiosResponse,
 } from 'axios';
 import {useRecoilState} from 'recoil';
-// import authAtom from "../state/authState";
-// import userInfoAtom from "../state/userState";
 
 // export const baseURL: string = "http://81.70.97.93";
 export const baseURL: string = 'https://3901174m26.picp.vip';
-
-// const [auth, setAuth] = useRecoilState(authAtom);
-// const [user, setUser] = useRecoilState(userInfoAtom);
 
 const axiosInstance: AxiosInstance = axios.create({
   baseURL,
@@ -48,8 +43,6 @@ axiosInstance.interceptors.response.use(
     if (responseConfig.data.code == -14444) {
       AsyncStorage.removeItem('userInfo');
       AsyncStorage.removeItem('authInfo');
-      // setUser(undefined);
-      // setAuth(undefined);
       return Promise.reject(responseConfig.data);
     }
     return Promise.reject(responseConfig.data);

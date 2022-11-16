@@ -1,6 +1,7 @@
-import React, {useState} from 'react';
+import React, {useLayoutEffect, useState} from 'react';
 import {
   Alert,
+  Platform,
   StatusBar,
   StyleSheet,
   Text,
@@ -16,12 +17,16 @@ import {
 } from '@react-navigation/native';
 import {TextInput} from 'react-native-gesture-handler';
 import {List} from 'react-native-paper';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {AuthNavigationProp} from '../navigation/AuthStack';
 import axiosInstance from '../utils/request';
 import CryptoJS from 'crypto-js';
 import JSEncrypt from 'jsencrypt';
+import {Controller, useForm} from 'react-hook-form';
+import {yupResolver} from '@hookform/resolvers/yup';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {object, ref, string, TypeOf} from 'yup';
+import Feather from 'react-native-vector-icons/Feather';
 
 export type Props = {
   navigation: FindPasswordNavigationProp;
@@ -493,8 +498,38 @@ const VerfifyCodeScreen = () => {
 
 const ResetPasswordScreen = () => {
   const navigation = useNavigation<AuthNavigationProp>();
+  const validationSchema = object({
+    password: string()
+      .required('密码不能为空')
+      .min(8, '密码长度需要大于8')
+      .max(16, '密码长度不能超过16')
+      .matches(
+        /((?=.*\d)(?=.*\D)|(?=.*[a-zA-Z])(?=.*[^a-zA-Z]))(?!^.*[\u4E00-\u9FA5].*$)^\S{6,16}$/,
+        '密码必须包含两种字符(不能为空格或是中文字符)',
+      ),
+    verifyPassword: string()
+      .required('确认密码不能为空')
+      .oneOf([ref('password'), null], '密码不匹配'),
+  });
+  const [secureTextEntry, setSecureTextEntry] = React.useState(true);
 
-  const _goBack = () => navigation.goBack();
+  type ValidationInput = TypeOf<typeof validationSchema>;
+
+  const {
+    control,
+    handleSubmit,
+    getValues,
+    watch,
+    getFieldState,
+    formState: {errors, isSubmitted},
+  } = useForm<ValidationInput>({
+    resolver: yupResolver(validationSchema),
+  });
+  const onSubmit = () => {};
+
+  const updateSecureTextEntry = () => {
+    setSecureTextEntry(!secureTextEntry);
+  };
 
   return (
     <View style={styles.container}>
@@ -502,15 +537,142 @@ const ResetPasswordScreen = () => {
       <Appbar.Header style={{backgroundColor: '#F4F3F3'}}>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
         <Appbar.Content
-          title="重置密码"
+          title="设置新密码"
           titleStyle={{fontSize: 18}}
           style={{paddingLeft: '26%'}}
         />
       </Appbar.Header>
 
-      <Button
+      <Controller
+        defaultValue=""
+        control={control}
+        render={({field: {onChange, onBlur, value}}) => (
+          <>
+            <View
+              style={{
+                width: '96%',
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                padding: 10,
+                borderBottomColor: '#1111',
+                borderBottomWidth: 1,
+              }}>
+              <Text style={{color: '#000'}}>新密码</Text>
+              <TextInput
+                style={{flex: 1, paddingLeft: 20, color: '#666666'}}
+                placeholder="请设置新密码"
+                placeholderTextColor="#666666"
+                value={value}
+                autoCapitalize="none"
+                onBlur={onBlur}
+                onChangeText={onChange}
+                secureTextEntry={secureTextEntry ? true : false}
+              />
+              <TouchableOpacity onPress={updateSecureTextEntry}>
+                {!secureTextEntry ? (
+                  <Feather name="eye" color="grey" size={20} />
+                ) : (
+                  <Feather name="eye-off" color="grey" size={20} />
+                )}
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
+        name="password"
+      />
+
+      <Controller
+        defaultValue=""
+        control={control}
+        render={({field: {onChange, onBlur, value}}) => (
+          <>
+            <View
+              style={{
+                width: '96%',
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                padding: 10,
+                borderBottomColor: '#1111',
+                borderBottomWidth: 1,
+              }}>
+              <Text style={{color: '#000'}}>确认密码</Text>
+              <TextInput
+                style={{flex: 1, paddingLeft: 20, color: '#666666'}}
+                placeholder="请再次输入新密码"
+                placeholderTextColor="#666666"
+                autoCapitalize="none"
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                secureTextEntry={secureTextEntry ? true : false}
+              />
+            </View>
+          </>
+        )}
+        name="verifyPassword"
+      />
+
+      <View
         style={{
-          width: 280,
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          padding: 10,
+        }}>
+        <Ionicons
+          style={{padding: 2}}
+          size={18}
+          color={isSubmitted ? (errors.password ? 'grey' : 'green') : 'grey'}
+          name="ios-checkmark-circle-outline"
+        />
+        <Text style={{color: '#666666'}}>密码由8-16位数字、字母或符号组成</Text>
+      </View>
+
+      <View
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          padding: 10,
+        }}>
+        <Ionicons
+          style={{padding: 2}}
+          size={18}
+          color={isSubmitted ? (errors.password ? 'grey' : 'green') : 'grey'}
+          name="ios-checkmark-circle-outline"
+        />
+        <Text style={{color: '#666666'}}>至少两种以上字符</Text>
+      </View>
+
+      <View
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          padding: 10,
+        }}>
+        <Ionicons
+          style={{padding: 2}}
+          size={18}
+          color={
+            isSubmitted ? (errors.verifyPassword ? 'red' : 'green') : 'grey'
+          }
+          name={
+            errors.verifyPassword
+              ? 'ios-close-circle-outline'
+              : 'ios-checkmark-circle-outline'
+          }
+        />
+        <Text style={{color: '#666666'}}>
+          {errors.verifyPassword?.message || '确认密码必须一致'}
+        </Text>
+      </View>
+      <Button
+        disabled={!watch('password') && !watch('verifyPassword')}
+        style={{
+          width: '96%',
           height: 58,
           borderRadius: 4,
           alignSelf: 'center',
@@ -520,9 +682,12 @@ const ResetPasswordScreen = () => {
         labelStyle={{textAlign: 'center'}}
         mode="contained"
         buttonColor="#096BDE"
-        onPress={() => navigation.navigate('SignInScreen')}>
+        onPress={handleSubmit(onSubmit)}>
         提交
       </Button>
+      <Text style={{color: '#666666', padding: 20}}>
+        Tips: 新密码不得与旧密码相同
+      </Text>
     </View>
   );
 };
@@ -541,7 +706,7 @@ const Stack = createNativeStackNavigator<FindPasswordParamList>();
 const FindPasswordStack: React.FC<Props> = ({navigation}) => {
   return (
     <Stack.Navigator
-      initialRouteName="ForgotPassWordScreen"
+      initialRouteName="ResetPasswordScreen"
       screenOptions={{headerShown: false}}>
       <Stack.Screen
         name="ForgotPassWordScreen"
@@ -588,5 +753,11 @@ const styles = StyleSheet.create({
     color: '#05375a',
     backgroundColor: '#fff',
     borderRadius: 4,
+  },
+  textInput: {
+    flex: 1,
+    marginTop: Platform.OS === 'ios' ? 0 : -12,
+    paddingLeft: 10,
+    color: '#fff',
   },
 });
