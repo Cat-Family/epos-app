@@ -3,7 +3,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import SignInScreen from '../screens/SignInScreen';
 import OnBoardingScreen from '../screens/OnBoardingScreen';
 import SignUpScreen from '../screens/SignUpScreen';
-import FindPasswordScreen from '../screens/FindPasswordScreen';
+import FindPasswordStack from '../screens/FindPasswordStack';
 import {
   CompositeNavigationProp,
   NavigationProp,
@@ -14,7 +14,7 @@ export type AuthParamList = {
   OnBoardingScreen: undefined;
   SignInScreen: undefined;
   SignUpScreen: undefined;
-  FindPasswordScreen: undefined;
+  FindPasswordStack: undefined;
 };
 
 export type AuthNavigationProp = NavigationProp<AuthParamList>;
@@ -29,7 +29,7 @@ const AuthStack = () => {
       <Stack.Screen name="OnBoardingScreen" component={OnBoardingScreen} />
       <Stack.Screen name="SignInScreen" component={SignInScreen} />
       <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
-      <Stack.Screen name="FindPasswordScreen" component={FindPasswordScreen} />
+      <Stack.Screen name="FindPasswordStack" component={FindPasswordStack} />
     </Stack.Navigator>
   );
 };

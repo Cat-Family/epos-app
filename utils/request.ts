@@ -10,7 +10,7 @@ import {useRecoilState} from 'recoil';
 // import userInfoAtom from "../state/userState";
 
 // export const baseURL: string = "http://81.70.97.93";
-export const baseURL: string = 'https://290b8407y1.oicp.vip';
+export const baseURL: string = 'https://3901174m26.picp.vip';
 
 // const [auth, setAuth] = useRecoilState(authAtom);
 // const [user, setUser] = useRecoilState(userInfoAtom);

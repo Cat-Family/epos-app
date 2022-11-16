@@ -52,6 +52,31 @@ const App = () => {
       userToken: null,
     },
   );
+  const [isDarkTheme, setIsDarkTheme] = React.useState(false);
+
+  const CustomDefaultTheme = {
+    ...NavigationDefaultTheme,
+    ...PaperDefaultTheme,
+    colors: {
+      ...NavigationDefaultTheme.colors,
+      ...PaperDefaultTheme.colors,
+      background: '#ffffff',
+      text: '#333333',
+    },
+  };
+
+  const CustomDarkTheme = {
+    ...NavigationDarkTheme,
+    ...PaperDarkTheme,
+    colors: {
+      ...NavigationDarkTheme.colors,
+      ...PaperDarkTheme.colors,
+      background: '#333333',
+      text: '#ffffff',
+    },
+  };
+
+  const theme = isDarkTheme ? CustomDarkTheme : CustomDefaultTheme;
 
   React.useEffect(() => {
     // Fetch the token from storage then navigate to our appropriate place
@@ -106,6 +131,7 @@ const App = () => {
       // In the example, we'll use a dummy token
       // dispatch({type: 'SIGN_IN', token: 'dummy--token'});
       // },
+      
     }),
     [],
   );
@@ -131,8 +157,8 @@ const App = () => {
 
   return (
     <AuthContext.Provider value={authContext}>
-      <PaperProvider>
-        <NavigationContainer>
+      <PaperProvider theme={theme}>
+        <NavigationContainer theme={theme}>
           {state.authInfo ? <AppStack /> : <AuthStack />}
         </NavigationContainer>
       </PaperProvider>

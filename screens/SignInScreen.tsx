@@ -15,6 +15,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useForm, Controller} from 'react-hook-form';
+import {Button, Paragraph, Dialog, Portal} from 'react-native-paper';
 
 import {useTheme} from 'react-native-paper';
 import {useNavigation} from '@react-navigation/native';
@@ -41,6 +42,8 @@ const SignInScreen = () => {
   const {colors} = useTheme();
   const {signIn} = React.useContext<any>(AuthContext);
   const [loading, setLoading] = React.useState<boolean>(false);
+  const [isAlert, setIsAlert] = React.useState<boolean>(false);
+  const [alertMessage, setAlertMessage] = React.useState<any>();
 
   const [secureTextEntry, setSecureTextEntry] = React.useState(true);
   const navigation = useNavigation<AuthNavigationProp>();
@@ -71,6 +74,7 @@ const SignInScreen = () => {
             ...value,
             password: password,
             authInfo: {
+              reqTime: new Date().getTime(),
               reqUid: CryptoJS.MD5(new Date().getTime().toString()).toString(),
             },
           },
@@ -103,18 +107,11 @@ const SignInScreen = () => {
 
         signIn(data.loginInfo.authInfo, res.data.userInfo);
       } catch (error: any) {
-        console.log(error);
-        Alert.alert('登录失败', error.message || '网络异常', [
-          {
-            text: '确定',
-            style: 'cancel',
-          },
-        ]);
+        setIsAlert(true);
+        setAlertMessage({message: error.message || '网络异常'});
       }
     }
-
     setLoading(false);
-    // signIn();
   };
 
   const updateSecureTextEntry = () => {
@@ -132,7 +129,7 @@ const SignInScreen = () => {
         style={[
           styles.footer,
           {
-            // backgroundColor: colors.background,
+            backgroundColor: colors.background,
           },
         ]}>
         <Controller
@@ -168,11 +165,6 @@ const SignInScreen = () => {
                   onBlur={onBlur}
                   onChangeText={onChange}
                 />
-                {!errors.userName ? (
-                  <Animatable.View animation="bounceIn">
-                    <Feather name="check-circle" color="green" size={20} />
-                  </Animatable.View>
-                ) : null}
               </View>
               {errors.storeCode && (
                 <Animatable.View animation="fadeInLeft" duration={500}>
@@ -216,11 +208,6 @@ const SignInScreen = () => {
                   onChangeText={onChange}
                   value={value}
                 />
-                {!errors.userName ? (
-                  <Animatable.View animation="bounceIn">
-                    <Feather name="check-circle" color="green" size={20} />
-                  </Animatable.View>
-                ) : null}
               </View>
               {errors.userName && (
                 <Animatable.View animation="fadeInLeft" duration={500}>
@@ -264,7 +251,7 @@ const SignInScreen = () => {
                   value={value}
                 />
                 <TouchableOpacity onPress={updateSecureTextEntry}>
-                  {errors.password ? (
+                  {!secureTextEntry ? (
                     <Feather name="eye" color="grey" size={20} />
                   ) : (
                     <Feather name="eye-off" color="grey" size={20} />
@@ -282,50 +269,66 @@ const SignInScreen = () => {
         />
 
         <TouchableOpacity
-          onPress={() => navigation.navigate('FindPasswordScreen')}>
+          onPress={() => navigation.navigate('FindPasswordStack')}>
           <Text style={{color: '#096BDE', marginTop: 15}}>忘记密码?</Text>
         </TouchableOpacity>
         <View style={styles.button}>
-          <TouchableOpacity
-            style={styles.signIn}
+          <Button
+            loading={loading}
+            style={{width: '100%', height: 50, borderRadius: 10}}
+            contentStyle={{width: '100%', height: '100%'}}
+            labelStyle={{textAlign: 'center'}}
+            mode="contained"
+            buttonColor="#096BDE"
             onPress={handleSubmit(onSubmit)}>
-            <LinearGradient
-              colors={['#096BDE', '#3990FF']}
-              style={styles.signIn}>
-              <Text
-                style={[
-                  styles.textSign,
-                  {
-                    color: '#fff',
-                  },
-                ]}>
-                登录
-              </Text>
-            </LinearGradient>
-          </TouchableOpacity>
+            登录
+          </Button>
 
-          <TouchableOpacity
-            onPress={() => navigation.navigate('SignUpScreen')}
-            style={[
-              styles.signIn,
-              {
-                borderColor: '#096BDE',
-                borderWidth: 1,
-                marginTop: 15,
-              },
-            ]}>
-            <Text
-              style={[
-                styles.textSign,
-                {
-                  color: '#096BDE',
-                },
-              ]}>
-              注册商家
-            </Text>
-          </TouchableOpacity>
+          <Button
+            style={{
+              width: '100%',
+              height: 50,
+              borderRadius: 10,
+              borderWidth: 1,
+              marginTop: 15,
+              borderColor: '#096BDE',
+            }}
+            contentStyle={{width: '100%', height: '100%'}}
+            labelStyle={{textAlign: 'center', color: '#096BDE'}}
+            mode="outlined"
+            onPress={() => navigation.navigate('SignUpScreen')}>
+            注册商家
+          </Button>
         </View>
       </Animatable.View>
+
+      <Portal>
+        <Dialog
+          visible={isAlert}
+          style={{
+            backgroundColor: colors.background,
+          }}
+          onDismiss={() => {
+            setAlertMessage(null);
+            setIsAlert(false);
+          }}>
+          <Dialog.Icon icon="alert" color={colors.error} />
+          <Dialog.Title style={{textAlign: 'center'}}>登录失败</Dialog.Title>
+          <Dialog.Content>
+            <Paragraph>{alertMessage?.message}</Paragraph>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button
+              labelStyle={{color: '#096BDE'}}
+              onPress={() => {
+                setAlertMessage(null);
+                setIsAlert(false);
+              }}>
+              确定
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </View>
   );
 };
