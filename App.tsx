@@ -159,7 +159,7 @@ const App = () => {
     <AuthContext.Provider value={authContext}>
       <PaperProvider theme={theme}>
         <NavigationContainer theme={theme}>
-          {state.authInfo ? <AppStack /> : <AuthStack />}
+          {!state.authInfo ? <AppStack /> : <AuthStack />}
         </NavigationContainer>
       </PaperProvider>
     </AuthContext.Provider>
