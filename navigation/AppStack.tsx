@@ -19,16 +19,10 @@ const AppStack = () => {
       drawerContent={props => <CustomDrawer {...props} />}
       screenOptions={{
         headerShown: true,
-        drawerActiveBackgroundColor: '#aa18ea',
-        drawerActiveTintColor: '#fff',
-        drawerInactiveTintColor: '#333',
-        drawerLabelStyle: {
-          marginLeft: -25,
-          fontSize: 15,
-        },
+        drawerStyle: {},
       }}>
       <Drawer.Screen
-        name="Home"
+        name="千渝掌柜"
         component={TabNavigator}
         options={{
           drawerIcon: ({color}) => (
