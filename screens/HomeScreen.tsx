@@ -18,18 +18,6 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
-      <View
-        style={{
-          flexDirection: 'row',
-          borderColor: '#C6C6C6',
-          borderWidth: 1,
-          borderRadius: 8,
-          paddingHorizontal: 10,
-          paddingVertical: 8,
-        }}>
-        <TextInput placeholder="Search" />
-      </View>
-    </SafeAreaView>
+    <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}></SafeAreaView>
   );
 }

@@ -25,7 +25,7 @@ const VerfifyCodeScreen = () => {
   const handleSubmit = async () => {
     try {
       const {data} = await axiosInstance.post(
-        '/api/user/BackPassword/magicApiJSON.do',
+        '/user/BackPassword/magicApiJSON.do',
         {
           SigninName: route.params.signinName,
           Type: 1,
@@ -39,7 +39,10 @@ const VerfifyCodeScreen = () => {
           },
         },
       );
-      navigation.navigate('ResetPasswordScreen');
+      navigation.navigate('ResetPasswordScreen', {
+        signinName: route.params.signinName,
+        verifyCode: data?.verifyCode,
+      });
       console.log(data);
     } catch (error: any) {
       Alert.alert(error.message || 'NetWork Error');

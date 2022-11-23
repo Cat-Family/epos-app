@@ -13,40 +13,14 @@ import {Route} from '@react-navigation/routers';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 
 const Tab = createMaterialBottomTabNavigator();
-const Stack = createNativeStackNavigator();
-
-const HomeStack = () => {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{headerShown: false}}
-      />
-    </Stack.Navigator>
-  );
-};
 
 const TabNavigator = () => {
   return (
-    <Tab.Navigator
-      screenOptions={
-        {
-          // headerShown: false,
-          // tabBarShowLabel: false,
-          // tabBarStyle: {backgroundColor: '#AD40AF'},
-          // tabBarInactiveTintColor: '#fff',
-          // tabBarActiveTintColor: 'yellow',
-        }
-      }>
+    <Tab.Navigator>
       <Tab.Screen
         name="Home2"
-        component={HomeStack}
+        component={HomeScreen}
         options={({route}) => ({
-          tabBarStyle: {
-            // display: getTabBarVisibility(route),
-            // backgroundColor: '#AD40AF',
-          },
           tabBarIcon: ({color}) => (
             <Ionicons name="home-outline" color={color} size={24} />
           ),
@@ -57,7 +31,6 @@ const TabNavigator = () => {
         component={CartScreen}
         options={{
           tabBarBadge: 3,
-          // tabBarBadgeStyle: {backgroundColor: 'yellow'},
           tabBarIcon: ({color}) => (
             <Feather name="shopping-bag" color={color} size={24} />
           ),

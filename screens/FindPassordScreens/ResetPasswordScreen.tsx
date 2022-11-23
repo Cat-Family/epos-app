@@ -9,17 +9,22 @@ import {
   View,
 } from 'react-native';
 import {Appbar, Button} from 'react-native-paper';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import {TextInput} from 'react-native-gesture-handler';
 import {Controller, useForm} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {object, ref, string, TypeOf} from 'yup';
 import Feather from 'react-native-vector-icons/Feather';
-import { FindPasswordNavigationProp } from '../../navigation/FindPasswordStack';
+import axiosInstance from '../../utils/request';
+import {AuthNavigationProp} from '../../navigation/AuthStack';
+import CryptoJS from 'crypto-js';
+import JSEncrypt from 'jsencrypt';
 
 const ResetPasswordScreen = () => {
-  const navigation = useNavigation<FindPasswordNavigationProp>();
+  const navigation = useNavigation<AuthNavigationProp>();
+  const route = useRoute<any>();
+
   const validationSchema = object({
     password: string()
       .required('密码不能为空')
@@ -47,7 +52,41 @@ const ResetPasswordScreen = () => {
   } = useForm<ValidationInput>({
     resolver: yupResolver(validationSchema),
   });
-  const onSubmit = () => {};
+  const onSubmit = async (value: any) => {
+    const jsencrypt = new JSEncrypt({});
+    jsencrypt.setPublicKey(
+      'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1d/4OjtZKvWDgp9yFaAiQmhAB0EvupK38QgcrdxcPjuK/BNhTHXgXAPPV1GNNN5dEctHpS2V10DFgqcjBT4iUm9U0edbexYhOmmoJhBp7IGwE1joM7lw0Ik8MfrLKJfDq2R6D8EnqnnBmVBc88jDRdhyw/W9PDxbAcTVAw0pmqLQpkuVID54gutjolt259Sb/70cHJT0fr9hqytUMl83yDy/6bw1rUBjjlr2ICDOZpsPaMB/blqDBRkfpBTwkJT2Xvax6Ik2e5I409RDQA9c/TDfsQYoWp8MqxzErHL66mPpQf05w7uFRB1CTsaaSIw9myHsi4m0FwYCziDs7pEv+QIDAQAB',
+    );
+    try {
+      const response = await axiosInstance.post(
+        '/user/ResetPassword/magicApiJSON.do',
+        {
+          SigninName: route.params.signinName,
+          Password: jsencrypt.encrypt(
+            CryptoJS.SHA3(value.password as string, {
+              outputLength: 512,
+            }).toString(CryptoJS.enc.Base64),
+          ),
+          RepeatPassword: jsencrypt.encrypt(
+            CryptoJS.SHA3(value.verifyPassword as string, {
+              outputLength: 512,
+            }).toString(CryptoJS.enc.Base64),
+          ),
+          VerifyCode: route.params.verifyCode,
+          authInfo: {
+            reqTime: new Date().getTime(),
+            reqUid: CryptoJS.MD5(new Date().getTime().toString()).toString(),
+          },
+        },
+      );
+
+      console.log(response);
+      navigation.navigate('SignInScreen');
+    } catch (error: any) {
+      Alert.alert(error.message || 'NetWork Error');
+      console.log(error);
+    }
+  };
 
   const updateSecureTextEntry = () => {
     setSecureTextEntry(!secureTextEntry);

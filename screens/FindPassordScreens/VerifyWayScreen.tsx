@@ -21,7 +21,7 @@ const VerifyWayScreen = () => {
 
     try {
       const {data} = await axiosInstance.post(
-        '/api/user/BackPassword/magicApiJSON.do',
+        '/user/BackPassword/magicApiJSON.do',
         {
           SigninName: route.params.userName,
           Type: 1,

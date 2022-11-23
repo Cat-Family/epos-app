@@ -16,7 +16,7 @@ export type FindPasswordParamList = {
   FindPasswordWayScreen: {};
   VerifyWayScreen: {};
   VerfifyCodeScreen: {};
-  ResetPasswordScreen: undefined;
+  ResetPasswordScreen: {};
 };
 
 export type FindPasswordNavigationProp = NavigationProp<FindPasswordParamList>;
@@ -25,7 +25,7 @@ const Stack = createNativeStackNavigator<FindPasswordParamList>();
 const FindPasswordStack: React.FC<Props> = ({navigation}) => {
   return (
     <Stack.Navigator
-      initialRouteName="ResetPasswordScreen"
+      initialRouteName="ForgotPassWordScreen"
       screenOptions={{headerShown: false}}>
       <Stack.Screen
         name="ForgotPassWordScreen"

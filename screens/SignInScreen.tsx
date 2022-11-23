@@ -69,7 +69,7 @@ const SignInScreen = () => {
 
       try {
         const {data} = await axiosInstance.post(
-          '/api/user/userLogin/magicApiJSON.do',
+          '/user/UserLogin/magicApiJSON.do',
           {
             ...value,
             password: password,
@@ -85,20 +85,17 @@ const SignInScreen = () => {
           JSON.stringify(data.loginInfo.authInfo),
         );
 
-        const res = await axiosInstance.post(
-          '/api/user/userInfo/magicApiJSON.do',
-          {
-            authInfo: {
-              ...data.loginInfo.authInfo,
-              reqTime: new Date().getTime(),
-              reqUid: CryptoJS.MD5(
-                new Date().getTime() +
-                  data.loginInfo.authInfo.tenantId +
-                  data.loginInfo.authInfo.userName,
-              ).toString(),
-            },
+        const res = await axiosInstance.post('/user/UserInfo/magicApiJSON.do', {
+          authInfo: {
+            ...data.loginInfo.authInfo,
+            reqTime: new Date().getTime(),
+            reqUid: CryptoJS.MD5(
+              new Date().getTime() +
+                data.loginInfo.authInfo.tenantId +
+                data.loginInfo.authInfo.userName,
+            ).toString(),
           },
-        );
+        });
 
         await AsyncStorage.setItem(
           'userInfo',
@@ -107,6 +104,7 @@ const SignInScreen = () => {
 
         signIn(data.loginInfo.authInfo, res.data.userInfo);
       } catch (error: any) {
+        console.log(error);
         setIsAlert(true);
         setAlertMessage({message: error.message || '网络异常'});
       }

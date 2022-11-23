@@ -5,10 +5,9 @@ import axios, {
   AxiosRequestConfig,
   AxiosResponse,
 } from 'axios';
-import {useRecoilState} from 'recoil';
 
-// export const baseURL: string = "http://81.70.97.93";
-export const baseURL: string = 'https://3901174m26.picp.vip';
+// export const baseURL: string = 'https://3901174m26.picp.vip/api/appClient';
+export const baseURL: string = 'https://qianyushop.shop/api/appClient';
 
 const axiosInstance: AxiosInstance = axios.create({
   baseURL,

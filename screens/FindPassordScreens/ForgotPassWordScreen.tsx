@@ -19,11 +19,11 @@ const ForgotPassWordScreen = () => {
   const handleSubmit = async () => {
     try {
       const {data} = await axiosInstance.post(
-        '/api/user/IsValidAccount/magicApiJSON.do',
+        '/user/IsValidAccount/magicApiJSON.do',
         {
           userName,
-          reqTime: new Date().getTime(),
           authInfo: {
+            reqTime: new Date().getTime(),
             reqUid: CryptoJS.MD5(new Date().getTime().toString()).toString(),
           },
         },
