@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {Appbar, Button} from 'react-native-paper';
+import {Appbar, Button, Dialog, Paragraph, Portal} from 'react-native-paper';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {TextInput} from 'react-native-gesture-handler';
 import {Controller, useForm} from 'react-hook-form';
@@ -23,7 +23,11 @@ import JSEncrypt from 'jsencrypt';
 
 const ResetPasswordScreen = () => {
   const navigation = useNavigation<AuthNavigationProp>();
+  const authNavigation = useNavigation<AuthNavigationProp>();
   const route = useRoute<any>();
+  const [isAlert, setIsAlert] = React.useState<boolean>(false);
+  const [alertMessage, setAlertMessage] = React.useState<any>();
+  const [loading, setLoading] = useState(false);
 
   const validationSchema = object({
     password: string()
@@ -53,6 +57,7 @@ const ResetPasswordScreen = () => {
     resolver: yupResolver(validationSchema),
   });
   const onSubmit = async (value: any) => {
+    setLoading(true);
     const jsencrypt = new JSEncrypt({});
     jsencrypt.setPublicKey(
       'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1d/4OjtZKvWDgp9yFaAiQmhAB0EvupK38QgcrdxcPjuK/BNhTHXgXAPPV1GNNN5dEctHpS2V10DFgqcjBT4iUm9U0edbexYhOmmoJhBp7IGwE1joM7lw0Ik8MfrLKJfDq2R6D8EnqnnBmVBc88jDRdhyw/W9PDxbAcTVAw0pmqLQpkuVID54gutjolt259Sb/70cHJT0fr9hqytUMl83yDy/6bw1rUBjjlr2ICDOZpsPaMB/blqDBRkfpBTwkJT2Xvax6Ik2e5I409RDQA9c/TDfsQYoWp8MqxzErHL66mPpQf05w7uFRB1CTsaaSIw9myHsi4m0FwYCziDs7pEv+QIDAQAB',
@@ -80,12 +85,12 @@ const ResetPasswordScreen = () => {
         },
       );
 
-      console.log(response);
       navigation.navigate('SignInScreen');
     } catch (error: any) {
-      Alert.alert(error.message || 'NetWork Error');
-      console.log(error);
+      setIsAlert(true);
+      setAlertMessage(error.message || 'NetWork Error');
     }
+    setLoading(false);
   };
 
   const updateSecureTextEntry = () => {
@@ -231,6 +236,7 @@ const ResetPasswordScreen = () => {
         </Text>
       </View>
       <Button
+        loading={loading}
         disabled={!watch('password') && !watch('verifyPassword')}
         style={{
           width: '96%',
@@ -249,6 +255,49 @@ const ResetPasswordScreen = () => {
       <Text style={{color: '#666666', padding: 20}}>
         Tips: 新密码不得与旧密码相同
       </Text>
+
+      <Button
+        style={{
+          width: '96%',
+          height: 58,
+          borderRadius: 4,
+          alignSelf: 'center',
+          marginTop: 20,
+          borderColor: '#096BDE',
+        }}
+        contentStyle={{width: '100%', height: '100%'}}
+        labelStyle={{textAlign: 'center', color: '#096BDE'}}
+        mode="outlined"
+        onPress={() => authNavigation.navigate('SignInScreen')}>
+        立即登录
+      </Button>
+
+      <Portal>
+        <Dialog
+          visible={isAlert}
+          onDismiss={() => {
+            setAlertMessage(null);
+            setIsAlert(false);
+          }}>
+          <Dialog.Icon icon="alert" color="rgb(105, 0, 5)" />
+          <Dialog.Title style={{textAlign: 'center'}}>
+            重置密码失败
+          </Dialog.Title>
+          <Dialog.Content>
+            <Paragraph>{alertMessage?.message}</Paragraph>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button
+              labelStyle={{color: '#096BDE'}}
+              onPress={() => {
+                setAlertMessage(null);
+                setIsAlert(false);
+              }}>
+              确定
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </View>
   );
 };

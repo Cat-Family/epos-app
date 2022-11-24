@@ -38,12 +38,12 @@ const FindPasswordStack: React.FC<Props> = ({navigation}) => {
       <Stack.Screen
         name="VerifyWayScreen"
         component={VerifyWayScreen}
-        options={({route}: any) => ({title: route.params.method})}
+        options={({route}: any) => ({title: route.params?.method})}
       />
       <Stack.Screen
         name="VerfifyCodeScreen"
         component={VerfifyCodeScreen}
-        options={({route}: any) => ({title: route.params.method})}
+        options={({route}: any) => ({title: route.params?.method})}
       />
       <Stack.Screen
         name="ResetPasswordScreen"

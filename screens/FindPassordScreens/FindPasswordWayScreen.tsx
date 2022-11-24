@@ -7,15 +7,17 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {Appbar} from 'react-native-paper';
+import {Appbar, Button} from 'react-native-paper';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {List} from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {FindPasswordNavigationProp} from '../../navigation/FindPasswordStack';
+import {AuthNavigationProp} from '../../navigation/AuthStack';
 
 const FindPasswordWayScreen = () => {
   const navigation = useNavigation<FindPasswordNavigationProp>();
+  const authNavigation = useNavigation<AuthNavigationProp>();
   const route = useRoute<any>();
   return (
     <View style={styles.container}>
@@ -63,7 +65,7 @@ const FindPasswordWayScreen = () => {
             style={{
               backgroundColor: '#fff',
               width: '90%',
-              height: 70,
+              height: 80,
               borderRadius: 4,
               alignSelf: 'center',
               marginTop: 10,
@@ -88,7 +90,7 @@ const FindPasswordWayScreen = () => {
             style={{
               backgroundColor: '#fff',
               width: '90%',
-              height: 70,
+              height: 80,
               borderRadius: 4,
               alignSelf: 'center',
               marginTop: 10,
@@ -116,6 +118,22 @@ const FindPasswordWayScreen = () => {
           </TouchableOpacity>
         )}
       </List.Section>
+      <View style={{flex: 1}} />
+      <Button
+        style={{
+          width: 280,
+          height: 58,
+          borderRadius: 4,
+          alignSelf: 'center',
+          marginBottom: 24,
+          borderColor: '#096BDE',
+        }}
+        contentStyle={{width: '100%', height: '100%'}}
+        labelStyle={{textAlign: 'center', color: '#096BDE'}}
+        mode="outlined"
+        onPress={() => authNavigation.navigate('SignInScreen')}>
+        立即登录
+      </Button>
     </View>
   );
 };

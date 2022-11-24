@@ -13,42 +13,39 @@ import {
 } from '@react-navigation/drawer';
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import Fontisto from 'react-native-vector-icons/Fontisto';
 import {AuthContext} from './context';
+import {Avatar} from 'react-native-paper';
+import {CustomDefaultTheme} from '../app/theme';
 
 interface IProps {}
 
 const CustomDrawer: FC<IProps> = props => {
-  const {signOut} = React.useContext(AuthContext);
-
+  const {signOut, userInfo} = React.useContext<any>(AuthContext);
   return (
     <>
       <ImageBackground
-        //   source={require('../assets/images/menu-bg.jpeg')}
-        style={{padding: 20, backgroundColor: 'rgb(0, 94, 180)'}}>
-        <Image
-          // source={require('../assets/images/user-profile.jpg')}
-          style={{height: 80, width: 80, borderRadius: 40}}
-        />
-        <Text
+        style={{
+          height: 120,
+          padding: 20,
+          backgroundColor: 'rgb(0, 94, 180)',
+          borderBottomRightRadius: 6,
+          borderBottomLeftRadius: 6,
+        }}>
+        <Avatar.Text size={40} label={userInfo?.basicInfo?.userName} />
+        <View
           style={{
-            color: '#fff',
-            fontSize: 18,
-            fontFamily: 'Roboto-Medium',
-            // marginBottom: 5,
+            flexDirection: 'row',
+            alignItems: 'center',
           }}>
-          John Doe
-        </Text>
-        <View style={{flexDirection: 'row'}}>
           <Text
             style={{
-              color: '#fff',
-              fontFamily: 'Roboto-Regular',
               marginRight: 5,
+              color: '#fff',
             }}>
-            280 Coins
+            {userInfo.storeInfo.storeName}
           </Text>
-          <FontAwesome5 name="coins" size={14} color="#fff" />
+          <Fontisto name="shopping-store" size={14} color="#fff" />
         </View>
       </ImageBackground>
       <DrawerContentScrollView {...props} contentContainerStyle={{}}>
@@ -59,7 +56,7 @@ const CustomDrawer: FC<IProps> = props => {
           icon={({color}) => (
             <Ionicons color={color} name="share-social-outline" size={22} />
           )}
-          label="Tell a Friend"
+          label="分享APP"
           onPress={() => console.log('re')}
         />
         <DrawerItem
@@ -69,7 +66,7 @@ const CustomDrawer: FC<IProps> = props => {
           icon={({color}) => (
             <Ionicons color={color} name="exit-outline" size={22} />
           )}
-          label="Tell a Friend"
+          label="退出登录"
         />
       </View>
     </>

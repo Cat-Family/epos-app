@@ -1,19 +1,25 @@
 import React, {useState} from 'react';
-import {Alert, Platform, StatusBar, StyleSheet, Text, View} from 'react-native';
-import {Appbar, Button} from 'react-native-paper';
+import {Platform, StatusBar, StyleSheet, Text, View} from 'react-native';
+import {Appbar, Button, Dialog, Paragraph, Portal} from 'react-native-paper';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {TextInput} from 'react-native-gesture-handler';
 import CryptoJS from 'crypto-js';
 import JSEncrypt from 'jsencrypt';
 import axiosInstance from '../../utils/request';
 import {FindPasswordNavigationProp} from '../../navigation/FindPasswordStack';
+import {AuthNavigationProp} from '../../navigation/AuthStack';
 
 const VerifyWayScreen = () => {
   const navigation = useNavigation<FindPasswordNavigationProp>();
+  const authNavigation = useNavigation<AuthNavigationProp>();
   const route = useRoute<any>();
   const [value, setValue] = useState<string>('');
+  const [loading, setLoading] = useState(false);
+  const [isAlert, setIsAlert] = React.useState<boolean>(false);
+  const [alertMessage, setAlertMessage] = React.useState<any>();
 
   const handleSubmit = async () => {
+    setLoading(true);
     const jsencrypt = new JSEncrypt({});
     jsencrypt.setPublicKey(
       'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1d/4OjtZKvWDgp9yFaAiQmhAB0EvupK38QgcrdxcPjuK/BNhTHXgXAPPV1GNNN5dEctHpS2V10DFgqcjBT4iUm9U0edbexYhOmmoJhBp7IGwE1joM7lw0Ik8MfrLKJfDq2R6D8EnqnnBmVBc88jDRdhyw/W9PDxbAcTVAw0pmqLQpkuVID54gutjolt259Sb/70cHJT0fr9hqytUMl83yDy/6bw1rUBjjlr2ICDOZpsPaMB/blqDBRkfpBTwkJT2Xvax6Ik2e5I409RDQA9c/TDfsQYoWp8MqxzErHL66mPpQf05w7uFRB1CTsaaSIw9myHsi4m0FwYCziDs7pEv+QIDAQAB',
@@ -23,9 +29,9 @@ const VerifyWayScreen = () => {
       const {data} = await axiosInstance.post(
         '/user/BackPassword/magicApiJSON.do',
         {
-          SigninName: route.params.userName,
+          SigninName: route.params?.userName,
           Type: 1,
-          OpeType: route.params.method === 'phone' ? 1 : 2,
+          OpeType: route.params?.method === 'phone' ? 1 : 2,
           Email: route.params?.email && jsencrypt.encrypt(value),
           Phone: route.params?.phone && jsencrypt.encrypt(value),
           VerCode: '',
@@ -40,10 +46,10 @@ const VerifyWayScreen = () => {
         method: route?.params?.method,
       });
     } catch (error: any) {
-      console.log(error);
-
-      Alert.alert(error.message || 'NetWork Error');
+      setIsAlert(true);
+      setAlertMessage(error.message || 'NetWork Error');
     }
+    setLoading(false);
   };
 
   const _goBack = () => navigation.goBack();
@@ -91,7 +97,7 @@ const VerifyWayScreen = () => {
           {route.params.method === 'phone' &&
             `请填写完整的手机号 ${route.params?.phone} 以验证身份`}
           {route.params.method === 'email' &&
-            `请填写完整的邮件 ${route.params?.email} 以验证身份`}
+            `请填写完整的邮箱 ${route.params?.email} 以验证身份`}
         </Text>
       </View>
       <TextInput
@@ -108,6 +114,7 @@ const VerifyWayScreen = () => {
       />
       <Button
         disabled={Boolean(!value)}
+        loading={loading}
         style={{
           width: 280,
           height: 58,
@@ -122,6 +129,46 @@ const VerifyWayScreen = () => {
         onPress={handleSubmit}>
         下一步
       </Button>
+      <Button
+        style={{
+          width: 280,
+          height: 58,
+          borderRadius: 4,
+          alignSelf: 'center',
+          marginTop: 14,
+          borderColor: '#096BDE',
+        }}
+        contentStyle={{width: '100%', height: '100%'}}
+        labelStyle={{textAlign: 'center', color: '#096BDE'}}
+        mode="outlined"
+        onPress={() => authNavigation.navigate('SignInScreen')}>
+        立即登录
+      </Button>
+
+      <Portal>
+        <Dialog
+          visible={isAlert}
+          onDismiss={() => {
+            setAlertMessage(null);
+            setIsAlert(false);
+          }}>
+          <Dialog.Icon icon="alert" color="rgb(105, 0, 5)" />
+          <Dialog.Title style={{textAlign: 'center'}}>登录失败</Dialog.Title>
+          <Dialog.Content>
+            <Paragraph>{alertMessage?.message}</Paragraph>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button
+              labelStyle={{color: '#096BDE'}}
+              onPress={() => {
+                setAlertMessage(null);
+                setIsAlert(false);
+              }}>
+              确定
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </View>
   );
 };

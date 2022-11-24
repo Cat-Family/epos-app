@@ -1,15 +1,20 @@
 import React, {useState} from 'react';
-import {Alert, Platform, StatusBar, StyleSheet, Text, View} from 'react-native';
-import {Appbar, Button} from 'react-native-paper';
+import {Platform, StatusBar, StyleSheet, Text, View} from 'react-native';
+import {Appbar, Button, Dialog, Paragraph, Portal} from 'react-native-paper';
 import {useNavigation} from '@react-navigation/native';
 import {TextInput} from 'react-native-gesture-handler';
 import CryptoJS from 'crypto-js';
 import axiosInstance from '../../utils/request';
 import {FindPasswordNavigationProp} from '../../navigation/FindPasswordStack';
+import {AuthNavigationProp} from '../../navigation/AuthStack';
 
 const ForgotPassWordScreen = () => {
   const navigation = useNavigation<FindPasswordNavigationProp>();
+  const authNavigation = useNavigation<AuthNavigationProp>();
   const [userName, setUserName] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [isAlert, setIsAlert] = React.useState<boolean>(false);
+  const [alertMessage, setAlertMessage] = React.useState<any>();
 
   const _goBack = () => navigation.goBack();
 
@@ -17,6 +22,7 @@ const ForgotPassWordScreen = () => {
     setUserName(value);
   };
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       const {data} = await axiosInstance.post(
         '/user/IsValidAccount/magicApiJSON.do',
@@ -30,8 +36,10 @@ const ForgotPassWordScreen = () => {
       );
       navigation.navigate('FindPasswordWayScreen', {...data.userInfo});
     } catch (error: any) {
-      Alert.alert(error.message || 'NetWork Error');
+      setIsAlert(true);
+      setAlertMessage(error.message || 'NetWork Error');
     }
+    setLoading(false);
   };
 
   return (
@@ -67,6 +75,7 @@ const ForgotPassWordScreen = () => {
         placeholder="输入账号"
       />
       <Button
+        loading={loading}
         disabled={Boolean(!userName)}
         style={{
           width: 280,
@@ -82,6 +91,48 @@ const ForgotPassWordScreen = () => {
         onPress={handleSubmit}>
         下一步
       </Button>
+      <Button
+        style={{
+          width: 280,
+          height: 58,
+          borderRadius: 4,
+          alignSelf: 'center',
+          marginTop: 14,
+          borderColor: '#096BDE',
+        }}
+        contentStyle={{width: '100%', height: '100%'}}
+        labelStyle={{textAlign: 'center', color: '#096BDE'}}
+        mode="outlined"
+        onPress={() => authNavigation.navigate('SignInScreen')}>
+        立即登录
+      </Button>
+
+      <Portal>
+        <Dialog
+          visible={isAlert}
+          onDismiss={() => {
+            setAlertMessage(null);
+            setIsAlert(false);
+          }}>
+          <Dialog.Icon icon="alert" color="rgb(105, 0, 5)" />
+          <Dialog.Title style={{textAlign: 'center'}}>
+            找回密码失败
+          </Dialog.Title>
+          <Dialog.Content>
+            <Paragraph>{alertMessage?.message}</Paragraph>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button
+              labelStyle={{color: '#096BDE'}}
+              onPress={() => {
+                setAlertMessage(null);
+                setIsAlert(false);
+              }}>
+              确定
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </View>
   );
 };
