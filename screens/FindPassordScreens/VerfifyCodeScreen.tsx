@@ -14,8 +14,10 @@ import CryptoJS from 'crypto-js';
 import axiosInstance from '../../utils/request';
 import {FindPasswordNavigationProp} from '../../navigation/FindPasswordStack';
 import {AuthNavigationProp} from '../../navigation/AuthStack';
+import {AuthContext} from '../../components/context';
 
 const VerfifyCodeScreen = () => {
+  const {theme} = React.useContext<any>(AuthContext);
   const navigation = useNavigation<FindPasswordNavigationProp>();
   const authNavigation = useNavigation<AuthNavigationProp>();
   const route = useRoute<any>();
@@ -28,6 +30,7 @@ const VerfifyCodeScreen = () => {
   const _goBack = () => navigation.goBack();
 
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       const {data} = await axiosInstance.post(
         '/user/BackPassword/magicApiJSON.do',
@@ -49,10 +52,11 @@ const VerfifyCodeScreen = () => {
         verifyCode: data?.verifyCode,
       });
     } catch (error: any) {
-      console.log(error);
       setIsAlert(true);
-      setAlertMessage(error.message || 'NetWork Error');
+      setAlertMessage({message: error.message || '网络异常'});
     }
+
+    setLoading(false);
   };
 
   const resendHandler = async () => {
@@ -76,7 +80,7 @@ const VerfifyCodeScreen = () => {
       setCountdown(60);
     } catch (error: any) {
       setIsAlert(true);
-      setAlertMessage(error.message || 'NetWork Error');
+      setAlertMessage({message: error.message || '网络异常'});
     }
   };
 
@@ -143,7 +147,6 @@ const VerfifyCodeScreen = () => {
           width: '96%',
           display: 'flex',
           flexDirection: 'row',
-          justifyContent: 'center',
           alignItems: 'center',
           backgroundColor: '#fff',
         }}>
@@ -161,14 +164,13 @@ const VerfifyCodeScreen = () => {
             styles.input,
             {
               flex: 1,
-              alignSelf: 'center',
             },
           ]}
           onChangeText={e => {
             setVerifyCode(e);
           }}
           value={verifyCode}
-          placeholder="输入账号/手机"
+          placeholder="输入验证码"
           keyboardType="numeric"></TextInput>
       </View>
       <TouchableOpacity
@@ -214,18 +216,21 @@ const VerfifyCodeScreen = () => {
       <Portal>
         <Dialog
           visible={isAlert}
+          style={{
+            backgroundColor: theme.colors.background,
+          }}
           onDismiss={() => {
             setAlertMessage(null);
             setIsAlert(false);
           }}>
-          <Dialog.Icon icon="alert" color="rgb(105, 0, 5)" />
+          <Dialog.Icon icon="alert" color={theme.colors.error} />
           <Dialog.Title style={{textAlign: 'center'}}>验证码错误</Dialog.Title>
           <Dialog.Content>
             <Paragraph>{alertMessage?.message}</Paragraph>
           </Dialog.Content>
           <Dialog.Actions>
             <Button
-              labelStyle={{color: '#096BDE'}}
+              labelStyle={{color: theme.colors.primary}}
               onPress={() => {
                 setAlertMessage(null);
                 setIsAlert(false);
@@ -248,7 +253,6 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#000',
-    marginTop: 5,
   },
   input: {
     width: 280,

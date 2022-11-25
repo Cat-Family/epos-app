@@ -7,41 +7,54 @@ import HomeScreen from '../screens/HomeScreen';
 import CartScreen from '../screens/CartScreen';
 import FavoriteScreen from '../screens/FavoriteScreen';
 
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import Feather from 'react-native-vector-icons/Feather';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import {Route} from '@react-navigation/routers';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
+import {AuthContext} from '../components/context';
 
 const Tab = createMaterialBottomTabNavigator();
 
 const TabNavigator = () => {
+  const {theme} = React.useContext<any>(AuthContext);
+
   return (
-    <Tab.Navigator>
+    <Tab.Navigator activeColor={theme.colors.primary}>
       <Tab.Screen
-        name="Home2"
+        name="Order"
         component={HomeScreen}
         options={({route}) => ({
+          tabBarLabel: '点餐',
+          tabBarAccessibilityLabel: 'Order',
           tabBarIcon: ({color}) => (
-            <Ionicons name="home-outline" color={color} size={24} />
+            <MaterialCommunityIcons
+              name="cash-register"
+              color={color}
+              size={24}
+            />
           ),
         })}
       />
       <Tab.Screen
-        name="Cart"
+        name="Bill"
         component={CartScreen}
         options={{
-          tabBarBadge: 3,
+          tabBarLabel: '账单',
+          tabBarAccessibilityLabel: 'Bill',
           tabBarIcon: ({color}) => (
-            <Feather name="shopping-bag" color={color} size={24} />
+            <FontAwesome5 name="money-check-alt" color={color} size={24} />
           ),
         }}
       />
       <Tab.Screen
-        name="Favorite"
+        name="Assignment"
         component={FavoriteScreen}
         options={{
+          tabBarLabel: '报表',
+          tabBarAccessibilityLabel: 'Assignment',
           tabBarIcon: ({color}) => (
-            <Ionicons name="heart-outline" color={color} size={24} />
+            <MaterialIcons name="assignment" color={color} size={24} />
           ),
         }}
       />

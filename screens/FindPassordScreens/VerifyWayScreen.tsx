@@ -8,6 +8,7 @@ import JSEncrypt from 'jsencrypt';
 import axiosInstance from '../../utils/request';
 import {FindPasswordNavigationProp} from '../../navigation/FindPasswordStack';
 import {AuthNavigationProp} from '../../navigation/AuthStack';
+import {AuthContext} from '../../components/context';
 
 const VerifyWayScreen = () => {
   const navigation = useNavigation<FindPasswordNavigationProp>();
@@ -17,6 +18,7 @@ const VerifyWayScreen = () => {
   const [loading, setLoading] = useState(false);
   const [isAlert, setIsAlert] = React.useState<boolean>(false);
   const [alertMessage, setAlertMessage] = React.useState<any>();
+  const {theme} = React.useContext<any>(AuthContext);
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -47,7 +49,7 @@ const VerifyWayScreen = () => {
       });
     } catch (error: any) {
       setIsAlert(true);
-      setAlertMessage(error.message || 'NetWork Error');
+      setAlertMessage({message: error.message || '网络异常'});
     }
     setLoading(false);
   };
@@ -148,18 +150,21 @@ const VerifyWayScreen = () => {
       <Portal>
         <Dialog
           visible={isAlert}
+          style={{
+            backgroundColor: theme.colors.background,
+          }}
           onDismiss={() => {
             setAlertMessage(null);
             setIsAlert(false);
           }}>
-          <Dialog.Icon icon="alert" color="rgb(105, 0, 5)" />
-          <Dialog.Title style={{textAlign: 'center'}}>登录失败</Dialog.Title>
+          <Dialog.Icon icon="alert" color={theme.colors.error} />
+          <Dialog.Title style={{textAlign: 'center'}}>验证失败</Dialog.Title>
           <Dialog.Content>
             <Paragraph>{alertMessage?.message}</Paragraph>
           </Dialog.Content>
           <Dialog.Actions>
             <Button
-              labelStyle={{color: '#096BDE'}}
+              labelStyle={{color: theme.colors.primary}}
               onPress={() => {
                 setAlertMessage(null);
                 setIsAlert(false);

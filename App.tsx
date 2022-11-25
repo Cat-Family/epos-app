@@ -63,8 +63,8 @@ const App = () => {
       if (authInfo && userInfo) {
         dispatch({
           type: 'RESTORE_TOKEN',
-          authInfo: JSON.parse(authInfo),
           userInfo: JSON.parse(userInfo),
+          authInfo: JSON.parse(authInfo),
         });
       } else {
         dispatch({
@@ -79,7 +79,7 @@ const App = () => {
   const authContext = useMemo(
     () => ({
       signIn: async (userInfo: any, authInfo: any) => {
-        dispatch({type: 'SIGN_IN', authInfo, userInfo});
+        dispatch({type: 'SIGN_IN', userInfo, authInfo});
       },
       signOut: async () => {
         await AsyncStorage.removeItem('authInfo');
@@ -88,9 +88,14 @@ const App = () => {
       },
       // signUp: async data => {
       // },
-      state,
+      setIsDarkTheme: (val: boolean) => {
+        setIsDarkTheme(val);
+      },
+      authInfo: state.authInfo,
+      userInfo: state.userInfo,
+      theme,
     }),
-    [],
+    [state, dispatch],
   );
 
   if (state.isLoading) {
@@ -112,8 +117,7 @@ const App = () => {
   }
 
   return (
-    <AuthContext.Provider
-      value={{authContext, authInfo: state.authInfo, userInfo: state.userInfo}}>
+    <AuthContext.Provider value={authContext}>
       <PaperProvider theme={theme}>
         <NavigationContainer theme={theme}>
           {state.authInfo ? <AppStack /> : <AuthStack />}

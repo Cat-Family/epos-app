@@ -7,6 +7,7 @@ import CryptoJS from 'crypto-js';
 import axiosInstance from '../../utils/request';
 import {FindPasswordNavigationProp} from '../../navigation/FindPasswordStack';
 import {AuthNavigationProp} from '../../navigation/AuthStack';
+import {AuthContext} from '../../components/context';
 
 const ForgotPassWordScreen = () => {
   const navigation = useNavigation<FindPasswordNavigationProp>();
@@ -15,6 +16,7 @@ const ForgotPassWordScreen = () => {
   const [loading, setLoading] = useState(false);
   const [isAlert, setIsAlert] = React.useState<boolean>(false);
   const [alertMessage, setAlertMessage] = React.useState<any>();
+  const {theme} = React.useContext<any>(AuthContext);
 
   const _goBack = () => navigation.goBack();
 
@@ -37,7 +39,7 @@ const ForgotPassWordScreen = () => {
       navigation.navigate('FindPasswordWayScreen', {...data.userInfo});
     } catch (error: any) {
       setIsAlert(true);
-      setAlertMessage(error.message || 'NetWork Error');
+      setAlertMessage({message: error.message || '网络异常'});
     }
     setLoading(false);
   };
@@ -110,11 +112,14 @@ const ForgotPassWordScreen = () => {
       <Portal>
         <Dialog
           visible={isAlert}
+          style={{
+            backgroundColor: theme.colors.background,
+          }}
           onDismiss={() => {
             setAlertMessage(null);
             setIsAlert(false);
           }}>
-          <Dialog.Icon icon="alert" color="rgb(105, 0, 5)" />
+          <Dialog.Icon icon="alert" color={theme.colors.error} />
           <Dialog.Title style={{textAlign: 'center'}}>
             找回密码失败
           </Dialog.Title>
@@ -123,7 +128,7 @@ const ForgotPassWordScreen = () => {
           </Dialog.Content>
           <Dialog.Actions>
             <Button
-              labelStyle={{color: '#096BDE'}}
+              labelStyle={{color: theme.colors.primary}}
               onPress={() => {
                 setAlertMessage(null);
                 setIsAlert(false);

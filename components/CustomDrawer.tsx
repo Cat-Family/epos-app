@@ -21,14 +21,15 @@ import {CustomDefaultTheme} from '../app/theme';
 interface IProps {}
 
 const CustomDrawer: FC<IProps> = props => {
-  const {signOut, userInfo} = React.useContext<any>(AuthContext);
+  const {signOut, userInfo, theme} = React.useContext<any>(AuthContext);
+
   return (
     <>
       <ImageBackground
         style={{
           height: 120,
           padding: 20,
-          backgroundColor: 'rgb(0, 94, 180)',
+          backgroundColor: theme.colors.primary,
           borderBottomRightRadius: 6,
           borderBottomLeftRadius: 6,
         }}>
@@ -43,7 +44,7 @@ const CustomDrawer: FC<IProps> = props => {
               marginRight: 5,
               color: '#fff',
             }}>
-            {userInfo.storeInfo.storeName}
+            {userInfo?.storeInfo?.storeName}
           </Text>
           <Fontisto name="shopping-store" size={14} color="#fff" />
         </View>

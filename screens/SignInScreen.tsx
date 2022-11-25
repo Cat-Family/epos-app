@@ -17,7 +17,6 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useForm, Controller} from 'react-hook-form';
 import {Button, Paragraph, Dialog, Portal} from 'react-native-paper';
 
-import {useTheme} from 'react-native-paper';
 import {useNavigation} from '@react-navigation/native';
 import {AuthNavigationProp} from '../navigation/AuthStack';
 import {AuthContext} from '../components/context';
@@ -39,8 +38,7 @@ const SignInScreen = () => {
 
   type ValidationInput = TypeOf<typeof validationSchema>;
 
-  const {colors} = useTheme();
-  const {signIn} = React.useContext<any>(AuthContext);
+  const {signIn, theme} = React.useContext<any>(AuthContext);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [isAlert, setIsAlert] = React.useState<boolean>(false);
   const [alertMessage, setAlertMessage] = React.useState<any>();
@@ -102,9 +100,8 @@ const SignInScreen = () => {
           JSON.stringify(res.data.userInfo),
         );
 
-        signIn(data.loginInfo.authInfo, res.data.userInfo);
+        signIn(res.data.userInfo, data.loginInfo.authInfo);
       } catch (error: any) {
-        console.log(error);
         setIsAlert(true);
         setAlertMessage({message: error.message || '网络异常'});
       }
@@ -127,7 +124,7 @@ const SignInScreen = () => {
         style={[
           styles.footer,
           {
-            backgroundColor: colors.background,
+            backgroundColor: theme.colors.background,
           },
         ]}>
         <Controller
@@ -138,7 +135,7 @@ const SignInScreen = () => {
                 style={[
                   styles.text_footer,
                   {
-                    color: colors.shadow,
+                    color: theme.colors.shadow,
                   },
                 ]}>
                 商家码
@@ -146,7 +143,7 @@ const SignInScreen = () => {
               <View style={styles.action}>
                 <MaterialIcons
                   name="storefront"
-                  color={colors.secondary}
+                  color={theme.colors.secondary}
                   size={20}
                 />
                 <TextInput
@@ -155,7 +152,7 @@ const SignInScreen = () => {
                   style={[
                     styles.textInput,
                     {
-                      color: colors.secondary,
+                      color: theme.colors.secondary,
                     },
                   ]}
                   value={value}
@@ -184,21 +181,25 @@ const SignInScreen = () => {
                 style={[
                   styles.text_footer,
                   {
-                    color: colors.shadow,
+                    color: theme.colors.shadow,
                     marginTop: 24,
                   },
                 ]}>
                 用户名
               </Text>
               <View style={styles.action}>
-                <FontAwesome name="user-o" color={colors.secondary} size={20} />
+                <FontAwesome
+                  name="user-o"
+                  color={theme.colors.secondary}
+                  size={20}
+                />
                 <TextInput
                   placeholder="用户名"
                   placeholderTextColor="#666666"
                   style={[
                     styles.textInput,
                     {
-                      color: colors.secondary,
+                      color: theme.colors.secondary,
                     },
                   ]}
                   autoCapitalize="none"
@@ -225,14 +226,14 @@ const SignInScreen = () => {
                 style={[
                   styles.text_footer,
                   {
-                    color: colors.shadow,
+                    color: theme.colors.shadow,
                     marginTop: 24,
                   },
                 ]}>
                 密码
               </Text>
               <View style={styles.action}>
-                <Feather name="lock" color={colors.secondary} size={20} />
+                <Feather name="lock" color={theme.colors.secondary} size={20} />
                 <TextInput
                   placeholder="密码"
                   placeholderTextColor="#666666"
@@ -240,7 +241,7 @@ const SignInScreen = () => {
                   style={[
                     styles.textInput,
                     {
-                      color: colors.secondary,
+                      color: theme.colors.secondary,
                     },
                   ]}
                   autoCapitalize="none"
@@ -304,20 +305,20 @@ const SignInScreen = () => {
         <Dialog
           visible={isAlert}
           style={{
-            backgroundColor: colors.background,
+            backgroundColor: theme.colors.background,
           }}
           onDismiss={() => {
             setAlertMessage(null);
             setIsAlert(false);
           }}>
-          <Dialog.Icon icon="alert" color={colors.error} />
+          <Dialog.Icon icon="alert" color={theme.colors.error} />
           <Dialog.Title style={{textAlign: 'center'}}>登录失败</Dialog.Title>
           <Dialog.Content>
             <Paragraph>{alertMessage?.message}</Paragraph>
           </Dialog.Content>
           <Dialog.Actions>
             <Button
-              labelStyle={{color: '#096BDE'}}
+              labelStyle={{color: theme.colors.primary}}
               onPress={() => {
                 setAlertMessage(null);
                 setIsAlert(false);

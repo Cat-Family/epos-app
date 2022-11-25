@@ -20,6 +20,7 @@ import axiosInstance from '../../utils/request';
 import {AuthNavigationProp} from '../../navigation/AuthStack';
 import CryptoJS from 'crypto-js';
 import JSEncrypt from 'jsencrypt';
+import {AuthContext} from '../../components/context';
 
 const ResetPasswordScreen = () => {
   const navigation = useNavigation<AuthNavigationProp>();
@@ -28,6 +29,7 @@ const ResetPasswordScreen = () => {
   const [isAlert, setIsAlert] = React.useState<boolean>(false);
   const [alertMessage, setAlertMessage] = React.useState<any>();
   const [loading, setLoading] = useState(false);
+  const {theme} = React.useContext<any>(AuthContext);
 
   const validationSchema = object({
     password: string()
@@ -88,7 +90,7 @@ const ResetPasswordScreen = () => {
       navigation.navigate('SignInScreen');
     } catch (error: any) {
       setIsAlert(true);
-      setAlertMessage(error.message || 'NetWork Error');
+      setAlertMessage({message: error.message || '网络异常'});
     }
     setLoading(false);
   };
@@ -275,11 +277,14 @@ const ResetPasswordScreen = () => {
       <Portal>
         <Dialog
           visible={isAlert}
+          style={{
+            backgroundColor: theme.colors.background,
+          }}
           onDismiss={() => {
             setAlertMessage(null);
             setIsAlert(false);
           }}>
-          <Dialog.Icon icon="alert" color="rgb(105, 0, 5)" />
+          <Dialog.Icon icon="alert" color={theme.colors.error} />
           <Dialog.Title style={{textAlign: 'center'}}>
             重置密码失败
           </Dialog.Title>
@@ -288,7 +293,7 @@ const ResetPasswordScreen = () => {
           </Dialog.Content>
           <Dialog.Actions>
             <Button
-              labelStyle={{color: '#096BDE'}}
+              labelStyle={{color: theme.colors.primary}}
               onPress={() => {
                 setAlertMessage(null);
                 setIsAlert(false);

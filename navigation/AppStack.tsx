@@ -31,7 +31,7 @@ const AppStack = () => {
         }}
       />
       <Drawer.Screen
-        name="Profile"
+        name="用户配置"
         component={ProfileScreen}
         options={{
           drawerIcon: ({color}) => (
@@ -40,7 +40,7 @@ const AppStack = () => {
         }}
       />
       <Drawer.Screen
-        name="Settings"
+        name="应用设置"
         component={SettingsScreen}
         options={{
           drawerIcon: ({color}) => (
