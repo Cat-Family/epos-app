@@ -29,7 +29,7 @@ const CustomDrawer: FC<IProps> = props => {
         style={{
           height: 120,
           padding: 20,
-          backgroundColor: theme.colors.primary,
+          backgroundColor: theme.colors.primaryContainer,
           borderBottomRightRadius: 6,
           borderBottomLeftRadius: 6,
         }}>
@@ -38,21 +38,31 @@ const CustomDrawer: FC<IProps> = props => {
           style={{
             flexDirection: 'row',
             alignItems: 'center',
+            marginTop: 20,
           }}>
           <Text
             style={{
               marginRight: 5,
-              color: '#fff',
+              color: theme.colors.primary,
             }}>
             {userInfo?.storeInfo?.storeName}
           </Text>
-          <Fontisto name="shopping-store" size={14} color="#fff" />
+          <Fontisto
+            name="shopping-store"
+            size={14}
+            color={theme.colors.primary}
+          />
         </View>
       </ImageBackground>
       <DrawerContentScrollView {...props} contentContainerStyle={{}}>
         <DrawerItemList {...props} />
       </DrawerContentScrollView>
-      <View style={{padding: 20, borderTopWidth: 1, borderTopColor: '#fff'}}>
+      <View
+        style={{
+          padding: 20,
+          borderTopWidth: 1,
+          borderTopColor: theme.colors.outlineVariant,
+        }}>
         <DrawerItem
           icon={({color}) => (
             <Ionicons color={color} name="share-social-outline" size={22} />

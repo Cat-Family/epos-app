@@ -1,48 +1,55 @@
 import React from 'react';
 import {createDrawerNavigator} from '@react-navigation/drawer';
-
-// import CustomDrawer from '../components/CustomDrawer';
-
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
 import ProfileScreen from '../screens/ProfileScreen';
 import SettingsScreen from '../screens/SettingsScreen';
-
 import TabNavigator from './TabNavigator';
 import CustomDrawer from '../components/CustomDrawer';
+import {AuthContext} from '../components/context';
 
 const Drawer = createDrawerNavigator();
 
 const AppStack = () => {
+  const {signIn, theme} = React.useContext<any>(AuthContext);
+
   return (
     <Drawer.Navigator
       drawerContent={props => <CustomDrawer {...props} />}
       screenOptions={{
         headerShown: true,
-        drawerStyle: {},
+        headerTitle: '千渝掌柜',
+        headerTintColor: theme.colors.onSurfaceVariant,
+        headerStyle: {
+          backgroundColor: theme.colors.background,
+          shadowColor: theme.colors.shadow,
+        },
+        drawerStyle: theme.colors.outline,
       }}>
       <Drawer.Screen
-        name="千渝掌柜"
+        name="Home"
         component={TabNavigator}
         options={{
+          drawerLabel: '千渝掌柜',
           drawerIcon: ({color}) => (
             <Ionicons name="home-outline" size={22} color={color} />
           ),
         }}
       />
       <Drawer.Screen
-        name="用户配置"
+        name="Profile"
         component={ProfileScreen}
         options={{
+          drawerLabel: '用户配置',
           drawerIcon: ({color}) => (
             <Ionicons name="person-outline" size={22} color={color} />
           ),
         }}
       />
       <Drawer.Screen
-        name="应用设置"
+        name="Settings"
         component={SettingsScreen}
         options={{
+          drawerLabel: '应用设置',
           drawerIcon: ({color}) => (
             <Ionicons name="settings-outline" size={22} color={color} />
           ),
