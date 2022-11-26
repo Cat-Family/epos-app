@@ -1,41 +1,54 @@
-import {useNavigation} from '@react-navigation/native';
-import React, {useState} from 'react';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import React, {useLayoutEffect, useMemo, useState} from 'react';
 import {
   View,
   Text,
   SafeAreaView,
   ScrollView,
-  ImageBackground,
-  TextInput,
-  TouchableOpacity,
   StatusBar,
-  SectionList,
   StyleSheet,
+  RefreshControl,
 } from 'react-native';
-import {Button} from 'react-native-paper';
+import {Button, FAB, Portal} from 'react-native-paper';
 import {AuthContext} from '../components/context';
+import axiosInstance from '../utils/request';
+import CryptoJS from 'crypto-js';
 
-const DATA = [
-  {
-    title: 'Main dishes',
-    data: ['Pizza', 'Burger', 'Risotto'],
-  },
-  {
-    title: 'Sides',
-    data: ['French Fries', 'Onion Rings', 'Fried Shrimps'],
-  },
-  {
-    title: 'Drinks',
-    data: ['Water', 'Coke', 'Beer'],
-  },
-  {
-    title: 'Desserts',
-    data: ['Cheese Cake', 'Ice Cream'],
-  },
-];
 export default function OrderScreen() {
-  const {theme} = React.useContext<any>(AuthContext);
+  const {theme, isDarkTheme, authInfo} = React.useContext<any>(AuthContext);
   const [cateIndex, setCateIndex] = useState(0);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const [products, setProducts] = useState<any>();
+
+  const getGoods = async () => {
+    try {
+      const {data} = await axiosInstance.post(
+        '/goods/QueryGoodsList/magicApiJSON.do',
+        {
+          authInfo: {
+            ...authInfo,
+            reqTime: new Date().getTime(),
+            reqUid: CryptoJS.MD5(new Date().getTime().toString()).toString(),
+          },
+        },
+      );
+      setProducts(data.info[authInfo.tenantId + 'goods']);
+      setCateIndex(data.info[authInfo.tenantId + 'goods'][0].classCode);
+    } catch (error: any) {
+      console.log(error);
+    }
+  };
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    await getGoods();
+
+    setRefreshing(false);
+  }, []);
+
+  useLayoutEffect(() => {
+    getGoods();
+  }, []);
 
   return (
     <SafeAreaView
@@ -45,24 +58,32 @@ export default function OrderScreen() {
         display: 'flex',
         flexDirection: 'row',
       }}>
-      <StatusBar backgroundColor={theme.colors.background}></StatusBar>
+      <StatusBar
+        backgroundColor={theme.colors.background}
+        barStyle={isDarkTheme ? 'light-content' : 'dark-content'}
+      />
       <ScrollView
-        contentContainerStyle={{
-          backgroundColor: theme.colors.surface,
-          height: '100%',
+        style={{
+          width: 140,
           borderRightWidth: 1,
           borderColor: theme.colors.outlineVariant,
+        }}
+        contentContainerStyle={{
+          backgroundColor: theme.colors.surface,
         }}>
-        {DATA.map((item, index) => (
+        {products?.map((item: any) => (
           <Button
-            key={index}
-            textColor={
-              index === cateIndex
-                ? theme.colors.primary
-                : theme.colors.secondary
+            style={{marigin: 5}}
+            contentStyle={[{height: 70}]}
+            onPress={() => setCateIndex(item.classCode)}
+            key={item.classCode}
+            labelStyle={
+              item.classCode === cateIndex
+                ? {color: theme.colors.primary}
+                : {color: theme.colors.secondary}
             }
-            onPress={() => setCateIndex(index)}>
-            {item.title}
+            mode="text">
+            {item.className}
           </Button>
         ))}
       </ScrollView>
@@ -70,20 +91,31 @@ export default function OrderScreen() {
         style={{
           backgroundColor: theme.colors.background,
         }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
         contentContainerStyle={{
           flexDirection: 'row',
           flexWrap: 'wrap',
         }}>
-        <Text>test</Text>
-        <Text>test</Text>
-        <Text>test</Text>
-        <Text>test</Text>
-        <Text>test</Text>
-        <Text>test</Text>
-        <Text>test</Text>
-        <Text>test</Text>
-        <Text>test</Text>
-        <Text>test</Text>
+        {products &&
+          products
+            ?.filter((item: any) => item.classCode === cateIndex)[0]
+            ?.goods?.map((item: any) => (
+              <Button
+                mode="elevated"
+                key={item.goodsCode}
+                style={{margin: 5}}
+                labelStyle={
+                  {
+                    // fontSize: 12,
+                  }
+                }
+                contentStyle={{width: 134, height: 134}}
+                onPress={() => console.log('test')}>
+                {item.goodsName}
+              </Button>
+            ))}
       </ScrollView>
     </SafeAreaView>
   );

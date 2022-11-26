@@ -26,32 +26,29 @@ const CustomDrawer: FC<IProps> = props => {
   return (
     <>
       <ImageBackground
+        source={require('../assets/images/EPOS.png')}
+        resizeMode="contain"
         style={{
           height: 120,
-          padding: 20,
-          backgroundColor: theme.colors.primaryContainer,
+          padding: 10,
+          backgroundColor: theme.colors.background,
           borderBottomRightRadius: 6,
           borderBottomLeftRadius: 6,
+          shadowColor: theme.colors.shadow,
+          shadowRadius: 10,
+          shadowOpacity: 0.6,
+          elevation: 8,
+          shadowOffset: {
+            width: 2,
+            height: 4,
+          },
         }}>
-        <Avatar.Text size={40} label={userInfo?.basicInfo?.userName} />
         <View
           style={{
             flexDirection: 'row',
-            alignItems: 'center',
-            marginTop: 20,
+            marginTop: 28,
           }}>
-          <Text
-            style={{
-              marginRight: 5,
-              color: theme.colors.primary,
-            }}>
-            {userInfo?.storeInfo?.storeName}
-          </Text>
-          <Fontisto
-            name="shopping-store"
-            size={14}
-            color={theme.colors.primary}
-          />
+          <Avatar.Text size={48} label={userInfo?.basicInfo?.userName} />
         </View>
       </ImageBackground>
       <DrawerContentScrollView {...props} contentContainerStyle={{}}>
@@ -59,17 +56,10 @@ const CustomDrawer: FC<IProps> = props => {
       </DrawerContentScrollView>
       <View
         style={{
-          padding: 20,
+          padding: 4,
           borderTopWidth: 1,
           borderTopColor: theme.colors.outlineVariant,
         }}>
-        <DrawerItem
-          icon={({color}) => (
-            <Ionicons color={color} name="share-social-outline" size={22} />
-          )}
-          label="分享APP"
-          onPress={() => console.log('re')}
-        />
         <DrawerItem
           onPress={() => {
             signOut();
