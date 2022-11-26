@@ -117,7 +117,6 @@ export default function OrderScreen() {
               </Button>
             ))}
       </ScrollView>
-
     </SafeAreaView>
   );
 }

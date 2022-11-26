@@ -44,7 +44,7 @@ const App = () => {
       authInfo: null,
     },
   );
-  const [isDarkTheme, setIsDarkTheme] = React.useState(false);
+  const [isDarkTheme, setIsDarkTheme] = React.useState(true);
 
   const theme = isDarkTheme ? CustomDarkTheme : CustomDefaultTheme;
 
