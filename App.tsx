@@ -94,6 +94,7 @@ const App = () => {
       authInfo: state.authInfo,
       userInfo: state.userInfo,
       theme,
+      isDarkTheme,
     }),
     [state, dispatch],
   );

@@ -3,7 +3,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
 
-import HomeScreen from '../screens/HomeScreen';
+import OrderScreen from '../screens/OrderScreen';
 import CartScreen from '../screens/CartScreen';
 import FavoriteScreen from '../screens/FavoriteScreen';
 
@@ -23,7 +23,7 @@ const TabNavigator = () => {
     <Tab.Navigator activeColor={theme.colors.primary}>
       <Tab.Screen
         name="Order"
-        component={HomeScreen}
+        component={OrderScreen}
         options={({route}) => ({
           tabBarLabel: '点餐',
           tabBarAccessibilityLabel: 'Order',
