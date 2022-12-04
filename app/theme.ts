@@ -43,6 +43,7 @@ const CustomDefaultTheme = {
     inverseSurface: 'rgb(47, 48, 51)',
     inverseOnSurface: 'rgb(241, 240, 244)',
     inversePrimary: 'rgb(168, 200, 255)',
+    mainbackground: 'rgb(246,247,248)',
     elevation: {
       level0: 'transparent',
       level1: 'rgb(240, 243, 251)',
@@ -92,6 +93,7 @@ const CustomDarkTheme = {
     inverseSurface: 'rgb(227, 226, 230)',
     inverseOnSurface: 'rgb(47, 48, 51)',
     inversePrimary: 'rgb(0, 94, 180)',
+    mainbackground: 'rgb(24,24,24)',
     elevation: {
       level0: 'transparent',
       level1: 'rgb(33, 37, 41)',
