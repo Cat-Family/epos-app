@@ -8,6 +8,7 @@ import {
   StatusBar,
   StyleSheet,
   RefreshControl,
+  Dimensions,
 } from 'react-native';
 import { Appbar, Badge, Button, FAB, Portal } from 'react-native-paper';
 import { AuthContext } from '../components/context';
@@ -17,7 +18,7 @@ import CryptoJS from 'crypto-js';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 export default function OrderScreen() {
-  const { theme, isDarkTheme, authInfo } = React.useContext<any>(AuthContext);
+  const { theme, isDarkTheme, authInfo, userInfo } = React.useContext<any>(AuthContext);
   const [cateIndex, setCateIndex] = useState(0);
   const [refreshing, setRefreshing] = React.useState(false);
   const [products, setProducts] = useState<any>();
@@ -56,6 +57,7 @@ export default function OrderScreen() {
     getGoods();
   }, []);
 
+  const { width, height } = Dimensions.get('screen');
   return (
     <SafeAreaView
       style={{
@@ -81,7 +83,7 @@ export default function OrderScreen() {
           },
         }}>
           <Appbar.Action icon="menu" onPress={() => { navigation.toggleDrawer() }} />
-          <Appbar.Content title="点餐" />
+          <Appbar.Content title={userInfo?.storeInfo?.storeName} />
           <View style={styles.badgeContainer}>
             <TouchableOpacity onPress={() => navigation.navigate('MessageScreen')}>
               <AntDesign
@@ -133,6 +135,7 @@ export default function OrderScreen() {
           style={{
             flex: 1,
             width: '100%',
+            paddingTop:10,
             backgroundColor: theme.colors.mainbackground,
           }}
           refreshControl={
@@ -150,13 +153,14 @@ export default function OrderScreen() {
                 <Button
                   mode="elevated"
                   key={item.goodsCode}
-                  style={{ margin: 5 }}
+                  style={{ margin: width * 0.02,backgroundColor:'#fff',borderRadius:7}}
                   labelStyle={
                     {
                       fontSize: 13,
+                      color:'#0087FF'
                     }
                   }
-                  contentStyle={{ width: 124, height: 124 }}
+                  contentStyle={{ height: width * 0.18, width: width * 0.46 }}
                   onPress={() => console.log('test')}>
                   {item.goodsName}
                 </Button>
