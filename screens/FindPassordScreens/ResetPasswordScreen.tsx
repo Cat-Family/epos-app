@@ -29,7 +29,7 @@ const ResetPasswordScreen = () => {
   const [isAlert, setIsAlert] = React.useState<boolean>(false);
   const [alertMessage, setAlertMessage] = React.useState<any>();
   const [loading, setLoading] = useState(false);
-  const {theme} = React.useContext<any>(AuthContext);
+  const { theme, isDarkTheme } = React.useContext<any>(AuthContext);
 
   const validationSchema = object({
     password: string()
@@ -101,7 +101,8 @@ const ResetPasswordScreen = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor="#F4F3F3" barStyle="light-content" />
+      <StatusBar backgroundColor={theme.colors.background}
+        barStyle={isDarkTheme ? 'light-content' : 'dark-content'} />
       <Appbar.Header style={{backgroundColor: '#F4F3F3'}}>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
         <Appbar.Content
