@@ -84,25 +84,25 @@ export default function OrderScreen() {
         }}>
           <Appbar.Action icon="menu" onPress={() => { navigation.toggleDrawer() }} />
           <Appbar.Content title={userInfo?.storeInfo?.storeName} />
-          <View style={styles.badgeContainer}>
-            <TouchableOpacity onPress={() => navigation.navigate('MessageScreen')}>
+          <TouchableOpacity onPress={() => navigation.navigate('MessageScreen')}>
+            <View style={styles.badgeContainer}>
               <AntDesign
                 name="message1"
                 color={theme.colors.secondary}
                 size={26} />
-            </TouchableOpacity>
-            <Badge
-              size={20}
-              style={{ top: 0, position: 'absolute' }}
-            >21</Badge>
-          </View>
+              <Badge
+                size={20}
+                style={{ top: 0, position: 'absolute' }}
+              >21</Badge>
+            </View>
+          </TouchableOpacity>
         </Appbar.Header>
         <View>
           <ScrollView
             ref={tagRef}
             horizontal={true}
             contentContainerStyle={{
-              backgroundColor: '#D5E3FF',
+              backgroundColor: '#D5E3EF',
               height: 60,
               alignItems: 'center',
               padding: 2,
@@ -111,7 +111,7 @@ export default function OrderScreen() {
               <Button
                 style={[{ borderRadius: 6, height: 38, marginLeft: 10 },
                 item.classCode === cateIndex ?
-                  { backgroundColor: '#0087FF' }
+                  { backgroundColor: '#0077FF' }
                   : { backgroundColor: '#fff' }]}
                 contentStyle={[{ height: '100%' }]}
                 onPress={() => setCateIndex(item.classCode)}
@@ -135,7 +135,7 @@ export default function OrderScreen() {
           style={{
             flex: 1,
             width: '100%',
-            paddingTop:10,
+            paddingTop: 10,
             backgroundColor: theme.colors.mainbackground,
           }}
           refreshControl={
@@ -153,11 +153,11 @@ export default function OrderScreen() {
                 <Button
                   mode="elevated"
                   key={item.goodsCode}
-                  style={{ margin: width * 0.02,backgroundColor:'#fff',borderRadius:7}}
+                  style={{ margin: width * 0.02, backgroundColor: '#fff', borderRadius: 7 }}
                   labelStyle={
                     {
                       fontSize: 13,
-                      color:'#0087FF'
+                      color: '#0087FF'
                     }
                   }
                   contentStyle={{ height: width * 0.18, width: width * 0.46 }}
