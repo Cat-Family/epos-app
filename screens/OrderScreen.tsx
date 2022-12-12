@@ -17,15 +17,19 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import CryptoJS from 'crypto-js';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
+const { width, height } = Dimensions.get('screen');
+
 export default function OrderScreen() {
   const { theme, isDarkTheme, authInfo, userInfo } = React.useContext<any>(AuthContext);
   const [cateIndex, setCateIndex] = useState(0);
   const [refreshing, setRefreshing] = React.useState(false);
   const [products, setProducts] = useState<any>();
+  const [loading, setLoading] = useState<boolean>(false)
   let tagRef = useRef<any>()
   const navigation = useNavigation();
 
   const getGoods = async () => {
+    setLoading(true);
     try {
       const { data } = await axiosInstance.post(
         '/goods/QueryGoodsList/magicApiJSON.do',
@@ -42,6 +46,7 @@ export default function OrderScreen() {
     } catch (error: any) {
       console.log(error);
     }
+    setLoading(false)
   };
 
   const onRefresh = React.useCallback(async () => {
@@ -57,7 +62,6 @@ export default function OrderScreen() {
     getGoods();
   }, []);
 
-  const { width, height } = Dimensions.get('screen');
   return (
     <SafeAreaView
       style={{
@@ -97,7 +101,9 @@ export default function OrderScreen() {
             </View>
           </TouchableOpacity>
         </Appbar.Header>
-        <View>
+        <View style={{
+          backgroundColor: theme.colors.mainbackground,
+        }}>
           <ScrollView
             ref={tagRef}
             horizontal={true}
@@ -139,7 +145,7 @@ export default function OrderScreen() {
             backgroundColor: theme.colors.mainbackground,
           }}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            <RefreshControl refreshing={refreshing || loading} onRefresh={() => { !loading && onRefresh() }} />
           }
           contentContainerStyle={{
             flexDirection: 'row',
