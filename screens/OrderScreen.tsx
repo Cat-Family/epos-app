@@ -1,5 +1,5 @@
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -10,28 +10,30 @@ import {
   RefreshControl,
   Dimensions,
 } from 'react-native';
-import { Appbar, Badge, Button, FAB, Portal } from 'react-native-paper';
-import { AuthContext } from '../components/context';
+import {Appbar, Badge, Button, FAB, Portal} from 'react-native-paper';
+import {AuthContext} from '../components/context';
 import axiosInstance from '../utils/request';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import CryptoJS from 'crypto-js';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import {TouchableOpacity} from 'react-native-gesture-handler';
+import useFetch from '../hooks/useFetch';
 
-const { width, height } = Dimensions.get('screen');
+const {width, height} = Dimensions.get('screen');
 
 export default function OrderScreen() {
-  const { theme, isDarkTheme, authInfo, userInfo } = React.useContext<any>(AuthContext);
+  const {theme, isDarkTheme, authInfo, userInfo} =
+    React.useContext<any>(AuthContext);
   const [cateIndex, setCateIndex] = useState(0);
   const [refreshing, setRefreshing] = React.useState(false);
   const [products, setProducts] = useState<any>();
-  const [loading, setLoading] = useState<boolean>(false)
-  let tagRef = useRef<any>()
+  const [loading, setLoading] = useState<boolean>(false);
+
+  let tagRef = useRef<any>();
   const navigation = useNavigation();
 
   const getGoods = async () => {
-    setLoading(true);
     try {
-      const { data } = await axiosInstance.post(
+      const {data} = await axiosInstance.post(
         '/goods/QueryGoodsList/magicApiJSON.do',
         {
           authInfo: {
@@ -46,14 +48,16 @@ export default function OrderScreen() {
     } catch (error: any) {
       console.log(error);
     }
-    setLoading(false)
   };
 
   const onRefresh = React.useCallback(async () => {
-
     setRefreshing(true);
-    await getGoods();
-    tagRef.current?.scrollTo({ x: 0, y: 0, animated: true })
+    try {
+      await getGoods();
+    } catch (error: any) {
+      console.error(error);
+    }
+    tagRef.current?.scrollTo({x: 0, y: 0, animated: true});
 
     setRefreshing(false);
   }, []);
@@ -74,36 +78,44 @@ export default function OrderScreen() {
         backgroundColor={theme.colors.background}
         barStyle={isDarkTheme ? 'light-content' : 'dark-content'}
       />
-      <View style={{ display: 'flex', width: '100%', height: '100%' }}>
-        <Appbar.Header style={{
-          backgroundColor: theme.colors.background,
-          shadowColor: theme.colors.shadow,
-          shadowRadius: 10,
-          shadowOpacity: 0.6,
-          elevation: 8,
-          shadowOffset: {
-            width: 2,
-            height: 2,
-          },
-        }}>
-          <Appbar.Action icon="menu" onPress={() => { navigation.toggleDrawer() }} />
+      <View style={{display: 'flex', width: '100%', height: '100%'}}>
+        <Appbar.Header
+          style={{
+            backgroundColor: theme.colors.background,
+            shadowColor: theme.colors.shadow,
+            shadowRadius: 10,
+            shadowOpacity: 0.6,
+            elevation: 8,
+            shadowOffset: {
+              width: 2,
+              height: 2,
+            },
+          }}>
+          <Appbar.Action
+            icon="menu"
+            onPress={() => {
+              navigation.toggleDrawer();
+            }}
+          />
           <Appbar.Content title={userInfo?.storeInfo?.storeName} />
-          <TouchableOpacity onPress={() => navigation.navigate('MessageScreen')}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('MessageScreen')}>
             <View style={styles.badgeContainer}>
               <AntDesign
                 name="message1"
                 color={theme.colors.secondary}
-                size={26} />
-              <Badge
-                size={20}
-                style={{ top: 0, position: 'absolute' }}
-              >21</Badge>
+                size={26}
+              />
+              <Badge size={20} style={{top: 0, position: 'absolute'}}>
+                21
+              </Badge>
             </View>
           </TouchableOpacity>
         </Appbar.Header>
-        <View style={{
-          backgroundColor: theme.colors.mainbackground,
-        }}>
+        <View
+          style={{
+            backgroundColor: theme.colors.mainbackground,
+          }}>
           <ScrollView
             ref={tagRef}
             horizontal={true}
@@ -115,22 +127,22 @@ export default function OrderScreen() {
             }}>
             {products?.map((item: any) => (
               <Button
-                style={[{ borderRadius: 6, height: 38, marginLeft: 10 },
-                item.classCode === cateIndex ?
-                  { backgroundColor: '#0077FF' }
-                  : { backgroundColor: '#fff' }]}
-                contentStyle={[{ height: '100%' }]}
+                style={[
+                  {borderRadius: 6, height: 38, marginLeft: 10},
+                  item.classCode === cateIndex
+                    ? {backgroundColor: '#0077FF'}
+                    : {backgroundColor: '#fff'},
+                ]}
+                contentStyle={[{height: '100%'}]}
                 onPress={() => setCateIndex(item.classCode)}
                 key={item.classCode}
                 labelStyle={
                   item.classCode === cateIndex
-                    ? { color: '#fff' }
-                    : { color: '#0087FF' }
+                    ? {color: '#fff'}
+                    : {color: '#0087FF'}
                 }
                 mode={
-                  item.classCode === cateIndex
-                    ? 'contained'
-                    : 'contained-tonal'
+                  item.classCode === cateIndex ? 'contained' : 'contained-tonal'
                 }>
                 {item.className}
               </Button>
@@ -145,7 +157,12 @@ export default function OrderScreen() {
             backgroundColor: theme.colors.mainbackground,
           }}
           refreshControl={
-            <RefreshControl refreshing={refreshing || loading} onRefresh={() => { !loading && onRefresh() }} />
+            <RefreshControl
+              refreshing={refreshing || loading}
+              onRefresh={() => {
+                !loading && onRefresh();
+              }}
+            />
           }
           contentContainerStyle={{
             flexDirection: 'row',
@@ -159,23 +176,23 @@ export default function OrderScreen() {
                 <Button
                   mode="elevated"
                   key={item.goodsCode}
-                  style={{ margin: width * 0.02, backgroundColor: '#fff', borderRadius: 7 }}
-                  labelStyle={
-                    {
-                      fontSize: 13,
-                      color: '#0087FF'
-                    }
-                  }
-                  contentStyle={{ height: width * 0.18, width: width * 0.46 }}
+                  style={{
+                    margin: width * 0.02,
+                    backgroundColor: '#fff',
+                    borderRadius: 7,
+                  }}
+                  labelStyle={{
+                    fontSize: 13,
+                    color: '#0087FF',
+                  }}
+                  contentStyle={{height: width * 0.18, width: width * 0.46}}
                   onPress={() => console.log('test')}>
                   {item.goodsName}
                 </Button>
               ))}
         </ScrollView>
       </View>
-
-
-    </SafeAreaView >
+    </SafeAreaView>
   );
 }
 
@@ -201,6 +218,6 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
 });
