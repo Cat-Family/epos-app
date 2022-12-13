@@ -4,7 +4,7 @@ import { Dimensions, RefreshControl, ScrollView, SectionList, StatusBar, StyleSh
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Appbar, Button, TouchableRipple } from 'react-native-paper'
 import { AuthContext } from '../components/context'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useScrollToTop } from '@react-navigation/native'
 import * as Animatable from 'react-native-animatable';
 import CryptoJS from 'crypto-js';
 
@@ -54,6 +54,12 @@ const MessageScreen = () => {
             console.error(error.message)
         }
         setLoading(false)
+    }
+
+    const toTopFun = (data: any, index: number) => {
+        message.splice(index, 1);
+        let list = [{ ...data, isTop: 1 }].concat(message);
+        setMessage(JSON.parse(JSON.stringify(list)))
     }
 
     const onRefresh = async () => {
@@ -117,12 +123,14 @@ const MessageScreen = () => {
 
                         <TouchableRipple
                             key={item.id}
-                            style={styles.messageCard}
+                            style={[{ ...styles.messageCard },
+                            item.isTop && { backgroundColor: 'rgba(196, 198, 207, 0.3)' }]}
                             onPress={() => {
-                                setMessage(message.map(msg =>
-                                    msg.id === item.id ?
-                                        { ...msg, isRead: 1 }
-                                        : msg
+                                setMessage(message.map(
+                                    (msg: any) =>
+                                        msg.id === item.id ?
+                                            { ...msg, isRead: 1 }
+                                            : msg
                                 ))
                                 // unSelect message (ellipsId: undefined)
                                 if (Boolean(ellipsId)) {
@@ -155,7 +163,7 @@ const MessageScreen = () => {
                                    source={{ html: '<h1>Hello world</h1>' }}
   	                            /> */}
                                 <Text
-                                    numberOfLines={o
+                                    numberOfLines={
                                         (ellipsId === item.id && !ellips) ?
                                             undefined : 1
                                     }
@@ -165,9 +173,17 @@ const MessageScreen = () => {
                                 </Text>
                                 {ellipsId === item.id && !ellips
                                     && <View style={styles.action}>
-                                        <Button
-                                            style={[{ borderRadius: 6, height: 38, marginLeft: 10, fontWeight: '600' },]}
-                                            onPress={() => console.log("test")}>置顶</Button>
+                                        {item?.isTop === 0 ?
+                                            (<Button
+                                                style={[{ borderRadius: 6, height: 38, marginLeft: 10, fontWeight: '600' },]}
+                                                onPress={() => { toTopFun(item, index) }}>置顶
+                                            </Button>)
+                                            :
+                                            (<Button
+                                                style={[{ borderRadius: 6, height: 38, marginLeft: 10, fontWeight: '600' },]}
+                                                onPress={() => { toTopFun(item, index) }}>取消置顶
+                                            </Button>)
+                                        }
                                         <Button
                                             labelStyle={{ color: theme.colors.error }}
                                             style={[{ borderRadius: 6, height: 38, fontWeight: '600' }]}
