@@ -7,7 +7,7 @@ Please follow the [React native CLI Quickstart](https://reactnative.dev/docs/env
 
 * NOTE: 
 1. You can set up your environment with react native CLI doctor.
-``` shell
+```shell
   yarn react-native doctor  # use the cmdLine in your terminal
   
   # After running this command, with the shortcut F, the doctor will automatically fix the environment settings
