@@ -5,11 +5,12 @@ Build a cross-platform (Android IOS) EPOS application through the React native C
 ## Environment setup
 Please follow the [React native CLI Quickstart](https://reactnative.dev/docs/environment-setup) set up your environment.
 
-* NOTE: 
+* NOTE
 1. You can set up your environment with react native CLI doctor.
-```shell
+
+```
   yarn react-native doctor  # use the cmdLine in your terminal
-  
+
   # After running this command, with the shortcut F, the doctor will automatically fix the environment settings
 ```
 
