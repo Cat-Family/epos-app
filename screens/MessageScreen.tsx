@@ -29,7 +29,7 @@ const MessageScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   let scrollRef = useRef<any>();
 
-  const {loading, error, data, refresh} = useFetch(
+  const {isLoading, error, data, run} = useFetch(
     '/msg/QueryMessageList/magicApiJSON.do',
     'POST',
   );
@@ -38,16 +38,15 @@ const MessageScreen = () => {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    refresh();
-    // try {
-    //   setEllips(true);
-    //   setEllipsId(undefined);
-    //   setMessage(res.data.info);
-    // } catch (error: any) {
-    //   setEllips(true);
-    //   setEllipsId(undefined);
-    //   console.error(error.message);
-    // }
+    try {
+      setEllips(true);
+      setEllipsId(undefined);
+      await run();
+    } catch (error: any) {
+      setEllips(true);
+      setEllipsId(undefined);
+      console.error(error.message);
+    }
 
     setRefreshing(false);
   };
@@ -55,8 +54,7 @@ const MessageScreen = () => {
   useEffect(() => {
     setEllips(true);
     setEllipsId(undefined);
-    setMessage([]);
-    // fetchData();
+    run();
   }, []);
 
   return (
@@ -87,8 +85,8 @@ const MessageScreen = () => {
           }
         }
         refreshControl={
-          loading ? (
-            <RefreshControl refreshing={loading} />
+          isLoading ? (
+            <RefreshControl refreshing={isLoading} />
           ) : (
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           )
