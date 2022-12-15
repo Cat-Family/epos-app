@@ -17,44 +17,40 @@ import {useNavigation, useScrollToTop} from '@react-navigation/native';
 import * as Animatable from 'react-native-animatable';
 import CryptoJS from 'crypto-js';
 import useFetch from '../hooks/useFetch';
+import useMessage from '../hooks/actions/useMessage';
 
 const {width, height} = Dimensions.get('screen');
 
 const MessageScreen = () => {
   const {theme, isDarkTheme, authInfo} = React.useContext<any>(AuthContext);
   const navigation = useNavigation();
-  const [message, setMessage] = useState<any>([]);
   const [ellips, setEllips] = useState(true);
   const [ellipsId, setEllipsId] = useState(undefined);
   const [refreshing, setRefreshing] = useState(false);
   let scrollRef = useRef<any>();
 
-  const {isLoading, error, data, run} = useFetch(
-    '/msg/QueryMessageList/magicApiJSON.do',
-    'POST',
-  );
-
-  const toTopFun = (data: any, index: number) => {};
+  const {
+    topMessages,
+    messages,
+    error,
+    isLoading,
+    getMessagesHandler,
+    readMessageHandler,
+    topMessageHandler,
+    unTopMessageHandler,
+    deleteMessageHandler,
+  } = useMessage();
 
   const onRefresh = async () => {
-    setRefreshing(true);
-    try {
-      setEllips(true);
-      setEllipsId(undefined);
-      await run();
-    } catch (error: any) {
-      setEllips(true);
-      setEllipsId(undefined);
-      console.error(error.message);
-    }
-
-    setRefreshing(false);
+    setEllips(true);
+    setEllipsId(undefined);
+    getMessagesHandler(true);
   };
 
   useEffect(() => {
     setEllips(true);
     setEllipsId(undefined);
-    run();
+    getMessagesHandler(true);
   }, []);
 
   return (
@@ -85,107 +81,150 @@ const MessageScreen = () => {
           }
         }
         refreshControl={
-          isLoading ? (
-            <RefreshControl refreshing={isLoading} />
-          ) : (
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          )
+          <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
         }
         contentContainerStyle={{
           alignItems: 'center',
           justifyContent: 'center',
           // marginTop: 5,
         }}>
-        {data?.info &&
-          data.info.map((item: any, index: number) => (
-            <TouchableRipple
-              key={item.id}
-              style={[
-                {...styles.messageCard},
-                item.isTop && {backgroundColor: 'rgba(196, 198, 207, 0.3)'},
-              ]}
-              onPress={() => {
-                setMessage(
-                  message.map((msg: any) =>
-                    msg.id === item.id ? {...msg, isRead: 1} : msg,
-                  ),
-                );
-                // unSelect message (ellipsId: undefined)
-                if (Boolean(ellipsId)) {
-                  // switch message card (ellipsId equals item id)
-                  if (ellipsId === item.id) {
-                    // toggle ellips
-                    setEllips(!ellips);
-                  } else {
-                    // switch message
-                    setEllipsId(item.id);
-                    setEllips(false);
-                  }
+        {topMessages.map((item: any, index: number) => (
+          <TouchableRipple
+            key={item.id}
+            style={[
+              {...styles.messageCard},
+              item.isTop && {backgroundColor: 'rgba(196, 198, 207, 0.3)'},
+            ]}
+            onPress={() => {
+              if (item.isRead === 0) {
+                readMessageHandler(item.id, item.isTop);
+              }
+              // unSelect message (ellipsId: undefined)
+              if (Boolean(ellipsId)) {
+                // switch message card (ellipsId equals item id)
+                if (ellipsId === item.id) {
+                  // toggle ellips
+                  setEllips(!ellips);
                 } else {
-                  // un select message
-                  setEllips(false);
+                  // switch message
                   setEllipsId(item.id);
+                  setEllips(false);
                 }
-              }}>
-              <Animatable.View
-              // animation={"zoomIn"}
-              // easing="ease-in-out"
-              >
-                <Text style={styles.subject}>{`${item?.subject}`}</Text>
-                {item?.isRead === 0 && <Text style={styles.statusIcon}></Text>}
-                <Text>{`${item?.creatTime}`}</Text>
-                <Text
-                  numberOfLines={
-                    ellipsId === item.id && !ellips ? undefined : 1
-                  }
-                  ellipsizeMode="tail"
-                  style={styles.content}>
-                  {`${item?.content}`}
-                </Text>
-                {ellipsId === item.id && !ellips && (
-                  <View style={styles.action}>
-                    {item?.isTop === 0 ? (
-                      <Button
-                        style={[
-                          {
-                            borderRadius: 6,
-                            height: 38,
-                            marginLeft: 10,
-                            fontWeight: '600',
-                          },
-                        ]}
-                        onPress={() => {
-                          toTopFun(item, index);
-                        }}>
-                        置顶
-                      </Button>
-                    ) : (
-                      <Button
-                        style={[
-                          {
-                            borderRadius: 6,
-                            height: 38,
-                            marginLeft: 10,
-                            fontWeight: '600',
-                          },
-                        ]}
-                        onPress={() => {
-                          toTopFun(item, index);
-                        }}>
-                        取消置顶
-                      </Button>
-                    )}
-                    <Button
-                      labelStyle={{color: theme.colors.error}}
-                      style={[{borderRadius: 6, height: 38, fontWeight: '600'}]}
-                      onPress={() => console.log('test')}>
-                      删除
-                    </Button>
-                  </View>
-                )}
-              </Animatable.View>
-            </TouchableRipple>
-          ))}
+              } else {
+                // un select message
+                setEllips(false);
+                setEllipsId(item.id);
+              }
+            }}>
+            <Animatable.View
+            // animation={"zoomIn"}
+            // easing="ease-in-out"
+            >
+              <Text style={styles.subject}>{`${item?.subject}`}</Text>
+              {item?.isRead === 0 && <Text style={styles.statusIcon}></Text>}
+              <Text>{`${item?.creatTime}`}</Text>
+              <Text
+                numberOfLines={ellipsId === item.id && !ellips ? undefined : 1}
+                ellipsizeMode="tail"
+                style={styles.content}>
+                {`${item?.content}`}
+              </Text>
+              {ellipsId === item.id && !ellips && (
+                <View style={styles.action}>
+                  <Button
+                    style={[
+                      {
+                        borderRadius: 6,
+                        height: 38,
+                        marginLeft: 10,
+                        fontWeight: '600',
+                      },
+                    ]}
+                    onPress={() => {
+                      unTopMessageHandler(item.id);
+                    }}>
+                    取消置顶
+                  </Button>
+                  <Button
+                    labelStyle={{color: theme.colors.error}}
+                    style={[{borderRadius: 6, height: 38, fontWeight: '600'}]}
+                    onPress={() => deleteMessageHandler(item.id)}>
+                    删除
+                  </Button>
+                </View>
+              )}
+            </Animatable.View>
+          </TouchableRipple>
+        ))}
+        {messages.map((item: any, index: number) => (
+          <TouchableRipple
+            key={item.id}
+            style={[
+              {...styles.messageCard},
+              item.isTop && {backgroundColor: 'rgba(196, 198, 207, 0.3)'},
+            ]}
+            onPress={() => {
+              if (item.isRead === 0) {
+                readMessageHandler(item.id, item.isTop);
+              }
+              // unSelect message (ellipsId: undefined)
+              if (Boolean(ellipsId)) {
+                // switch message card (ellipsId equals item id)
+                if (ellipsId === item.id) {
+                  // toggle ellips
+                  setEllips(!ellips);
+                } else {
+                  // switch message
+                  setEllipsId(item.id);
+                  setEllips(false);
+                }
+              } else {
+                // un select message
+                setEllips(false);
+                setEllipsId(item.id);
+              }
+            }}>
+            <Animatable.View
+            // animation={"zoomIn"}
+            // easing="ease-in-out"
+            >
+              <Text style={styles.subject}>{`${item?.subject}`}</Text>
+              {item?.isRead === 0 && <Text style={styles.statusIcon}></Text>}
+              <Text>{`${item?.creatTime}`}</Text>
+              <Text
+                numberOfLines={ellipsId === item.id && !ellips ? undefined : 1}
+                ellipsizeMode="tail"
+                style={styles.content}>
+                {`${item?.content}`}
+              </Text>
+              {ellipsId === item.id && !ellips && (
+                <View style={styles.action}>
+                  <Button
+                    style={[
+                      {
+                        borderRadius: 6,
+                        height: 38,
+                        marginLeft: 10,
+                        fontWeight: '600',
+                      },
+                    ]}
+                    onPress={() => {
+                      topMessageHandler(item.id);
+                    }}>
+                    置顶
+                  </Button>
+
+                  <Button
+                    labelStyle={{color: theme.colors.error}}
+                    style={[{borderRadius: 6, height: 38, fontWeight: '600'}]}
+                    onPress={() => deleteMessageHandler(item.id)}>
+                    删除
+                  </Button>
+                </View>
+              )}
+            </Animatable.View>
+          </TouchableRipple>
+        ))}
         <View style={{height: 92}}></View>
       </ScrollView>
     </SafeAreaView>

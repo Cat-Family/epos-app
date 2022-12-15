@@ -1,39 +1,16 @@
-import {useState, FC, useEffect, useContext, useMemo, useReducer} from 'react';
+import {useContext, useMemo, useReducer} from 'react';
 import {AuthContext} from '../components/context';
 import CryptoJS from 'crypto-js';
 import {
   getAndroidIdSync,
-  getApiLevelSync,
-  getAvailableLocationProvidersSync,
-  getBaseOsSync,
-  getBootloaderSync,
-  getBuildIdSync,
   getCarrierSync,
   getDeviceNameSync,
   getFingerprintSync,
-  getFirstInstallTimeSync,
-  getHardwareSync,
   getHostSync,
-  getInstallerPackageNameSync,
-  getInstallReferrerSync,
-  getInstanceIdSync,
-  getIpAddressSync,
-  getLastUpdateTimeSync,
   getMacAddressSync,
-  getPhoneNumberSync,
-  getProductSync,
-  getSerialNumberSync,
-  getSystemAvailableFeaturesSync,
-  getTagsSync,
-  getTypeSync,
-  getUniqueId,
   getUniqueIdSync,
-  getVersion,
-  hasGmsSync,
-  hasHmsSync,
+  getUserAgentSync,
   isEmulatorSync,
-  useDeviceName,
-  useIsEmulator,
 } from 'react-native-device-info';
 import JSEncrypt from 'jsencrypt';
 
@@ -41,23 +18,20 @@ export const baseURL: string = 'https://qianyushop.shop/api/appClient';
 
 type ReaducerType = 'LOADING' | 'SUCCESS' | 'FAIL';
 
-const useFetch = <T,>(
-  url: string,
-  method?: string | undefined,
-  body?: any,
-  headers?: HeadersInit_ | undefined,
-  credentials?: RequestCredentials_ | undefined,
-  integrity?: string | undefined,
-  keepalive?: boolean | undefined,
-  mode?: RequestMode_ | undefined,
-  referrer?: string | undefined,
-  window?: any,
-  signal?: AbortSignal | undefined,
-): {
-  run: () => Promise<void>;
-  isLoading: boolean;
-  error: any;
-  data: any;
+const useFetch = (): {
+  fetchData: (
+    url?: string,
+    method?: string | undefined,
+    body?: any,
+    headers?: HeadersInit_ | undefined,
+    credentials?: RequestCredentials_ | undefined,
+    integrity?: string | undefined,
+    keepalive?: boolean | undefined,
+    mode?: RequestMode_ | undefined,
+    referrer?: string | undefined,
+    window?: any,
+    signal?: AbortSignal | undefined,
+  ) => Promise<any>;
 } => {
   const {signOut, authInfo} = useContext(AuthContext);
   const jsencrypt = new JSEncrypt({});
@@ -72,6 +46,7 @@ const useFetch = <T,>(
   const uniqueId = jsencrypt.encrypt(getUniqueIdSync());
   const host = jsencrypt.encrypt(getHostSync());
   const carrier = getCarrierSync();
+  const userAggent = getUserAgentSync();
 
   const deviceInfo = {
     macAddress,
@@ -82,50 +57,22 @@ const useFetch = <T,>(
     uniqueId,
     host,
     carrier,
+    userAggent,
   };
 
-  const [state, dispatch] = useReducer(
-    (
-      prevState: {isLoading: boolean; error: any; data: any},
-      action: {
-        type: ReaducerType;
-        isLoading?: boolean;
-        data?: any;
-        error?: any;
-      },
-    ) => {
-      switch (action.type) {
-        case 'LOADING':
-          return {
-            ...prevState,
-            isLoading: true,
-          };
-        case 'SUCCESS':
-          return {
-            ...prevState,
-            isLoading: false,
-            data: action.data,
-          };
-        case 'FAIL':
-          return {
-            ...prevState,
-            isLoading: false,
-            error: action.error,
-          };
-        default:
-          return {
-            ...prevState,
-          };
-      }
-    },
-    {
-      isLoading: true,
-      error: undefined,
-      data: undefined,
-    },
-  );
-
-  const fetchData = async (): Promise<void> => {
+  const fetchData = async (
+    url?: string,
+    method?: string | undefined,
+    body?: any,
+    headers?: HeadersInit_ | undefined,
+    credentials?: RequestCredentials_ | undefined,
+    integrity?: string | undefined,
+    keepalive?: boolean | undefined,
+    mode?: RequestMode_ | undefined,
+    referrer?: string | undefined,
+    window?: any,
+    signal?: AbortSignal | undefined,
+  ): Promise<any> => {
     let response;
     try {
       response = await fetch(baseURL + url, {
@@ -172,23 +119,7 @@ const useFetch = <T,>(
     }
   };
 
-  const value = useMemo(
-    () => ({
-      run: async () => {
-        try {
-          dispatch({type: 'LOADING'});
-          const res = await fetchData();
-          dispatch({type: 'SUCCESS', data: res});
-        } catch (error: any) {
-          dispatch({type: 'FAIL'});
-        }
-      },
-      ...state,
-    }),
-    [state, dispatch],
-  );
-
-  return {...value};
+  return {fetchData};
 };
 
 export default useFetch;
