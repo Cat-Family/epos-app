@@ -1,20 +1,23 @@
-import React, {useEffect, useMemo} from 'react';
-import {View, Image} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
-import {Provider as PaperProvider} from 'react-native-paper';
+import React, { useEffect, useMemo } from 'react';
+import { View, Image } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { Provider as PaperProvider } from 'react-native-paper';
+import { Realm, createRealmContext } from '@realm/react';
+
 
 import AuthStack from './navigation/AuthStack';
 import AppStack from './navigation/AppStack';
 
-import AuthContext, {Auth} from './app/models/Auth';
-const {RealmProvider, useQuery} = AuthContext;
-import {AuthContext as AppContext} from './components/context';
+import AuthContext, { Auth } from './app/models/Auth';
+const { RealmProvider, useQuery, useObject, useRealm } = AuthContext;
+
+import { AuthContext as AppContext } from './components/context';
 import AsyncStorage from '@react-native-community/async-storage';
-import {CustomDarkTheme, CustomDefaultTheme} from './app/theme';
+import { CustomDarkTheme, CustomDefaultTheme } from './app/theme';
 
 const App = () => {
   const [state, dispatch] = React.useReducer(
-    (prevState: any, action: {type: any; userInfo?: any; authInfo?: any}) => {
+    (prevState: any, action: { type: any; userInfo?: any; authInfo?: any }) => {
       switch (action.type) {
         case 'RESTORE_TOKEN':
           return {
@@ -47,12 +50,12 @@ const App = () => {
     },
   );
   const [isDarkTheme, setIsDarkTheme] = React.useState(false);
-
+  const realm = useRealm()
   const theme = isDarkTheme ? CustomDarkTheme : CustomDefaultTheme;
 
-  const auth = useQuery(Auth);
+  // const auth = useQuery(Auth);
+  // const object = useObject(Auth, new Realm.BSON.ObjectId('639dd287cf81b655778b9cde'));
 
-  console.log(auth);
 
   useEffect(() => {
     const bootstrapAsync = async () => {
@@ -85,12 +88,12 @@ const App = () => {
   const authContext = useMemo(
     () => ({
       signIn: async (userInfo: any, authInfo: any) => {
-        dispatch({type: 'SIGN_IN', userInfo, authInfo});
+        dispatch({ type: 'SIGN_IN', userInfo, authInfo });
       },
       signOut: async () => {
         await AsyncStorage.removeItem('authInfo');
         await AsyncStorage.removeItem('userInfo');
-        dispatch({type: 'SIGN_OUT'});
+        dispatch({ type: 'SIGN_OUT' });
       },
       // signUp: async data => {
       // },
@@ -117,7 +120,7 @@ const App = () => {
         <Image
           source={require('./assets/logo.png')}
           resizeMode="cover"
-          style={{height: 200, width: 200}}
+          style={{ height: 200, width: 200 }}
         />
       </View>
     );

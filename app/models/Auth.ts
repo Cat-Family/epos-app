@@ -6,28 +6,12 @@ export class Auth extends Realm.Object {
   token!: string;
   tenantId!: string;
   clientVersion!: string;
-  loginTime!: Date;
+  loginTime!: string;
   platform!: string;
   blackList!: boolean;
   userId!: string;
   ip!: string;
   createdAt!: Date;
-
-  static generate() {
-    return {
-      _id: new Realm.BSON.ObjectId(),
-      userName: 'Tourist',
-      token: null,
-      tenantId: null,
-      clientVersion: null,
-      loginTime: null,
-      platform: null,
-      blackList: false,
-      userId: null,
-      ip: null,
-      createdAt: new Date(),
-    };
-  }
 
   static schema = {
     name: 'Auth',
@@ -38,7 +22,7 @@ export class Auth extends Realm.Object {
       token: 'string',
       tenantId: 'string',
       clientVersion: 'string',
-      loginTime: 'date',
+      loginTime: 'string',
       platform: 'string',
       blackList: {type: 'bool', default: false},
       userId: 'string',
@@ -50,23 +34,6 @@ export class Auth extends Realm.Object {
 
 const config = {
   schema: [Auth],
-  onFirstOpen(realm) {
-    realm.write(() => {
-      realm.create('Auth', {
-        _id: new Realm.BSON.ObjectId(),
-        userName: 'Tourist',
-        token: null,
-        tenantId: null,
-        clientVersion: null,
-        loginTime: null,
-        platform: null,
-        blackList: false,
-        userId: null,
-        ip: null,
-        createdAt: new Date(),
-      });
-    });
-  },
 };
 
 const AuthContext = createRealmContext(config);
