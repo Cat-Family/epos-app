@@ -1,5 +1,4 @@
 import {useReducer} from 'react';
-import {boolean} from 'yup';
 import useFetch from '../useFetch';
 
 type ReaducerType =

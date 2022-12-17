@@ -6,7 +6,9 @@ import {Provider as PaperProvider} from 'react-native-paper';
 import AuthStack from './navigation/AuthStack';
 import AppStack from './navigation/AppStack';
 
-import {AuthContext} from './components/context';
+import AuthContext, {Auth} from './app/models/Auth';
+const {RealmProvider, useQuery} = AuthContext;
+import {AuthContext as AppContext} from './components/context';
 import AsyncStorage from '@react-native-community/async-storage';
 import {CustomDarkTheme, CustomDefaultTheme} from './app/theme';
 
@@ -47,6 +49,10 @@ const App = () => {
   const [isDarkTheme, setIsDarkTheme] = React.useState(false);
 
   const theme = isDarkTheme ? CustomDarkTheme : CustomDefaultTheme;
+
+  const auth = useQuery(Auth);
+
+  console.log(auth);
 
   useEffect(() => {
     const bootstrapAsync = async () => {
@@ -118,14 +124,22 @@ const App = () => {
   }
 
   return (
-    <AuthContext.Provider value={authContext}>
+    <AppContext.Provider value={authContext}>
       <PaperProvider theme={theme}>
         <NavigationContainer theme={theme}>
           {state.authInfo ? <AppStack /> : <AuthStack />}
         </NavigationContainer>
       </PaperProvider>
-    </AuthContext.Provider>
+    </AppContext.Provider>
   );
 };
 
-export default App;
+const AppWrapper = () => {
+  return (
+    <RealmProvider>
+      <App />
+    </RealmProvider>
+  );
+};
+
+export default AppWrapper;

@@ -16,7 +16,6 @@ import {AuthContext} from '../components/context';
 import {useNavigation, useScrollToTop} from '@react-navigation/native';
 import * as Animatable from 'react-native-animatable';
 import CryptoJS from 'crypto-js';
-import useFetch from '../hooks/useFetch';
 import useMessage from '../hooks/actions/useMessage';
 
 const {width, height} = Dimensions.get('screen');
@@ -26,7 +25,6 @@ const MessageScreen = () => {
   const navigation = useNavigation();
   const [ellips, setEllips] = useState(true);
   const [ellipsId, setEllipsId] = useState(undefined);
-  const [refreshing, setRefreshing] = useState(false);
   let scrollRef = useRef<any>();
 
   const {
