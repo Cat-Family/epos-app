@@ -14,6 +14,8 @@ const {RealmProvider, useQuery, useObject, useRealm} = AppContext;
 
 import {AuthContext} from './components/context';
 import {CustomDarkTheme, CustomDefaultTheme} from './app/theme';
+import {Store} from './app/models/Store';
+import {Printer} from './app/models/Printer';
 
 const App = () => {
   const realm = useRealm();
@@ -23,6 +25,13 @@ const App = () => {
   const theme = isDarkTheme ? CustomDarkTheme : CustomDefaultTheme;
   const auth = useQuery(Auth);
   const user = useQuery(User);
+  const printers = useQuery(Printer);
+  const store = useQuery(Store);
+
+  console.log(auth);
+  console.log(user);
+  console.log(printers);
+  console.log(store);
 
   // const object = useObject(Auth, new Realm.BSON.ObjectId('639dd287cf81b655778b9cde'));
 

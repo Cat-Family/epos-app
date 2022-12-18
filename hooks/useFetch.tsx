@@ -1,5 +1,3 @@
-import {useContext, useMemo, useReducer} from 'react';
-import {AuthContext} from '../components/context';
 import CryptoJS from 'crypto-js';
 import {
   getAndroidIdSync,
@@ -16,11 +14,11 @@ import JSEncrypt from 'jsencrypt';
 import AppContext from '../app/context/AppContext';
 import {Auth} from '../app/models/Auth';
 import {User} from '../app/models/User';
+import {Store} from '../app/models/Store';
+import {Printer} from '../app/models/Printer';
 const {useQuery, useRealm} = AppContext;
 
 export const baseURL: string = 'https://qianyushop.shop/api/appClient';
-
-type ReaducerType = 'LOADING' | 'SUCCESS' | 'FAIL';
 
 const useFetch = (): {
   fetchData: (
@@ -52,6 +50,8 @@ const useFetch = (): {
   const userAggent = getUserAgentSync();
   const auth = useQuery(Auth);
   const user = useQuery(User);
+  const printers = useQuery(Store);
+  const store = useQuery(Printer);
   const realm = useRealm();
 
   const deviceInfo = {
@@ -120,6 +120,8 @@ const useFetch = (): {
           realm.write(() => {
             realm.delete(auth);
             realm.delete(user);
+            realm.delete(printers);
+            realm.delete(store);
           });
           return Promise.reject(parseResponse);
         }

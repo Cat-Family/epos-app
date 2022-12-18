@@ -17,10 +17,14 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import CryptoJS from 'crypto-js';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import useFetch from '../hooks/useFetch';
+import {Store} from '../app/models/Store';
+import AppContext from '../app/context/AppContext';
+const {useQuery} = AppContext;
 
 const {width, height} = Dimensions.get('screen');
 
 export default function OrderScreen() {
+  const store = useQuery(Store);
   const {theme, isDarkTheme, authInfo, userInfo} =
     React.useContext<any>(AuthContext);
   const [cateIndex, setCateIndex] = useState(0);
@@ -97,7 +101,7 @@ export default function OrderScreen() {
               navigation.toggleDrawer();
             }}
           />
-          <Appbar.Content title={userInfo?.storeInfo?.storeName} />
+          <Appbar.Content title={store[0].storeName} />
           <TouchableOpacity
             onPress={() => navigation.navigate('MessageScreen')}>
             <View style={styles.badgeContainer}>

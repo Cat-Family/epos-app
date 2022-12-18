@@ -6,6 +6,8 @@ const {useRealm, useQuery} = AppContext;
 import JSEncrypt from 'jsencrypt';
 import {Auth} from '../../app/models/Auth';
 import {User} from '../../app/models/User';
+import {Store} from '../../app/models/Store';
+import {Printer} from '../../app/models/Printer';
 
 type ReaducerType = 'LOADING' | 'SUCCESS' | 'FAIL' | 'RESTORE';
 
@@ -14,6 +16,8 @@ const useAuth = () => {
   const {fetchData} = useFetch();
   const auth = useQuery(Auth);
   const user = useQuery(User);
+  const printers = useQuery(Store);
+  const store = useQuery(Printer);
 
   const [state, dispatch] = useReducer(
     (
@@ -91,14 +95,6 @@ const useAuth = () => {
         data,
       );
 
-      realm.write(() => {
-        realm.create('Auth', {
-          _id: new Realm.BSON.ObjectId(),
-          ...authResponse.loginInfo.authInfo,
-          createdAt: new Date(),
-        });
-      });
-
       const userResponse = await fetchData(
         '/user/UserInfo/magicApiJSON.do',
         'POST',
@@ -116,6 +112,12 @@ const useAuth = () => {
       );
 
       realm.write(() => {
+        realm.create('Auth', {
+          _id: new Realm.BSON.ObjectId(),
+          ...authResponse.loginInfo.authInfo,
+          createdAt: new Date(),
+        });
+
         realm.create('User', {
           _id: new Realm.BSON.ObjectId(),
           userName: userResponse.userInfo.basicInfo.userName,
@@ -128,6 +130,35 @@ const useAuth = () => {
           ),
           createdAt: new Date(),
         });
+
+        realm.create('Store', {
+          _id: new Realm.BSON.ObjectId(),
+          storeCode: userResponse.userInfo.storeInfo.storeCode,
+          storeName: userResponse.userInfo.storeInfo.storeName,
+          tenantId: userResponse.userInfo.storeInfo.tenantId,
+          createTime: new Date(
+            new Date(
+              userResponse.userInfo.basicInfo.createTime.replace(/-/g, '/'),
+            ).valueOf(),
+          ),
+          createdAt: new Date(),
+        });
+
+        userResponse.userInfo.printInfos.map((printer: any) => {
+          realm.create('Printer', {
+            _id: new Realm.BSON.ObjectId(),
+            bandName: printer.bandName,
+            deviceId: printer.deviceId,
+            deviceSecret: printer.deviceSecret,
+            vendorName: printer.vendorName,
+            createTime: new Date(
+              new Date(
+                userResponse.userInfo.basicInfo.createTime.replace(/-/g, '/'),
+              ).valueOf(),
+            ),
+            createdAt: new Date(),
+          });
+        });
       });
       dispatch({type: 'SUCCESS'});
     } catch (error: any) {
@@ -139,6 +170,8 @@ const useAuth = () => {
     realm.write(() => {
       realm.delete(auth);
       realm.delete(user);
+      realm.delete(printers);
+      realm.delete(store);
     });
   };
 

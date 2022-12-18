@@ -7,37 +7,27 @@ import SettingsScreen from '../screens/SettingsScreen';
 import TabNavigator from './TabNavigator';
 import CustomDrawer from '../components/CustomDrawer';
 import {AuthContext} from '../components/context';
+import AppContext from '../app/context/AppContext';
+import {Store} from '../app/models/Store';
+const {useQuery} = AppContext;
 
 const Drawer = createDrawerNavigator();
 
 const DrawerStack = () => {
-  const {theme, userInfo} = React.useContext<any>(AuthContext);
+  const {theme} = React.useContext<any>(AuthContext);
+  const store = useQuery(Store);
 
   return (
     <Drawer.Navigator
       drawerContent={props => <CustomDrawer {...props} />}
       screenOptions={{
         headerShown: false,
-        headerTitle: userInfo?.storeInfo?.storeName,
-        headerTintColor: theme.colors.onSurfaceVariant,
-        headerStyle: {
-          backgroundColor: theme.colors.background,
-          shadowColor: theme.colors.shadow,
-          shadowRadius: 10,
-          shadowOpacity: 0.6,
-          elevation: 8,
-          shadowOffset: {
-            width: 2,
-            height: 2,
-          },
-        },
-        drawerStyle: theme.colors.outline,
       }}>
       <Drawer.Screen
         name="Home"
         component={TabNavigator}
         options={{
-          drawerLabel: userInfo?.storeInfo?.storeName,
+          drawerLabel: store[0]?.storeName,
           drawerIcon: ({color}) => (
             <Fontisto
               name="shopping-store"
