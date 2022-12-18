@@ -1,27 +1,20 @@
 import React, {FC} from 'react';
-import {
-  View,
-  Text,
-  ImageBackground,
-  Image,
-  TouchableOpacity,
-} from 'react-native';
+import {View, ImageBackground} from 'react-native';
 import {
   DrawerContentScrollView,
   DrawerItem,
   DrawerItemList,
 } from '@react-navigation/drawer';
-
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import Fontisto from 'react-native-vector-icons/Fontisto';
 import {AuthContext} from './context';
 import {Avatar} from 'react-native-paper';
-import {CustomDefaultTheme} from '../app/theme';
+import useAuth from '../hooks/actions/useAuth';
 
 interface IProps {}
 
 const CustomDrawer: FC<IProps> = props => {
-  const {signOut, userInfo, theme} = React.useContext<any>(AuthContext);
+  const {userInfo, theme} = React.useContext<any>(AuthContext);
+  const {signOutHandler} = useAuth();
 
   return (
     <>
@@ -62,7 +55,7 @@ const CustomDrawer: FC<IProps> = props => {
         }}>
         <DrawerItem
           onPress={() => {
-            signOut();
+            signOutHandler();
           }}
           icon={({color}) => (
             <Ionicons color={color} name="exit-outline" size={22} />

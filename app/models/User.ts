@@ -1,11 +1,10 @@
 import {Realm} from '@realm/react';
 export class User extends Realm.Object {
   _id!: Realm.BSON.ObjectId;
-  userName!: string;
+  userName?: string;
   phoneNum!: string;
   isDelete!: string;
   createTime!: Date;
-  auths!: Array<number>;
   createdAt!: Date;
 
   static schema = {
@@ -13,11 +12,10 @@ export class User extends Realm.Object {
     primaryKey: '_id',
     properties: {
       _id: 'objectId',
-      userName: 'string',
+      userName: 'string?',
       phoneNum: 'string',
       isDelete: 'string',
       createTime: 'date',
-      auths: 'array',
       createdAt: 'date',
     },
   };

@@ -16,8 +16,8 @@ const useMessage = () => {
       prevState: {
         isLoading: boolean;
         error: any;
-        messages: Array<any>;
-        topMessages: Array<any>;
+        messages: any;
+        topMessages: any;
       },
       action: {
         type: ReaducerType;

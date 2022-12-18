@@ -10,32 +10,20 @@ import {
   Alert,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
-import LinearGradient from 'react-native-linear-gradient';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { useForm, Controller } from 'react-hook-form';
-import { Button, Paragraph, Dialog, Portal } from 'react-native-paper';
-
-import { useNavigation } from '@react-navigation/native';
-import { AuthNavigationProp } from '../navigation/AuthStack';
-import { AuthContext as AppContext } from '../components/context';
-import AsyncStorage from '@react-native-community/async-storage';
-import { object, string, TypeOf } from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import CryptoJS from 'crypto-js';
-import JSEncrypt from 'jsencrypt';
-import axiosInstance from '../utils/request';
-
-
-import AuthContext, { Auth } from '../app/models/Auth';
-const { RealmProvider, useQuery, useRealm } = AuthContext;
-import {Realm} from '@realm/react';
-
+import {useForm, Controller} from 'react-hook-form';
+import {Button, Paragraph, Dialog, Portal} from 'react-native-paper';
+import {useNavigation} from '@react-navigation/native';
+import {AuthNavigationProp} from '../navigation/AuthStack';
+import {AuthContext} from '../components/context';
+import {object, string, TypeOf} from 'yup';
+import {yupResolver} from '@hookform/resolvers/yup';
+import AppContext from '../app/context/AppContext';
+import useAuth from '../hooks/actions/useAuth';
 
 const SignInScreen = () => {
-  const realm = useRealm();
-
   const validationSchema = object({
     storeCode: string()
       .required('商家码不能为空')
@@ -46,83 +34,23 @@ const SignInScreen = () => {
 
   type ValidationInput = TypeOf<typeof validationSchema>;
 
-  const { signIn, theme } = React.useContext<any>(AppContext);
-  const [loading, setLoading] = React.useState<boolean>(false);
-  const [isAlert, setIsAlert] = React.useState<boolean>(false);
-  const [alertMessage, setAlertMessage] = React.useState<any>();
+  const {theme} = React.useContext<any>(AuthContext);
+  const {signInHandler, isLoading, error, dispatch} = useAuth();
 
   const [secureTextEntry, setSecureTextEntry] = React.useState(true);
   const navigation = useNavigation<AuthNavigationProp>();
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: {errors},
   } = useForm<ValidationInput>({
     resolver: yupResolver(validationSchema),
   });
+
   const onSubmit = async (value: any) => {
-    setLoading(true);
     if (value.storeCode && value.userName && value.password) {
-      const jsencrypt = new JSEncrypt({});
-      jsencrypt.setPublicKey(
-        'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1d/4OjtZKvWDgp9yFaAiQmhAB0EvupK38QgcrdxcPjuK/BNhTHXgXAPPV1GNNN5dEctHpS2V10DFgqcjBT4iUm9U0edbexYhOmmoJhBp7IGwE1joM7lw0Ik8MfrLKJfDq2R6D8EnqnnBmVBc88jDRdhyw/W9PDxbAcTVAw0pmqLQpkuVID54gutjolt259Sb/70cHJT0fr9hqytUMl83yDy/6bw1rUBjjlr2ICDOZpsPaMB/blqDBRkfpBTwkJT2Xvax6Ik2e5I409RDQA9c/TDfsQYoWp8MqxzErHL66mPpQf05w7uFRB1CTsaaSIw9myHsi4m0FwYCziDs7pEv+QIDAQAB',
-      );
-      const password = jsencrypt.encrypt(
-        CryptoJS.SHA3(value.password as string, {
-          outputLength: 512,
-        }).toString(CryptoJS.enc.Base64),
-      );
-
-      try {
-        const { data } = await axiosInstance.post(
-          '/user/UserLogin/magicApiJSON.do',
-          {
-            ...value,
-            password: password,
-            authInfo: {
-              reqTime: new Date().getTime(),
-              reqUid: CryptoJS.MD5(new Date().getTime().toString()).toString(),
-            },
-          },
-        );
-
-        await AsyncStorage.setItem(
-          'authInfo',
-          JSON.stringify(data.loginInfo.authInfo),
-        );
-
-        realm.write(() => {
-          realm.create("Auth", {
-            _id: new Realm.BSON.ObjectId(),
-            ...data.loginInfo.authInfo,
-            createdAt: new Date()
-          });
-        });
-
-        const res = await axiosInstance.post('/user/UserInfo/magicApiJSON.do', {
-          authInfo: {
-            ...data.loginInfo.authInfo,
-            reqTime: new Date().getTime(),
-            reqUid: CryptoJS.MD5(
-              new Date().getTime() +
-              data.loginInfo.authInfo.tenantId +
-              data.loginInfo.authInfo.userName,
-            ).toString(),
-          },
-        });
-
-        await AsyncStorage.setItem(
-          'userInfo',
-          JSON.stringify(res.data.userInfo),
-        );
-
-        signIn(res.data.userInfo, data.loginInfo.authInfo);
-      } catch (error: any) {
-        setIsAlert(true);
-        setAlertMessage({ message: error.message || '网络异常' });
-      }
+      signInHandler(value);
     }
-    setLoading(false);
   };
 
   const updateSecureTextEntry = () => {
@@ -145,7 +73,7 @@ const SignInScreen = () => {
         ]}>
         <Controller
           control={control}
-          render={({ field: { onChange, onBlur, value } }) => (
+          render={({field: {onChange, onBlur, value}}) => (
             <>
               <Text
                 style={[
@@ -191,7 +119,7 @@ const SignInScreen = () => {
 
         <Controller
           control={control}
-          render={({ field: { onChange, onBlur, value } }) => (
+          render={({field: {onChange, onBlur, value}}) => (
             <>
               <Text
                 style={[
@@ -236,7 +164,7 @@ const SignInScreen = () => {
 
         <Controller
           control={control}
-          render={({ field: { onChange, onBlur, value } }) => (
+          render={({field: {onChange, onBlur, value}}) => (
             <>
               <Text
                 style={[
@@ -285,14 +213,14 @@ const SignInScreen = () => {
 
         <TouchableOpacity
           onPress={() => navigation.navigate('FindPasswordStack')}>
-          <Text style={{ color: '#096BDE', marginTop: 15 }}>忘记密码?</Text>
+          <Text style={{color: '#096BDE', marginTop: 15}}>忘记密码?</Text>
         </TouchableOpacity>
         <View style={styles.button}>
           <Button
-            loading={loading}
-            style={{ width: '100%', height: 50, borderRadius: 10 }}
-            contentStyle={{ width: '100%', height: '100%' }}
-            labelStyle={{ textAlign: 'center' }}
+            loading={isLoading}
+            style={{width: '100%', height: 50, borderRadius: 10}}
+            contentStyle={{width: '100%', height: '100%'}}
+            labelStyle={{textAlign: 'center'}}
             mode="contained"
             buttonColor="#096BDE"
             onPress={handleSubmit(onSubmit)}>
@@ -308,8 +236,8 @@ const SignInScreen = () => {
               marginTop: 15,
               borderColor: '#096BDE',
             }}
-            contentStyle={{ width: '100%', height: '100%' }}
-            labelStyle={{ textAlign: 'center', color: '#096BDE' }}
+            contentStyle={{width: '100%', height: '100%'}}
+            labelStyle={{textAlign: 'center', color: '#096BDE'}}
             mode="outlined"
             onPress={() => navigation.navigate('SignUpScreen')}>
             注册商家
@@ -319,25 +247,23 @@ const SignInScreen = () => {
 
       <Portal>
         <Dialog
-          visible={isAlert}
+          visible={Boolean(error)}
           style={{
             backgroundColor: theme.colors.background,
           }}
           onDismiss={() => {
-            setAlertMessage(null);
-            setIsAlert(false);
+            dispatch({type: 'RESTORE'});
           }}>
           <Dialog.Icon icon="alert" color={theme.colors.error} />
-          <Dialog.Title style={{ textAlign: 'center' }}>登录失败</Dialog.Title>
+          <Dialog.Title style={{textAlign: 'center'}}>登录失败</Dialog.Title>
           <Dialog.Content>
-            <Paragraph>{alertMessage?.message}</Paragraph>
+            <Paragraph>{error}</Paragraph>
           </Dialog.Content>
           <Dialog.Actions>
             <Button
-              labelStyle={{ color: theme.colors.primary }}
+              labelStyle={{color: theme.colors.primary}}
               onPress={() => {
-                setAlertMessage(null);
-                setIsAlert(false);
+                dispatch({type: 'RESTORE'});
               }}>
               确定
             </Button>

@@ -14,7 +14,6 @@ import MessageScreen from '../screens/MessageScreen';
 
 const AppStack = () => {
   const Stack = createNativeStackNavigator();
-  const { signIn, theme, userInfo } = React.useContext<any>(AuthContext);
 
   return (
     <Stack.Navigator

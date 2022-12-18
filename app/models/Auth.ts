@@ -32,9 +32,3 @@ export class Auth extends Realm.Object {
   };
 }
 
-const config = {
-  schema: [Auth],
-};
-
-const AuthContext = createRealmContext(config);
-export default AuthContext;

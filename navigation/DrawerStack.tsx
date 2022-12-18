@@ -11,7 +11,7 @@ import {AuthContext} from '../components/context';
 const Drawer = createDrawerNavigator();
 
 const DrawerStack = () => {
-  const {signIn, theme, userInfo} = React.useContext<any>(AuthContext);
+  const {theme, userInfo} = React.useContext<any>(AuthContext);
 
   return (
     <Drawer.Navigator

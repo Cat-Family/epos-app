@@ -13,6 +13,10 @@ import {
   isEmulatorSync,
 } from 'react-native-device-info';
 import JSEncrypt from 'jsencrypt';
+import AppContext from '../app/context/AppContext';
+import {Auth} from '../app/models/Auth';
+import {User} from '../app/models/User';
+const {useQuery, useRealm} = AppContext;
 
 export const baseURL: string = 'https://qianyushop.shop/api/appClient';
 
@@ -33,7 +37,6 @@ const useFetch = (): {
     signal?: AbortSignal | undefined,
   ) => Promise<any>;
 } => {
-  const {signOut, authInfo} = useContext(AuthContext);
   const jsencrypt = new JSEncrypt({});
   jsencrypt.setPublicKey(
     'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1d/4OjtZKvWDgp9yFaAiQmhAB0EvupK38QgcrdxcPjuK/BNhTHXgXAPPV1GNNN5dEctHpS2V10DFgqcjBT4iUm9U0edbexYhOmmoJhBp7IGwE1joM7lw0Ik8MfrLKJfDq2R6D8EnqnnBmVBc88jDRdhyw/W9PDxbAcTVAw0pmqLQpkuVID54gutjolt259Sb/70cHJT0fr9hqytUMl83yDy/6bw1rUBjjlr2ICDOZpsPaMB/blqDBRkfpBTwkJT2Xvax6Ik2e5I409RDQA9c/TDfsQYoWp8MqxzErHL66mPpQf05w7uFRB1CTsaaSIw9myHsi4m0FwYCziDs7pEv+QIDAQAB',
@@ -47,6 +50,9 @@ const useFetch = (): {
   const host = jsencrypt.encrypt(getHostSync());
   const carrier = getCarrierSync();
   const userAggent = getUserAgentSync();
+  const auth = useQuery(Auth);
+  const user = useQuery(User);
+  const realm = useRealm();
 
   const deviceInfo = {
     macAddress,
@@ -90,7 +96,11 @@ const useFetch = (): {
         signal,
         body: JSON.stringify({
           authInfo: {
-            ...authInfo,
+            tenantId: auth[0]?.tenantId,
+            clientVersion: auth[0]?.clientVersion,
+            userName: auth[0]?.userName,
+            userId: auth[0]?.userId,
+            token: auth[0]?.token,
             reqTime: new Date().getTime(),
             reqUid: CryptoJS.MD5(new Date().getTime().toString()).toString(),
           },
@@ -107,7 +117,10 @@ const useFetch = (): {
         }
         if (parseResponse.code === -14444) {
           // logout
-          signOut();
+          realm.write(() => {
+            realm.delete(auth);
+            realm.delete(user);
+          });
           return Promise.reject(parseResponse);
         }
         return Promise.reject(parseResponse);
