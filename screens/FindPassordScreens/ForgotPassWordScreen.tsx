@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { Platform, StatusBar, StyleSheet, Text, View } from 'react-native';
-import { Appbar, Button, Dialog, Paragraph, Portal } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
-import { TextInput } from 'react-native-gesture-handler';
+import React, {useState} from 'react';
+import {Platform, StatusBar, StyleSheet, Text, View} from 'react-native';
+import {Appbar, Button, Dialog, Paragraph, Portal} from 'react-native-paper';
+import {useNavigation} from '@react-navigation/native';
+import {TextInput} from 'react-native-gesture-handler';
 import CryptoJS from 'crypto-js';
 import axiosInstance from '../../utils/request';
-import { FindPasswordNavigationProp } from '../../navigation/FindPasswordStack';
-import { AuthNavigationProp } from '../../navigation/AuthStack';
-import { AuthContext } from '../../components/context';
+import {FindPasswordNavigationProp} from '../../navigation/FindPasswordStack';
+import {AuthNavigationProp} from '../../navigation/AuthStack';
+import useTheme from '../../hooks/utils/useTheme';
 
 const ForgotPassWordScreen = () => {
   const navigation = useNavigation<FindPasswordNavigationProp>();
@@ -16,7 +16,7 @@ const ForgotPassWordScreen = () => {
   const [loading, setLoading] = useState(false);
   const [isAlert, setIsAlert] = React.useState<boolean>(false);
   const [alertMessage, setAlertMessage] = React.useState<any>();
-  const { theme, isDarkTheme } = React.useContext<any>(AuthContext);
+  const {theme, userColorScheme} = useTheme();
 
   const _goBack = () => navigation.goBack();
 
@@ -26,7 +26,7 @@ const ForgotPassWordScreen = () => {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const { data } = await axiosInstance.post(
+      const {data} = await axiosInstance.post(
         '/user/IsValidAccount/magicApiJSON.do',
         {
           userName,
@@ -36,22 +36,26 @@ const ForgotPassWordScreen = () => {
           },
         },
       );
-      navigation.navigate('FindPasswordWayScreen', { ...data.userInfo });
+      navigation.navigate('FindPasswordWayScreen', {...data.userInfo});
     } catch (error: any) {
       setIsAlert(true);
-      setAlertMessage({ message: error.message || '网络异常' });
+      setAlertMessage({message: error.message || '网络异常'});
     }
     setLoading(false);
   };
 
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor={theme.colors.background}
-        barStyle={isDarkTheme ? 'light-content' : 'dark-content'} />
-      <Appbar.Header style={{ backgroundColor: '#F4F3F3' }}>
+      <StatusBar
+        backgroundColor={theme.colors.background}
+        barStyle={
+          userColorScheme === 'light' ? 'light-content' : 'dark-content'
+        }
+      />
+      <Appbar.Header style={{backgroundColor: '#F4F3F3'}}>
         <Appbar.BackAction onPress={_goBack} />
       </Appbar.Header>
-      <View style={{ alignItems: 'center', marginTop: 6 }}>
+      <View style={{alignItems: 'center', marginTop: 6}}>
         <Text
           style={[
             styles.text,
@@ -87,8 +91,8 @@ const ForgotPassWordScreen = () => {
           alignSelf: 'center',
           marginTop: 28,
         }}
-        contentStyle={{ width: '100%', height: '100%' }}
-        labelStyle={{ textAlign: 'center' }}
+        contentStyle={{width: '100%', height: '100%'}}
+        labelStyle={{textAlign: 'center'}}
         mode="contained"
         buttonColor="#096BDE"
         onPress={handleSubmit}>
@@ -103,8 +107,8 @@ const ForgotPassWordScreen = () => {
           marginTop: 14,
           borderColor: '#096BDE',
         }}
-        contentStyle={{ width: '100%', height: '100%' }}
-        labelStyle={{ textAlign: 'center', color: '#096BDE' }}
+        contentStyle={{width: '100%', height: '100%'}}
+        labelStyle={{textAlign: 'center', color: '#096BDE'}}
         mode="outlined"
         onPress={() => authNavigation.navigate('SignInScreen')}>
         立即登录
@@ -121,7 +125,7 @@ const ForgotPassWordScreen = () => {
             setIsAlert(false);
           }}>
           <Dialog.Icon icon="alert" color={theme.colors.error} />
-          <Dialog.Title style={{ textAlign: 'center' }}>
+          <Dialog.Title style={{textAlign: 'center'}}>
             找回密码失败
           </Dialog.Title>
           <Dialog.Content>
@@ -129,7 +133,7 @@ const ForgotPassWordScreen = () => {
           </Dialog.Content>
           <Dialog.Actions>
             <Button
-              labelStyle={{ color: theme.colors.primary }}
+              labelStyle={{color: theme.colors.primary}}
               onPress={() => {
                 setAlertMessage(null);
                 setIsAlert(false);

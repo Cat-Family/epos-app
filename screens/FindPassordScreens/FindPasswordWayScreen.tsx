@@ -14,18 +14,21 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {FindPasswordNavigationProp} from '../../navigation/FindPasswordStack';
 import {AuthNavigationProp} from '../../navigation/AuthStack';
-import {AuthContext} from '../../components/context';
+import useTheme from '../../hooks/utils/useTheme';
 
 const FindPasswordWayScreen = () => {
   const navigation = useNavigation<FindPasswordNavigationProp>();
   const authNavigation = useNavigation<AuthNavigationProp>();
-  const {theme, isDarkTheme} = React.useContext<any>(AuthContext);
+  const {theme, userColorScheme} = useTheme();
+
   const route = useRoute<any>();
   return (
     <View style={styles.container}>
       <StatusBar
         backgroundColor={theme.colors.background}
-        barStyle={isDarkTheme ? 'light-content' : 'dark-content'}
+        barStyle={
+          userColorScheme === 'light' ? 'light-content' : 'dark-content'
+        }
       />
       <Appbar.Header style={{backgroundColor: '#F4F3F3'}}>
         <Appbar.BackAction onPress={() => navigation.goBack()} />

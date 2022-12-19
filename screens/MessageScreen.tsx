@@ -12,16 +12,16 @@ import {
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Appbar, Button, TouchableRipple} from 'react-native-paper';
-import {AuthContext} from '../components/context';
-import {useNavigation, useScrollToTop} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import * as Animatable from 'react-native-animatable';
-import CryptoJS from 'crypto-js';
 import useMessage from '../hooks/actions/useMessage';
+import useTheme from '../hooks/utils/useTheme';
 
 const {width, height} = Dimensions.get('screen');
 
 const MessageScreen = () => {
-  const {theme, isDarkTheme, authInfo} = React.useContext<any>(AuthContext);
+  const {theme, userColorScheme} = useTheme();
+
   const navigation = useNavigation();
   const [ellips, setEllips] = useState(true);
   const [ellipsId, setEllipsId] = useState(undefined);
@@ -61,7 +61,9 @@ const MessageScreen = () => {
       ]}>
       <StatusBar
         backgroundColor={theme.colors.background}
-        barStyle={isDarkTheme ? 'light-content' : 'dark-content'}
+        barStyle={
+          userColorScheme === 'light' ? 'light-content' : 'dark-content'
+        }
       />
       <Appbar.Header>
         <Appbar.BackAction

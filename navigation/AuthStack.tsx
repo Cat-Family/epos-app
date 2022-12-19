@@ -7,7 +7,6 @@ import {
   CompositeNavigationProp,
   NavigationProp,
 } from '@react-navigation/native';
-import {AuthContext} from '../components/context';
 import FindPasswordStack from './FindPasswordStack';
 
 export type AuthParamList = {

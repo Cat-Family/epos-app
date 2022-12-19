@@ -12,12 +12,12 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import {Route} from '@react-navigation/routers';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
-import {AuthContext} from '../components/context';
+import useTheme from '../hooks/utils/useTheme';
 
 const Tab = createMaterialBottomTabNavigator();
 
 const TabNavigator = () => {
-  const {theme} = React.useContext<any>(AuthContext);
+  const {theme, userColorScheme} = useTheme();
 
   return (
     <Tab.Navigator activeColor={theme.colors.primary}>

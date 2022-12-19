@@ -6,14 +6,18 @@ import {
   DrawerItemList,
 } from '@react-navigation/drawer';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {AuthContext} from './context';
 import {Avatar} from 'react-native-paper';
 import useAuth from '../hooks/actions/useAuth';
+import useTheme from '../hooks/utils/useTheme';
+import AppContext from '../app/context/AppContext';
+import {User} from '../app/models/User';
+const {useQuery} = AppContext;
 
 interface IProps {}
 
 const CustomDrawer: FC<IProps> = props => {
-  const {userInfo, theme} = React.useContext<any>(AuthContext);
+  const {theme, userColorScheme} = useTheme();
+  const user = useQuery(User);
   const {signOutHandler} = useAuth();
 
   return (
@@ -41,7 +45,7 @@ const CustomDrawer: FC<IProps> = props => {
             flexDirection: 'row',
             marginTop: 28,
           }}>
-          <Avatar.Text size={48} label={userInfo?.basicInfo?.userName} />
+          <Avatar.Text size={48} label={user[0]?.userName} />
         </View>
       </ImageBackground>
       <DrawerContentScrollView {...props} contentContainerStyle={{}}>

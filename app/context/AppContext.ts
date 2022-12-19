@@ -6,7 +6,7 @@ import {Store} from '../models/Store';
 
 const config = {
   schema: [Auth, User, Printer, Store],
-  schemaVersion: 6,
+  schemaVersion: 7,
 };
 
 const AppContext = createRealmContext(config);

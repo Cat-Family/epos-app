@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Platform,
   StatusBar,
@@ -7,17 +7,17 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Appbar, Button, Dialog, Paragraph, Portal } from 'react-native-paper';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { TextInput } from 'react-native-gesture-handler';
+import {Appbar, Button, Dialog, Paragraph, Portal} from 'react-native-paper';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import {TextInput} from 'react-native-gesture-handler';
 import CryptoJS from 'crypto-js';
 import axiosInstance from '../../utils/request';
-import { FindPasswordNavigationProp } from '../../navigation/FindPasswordStack';
-import { AuthNavigationProp } from '../../navigation/AuthStack';
-import { AuthContext } from '../../components/context';
+import {FindPasswordNavigationProp} from '../../navigation/FindPasswordStack';
+import {AuthNavigationProp} from '../../navigation/AuthStack';
+import useTheme from '../../hooks/utils/useTheme';
 
 const VerfifyCodeScreen = () => {
-  const { theme, isDarkTheme } = React.useContext<any>(AuthContext);
+  const {theme, userColorScheme} = useTheme();
   const navigation = useNavigation<FindPasswordNavigationProp>();
   const authNavigation = useNavigation<AuthNavigationProp>();
   const route = useRoute<any>();
@@ -32,7 +32,7 @@ const VerfifyCodeScreen = () => {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const { data } = await axiosInstance.post(
+      const {data} = await axiosInstance.post(
         '/user/BackPassword/magicApiJSON.do',
         {
           SigninName: route.params?.signinName,
@@ -53,7 +53,7 @@ const VerfifyCodeScreen = () => {
       });
     } catch (error: any) {
       setIsAlert(true);
-      setAlertMessage({ message: error.message || '网络异常' });
+      setAlertMessage({message: error.message || '网络异常'});
     }
 
     setLoading(false);
@@ -61,7 +61,7 @@ const VerfifyCodeScreen = () => {
 
   const resendHandler = async () => {
     try {
-      const { data } = await axiosInstance.post(
+      const {data} = await axiosInstance.post(
         '/user/BackPassword/magicApiJSON.do',
         {
           SigninName: route.params?.signinName,
@@ -80,7 +80,7 @@ const VerfifyCodeScreen = () => {
       setCountdown(60);
     } catch (error: any) {
       setIsAlert(true);
-      setAlertMessage({ message: error.message || '网络异常' });
+      setAlertMessage({message: error.message || '网络异常'});
     }
   };
 
@@ -99,14 +99,18 @@ const VerfifyCodeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor={theme.colors.background}
-        barStyle={isDarkTheme ? 'light-content' : 'dark-content'} />
-      <Appbar.Header style={{ backgroundColor: '#F4F3F3' }}>
+      <StatusBar
+        backgroundColor={theme.colors.background}
+        barStyle={
+          userColorScheme === 'light' ? 'light-content' : 'dark-content'
+        }
+      />
+      <Appbar.Header style={{backgroundColor: '#F4F3F3'}}>
         <Appbar.BackAction onPress={() => _goBack()} />
         <Appbar.Content
           title="身份验证"
-          titleStyle={{ fontSize: 18 }}
-          style={{ paddingLeft: '26%' }}
+          titleStyle={{fontSize: 18}}
+          style={{paddingLeft: '26%'}}
         />
       </Appbar.Header>
       <View
@@ -176,7 +180,7 @@ const VerfifyCodeScreen = () => {
       </View>
       <TouchableOpacity
         disabled={countdown > 0}
-        style={{ paddingLeft: 20, paddingTop: 10 }}
+        style={{paddingLeft: 20, paddingTop: 10}}
         onPress={resendHandler}>
         <Text style={styles.text}>
           {countdown === 0 ? `重新发送` : `已重新发送${countdown}`}
@@ -191,8 +195,8 @@ const VerfifyCodeScreen = () => {
           alignSelf: 'center',
           marginTop: 20,
         }}
-        contentStyle={{ width: '100%', height: '100%' }}
-        labelStyle={{ textAlign: 'center' }}
+        contentStyle={{width: '100%', height: '100%'}}
+        labelStyle={{textAlign: 'center'}}
         mode="contained"
         buttonColor="#096BDE"
         onPress={handleSubmit}>
@@ -207,8 +211,8 @@ const VerfifyCodeScreen = () => {
           marginTop: 20,
           borderColor: '#096BDE',
         }}
-        contentStyle={{ width: '100%', height: '100%' }}
-        labelStyle={{ textAlign: 'center', color: '#096BDE' }}
+        contentStyle={{width: '100%', height: '100%'}}
+        labelStyle={{textAlign: 'center', color: '#096BDE'}}
         mode="outlined"
         onPress={() => authNavigation.navigate('SignInScreen')}>
         立即登录
@@ -225,13 +229,13 @@ const VerfifyCodeScreen = () => {
             setIsAlert(false);
           }}>
           <Dialog.Icon icon="alert" color={theme.colors.error} />
-          <Dialog.Title style={{ textAlign: 'center' }}>验证码错误</Dialog.Title>
+          <Dialog.Title style={{textAlign: 'center'}}>验证码错误</Dialog.Title>
           <Dialog.Content>
             <Paragraph>{alertMessage?.message}</Paragraph>
           </Dialog.Content>
           <Dialog.Actions>
             <Button
-              labelStyle={{ color: theme.colors.primary }}
+              labelStyle={{color: theme.colors.primary}}
               onPress={() => {
                 setAlertMessage(null);
                 setIsAlert(false);

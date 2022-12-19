@@ -11,22 +11,19 @@ import {
   Dimensions,
 } from 'react-native';
 import {Appbar, Badge, Button, FAB, Portal} from 'react-native-paper';
-import {AuthContext} from '../components/context';
-import axiosInstance from '../utils/request';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import CryptoJS from 'crypto-js';
 import {TouchableOpacity} from 'react-native-gesture-handler';
-import useFetch from '../hooks/useFetch';
 import {Store} from '../app/models/Store';
 import AppContext from '../app/context/AppContext';
+import useTheme from '../hooks/utils/useTheme';
 const {useQuery} = AppContext;
 
 const {width, height} = Dimensions.get('screen');
 
 export default function OrderScreen() {
   const store = useQuery(Store);
-  const {theme, isDarkTheme, authInfo, userInfo} =
-    React.useContext<any>(AuthContext);
+  const {theme, userColorScheme} = useTheme();
+
   const [cateIndex, setCateIndex] = useState(0);
   const [refreshing, setRefreshing] = React.useState(false);
   const [products, setProducts] = useState<any>();
@@ -35,29 +32,29 @@ export default function OrderScreen() {
   let tagRef = useRef<any>();
   const navigation = useNavigation();
 
-  const getGoods = async () => {
-    try {
-      const {data} = await axiosInstance.post(
-        '/goods/QueryGoodsList/magicApiJSON.do',
-        {
-          authInfo: {
-            ...authInfo,
-            reqTime: new Date().getTime(),
-            reqUid: CryptoJS.MD5(new Date().getTime().toString()).toString(),
-          },
-        },
-      );
-      setProducts(data.info[authInfo.tenantId + 'goods']);
-      setCateIndex(data.info[authInfo.tenantId + 'goods'][0].classCode);
-    } catch (error: any) {
-      console.log(error);
-    }
-  };
+  // const getGoods = async () => {
+  //   try {
+  //     const {data} = await axiosInstance.post(
+  //       '/goods/QueryGoodsList/magicApiJSON.do',
+  //       {
+  //         authInfo: {
+  //           ...authInfo,
+  //           reqTime: new Date().getTime(),
+  //           reqUid: CryptoJS.MD5(new Date().getTime().toString()).toString(),
+  //         },
+  //       },
+  //     );
+  //     setProducts(data.info[authInfo.tenantId + 'goods']);
+  //     setCateIndex(data.info[authInfo.tenantId + 'goods'][0].classCode);
+  //   } catch (error: any) {
+  //     console.log(error);
+  //   }
+  // };
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     try {
-      await getGoods();
+      // await getGoods();
     } catch (error: any) {
       console.error(error);
     }
@@ -67,7 +64,7 @@ export default function OrderScreen() {
   }, []);
 
   useLayoutEffect(() => {
-    getGoods();
+    // getGoods();
   }, []);
 
   return (
@@ -80,7 +77,9 @@ export default function OrderScreen() {
       }}>
       <StatusBar
         backgroundColor={theme.colors.background}
-        barStyle={isDarkTheme ? 'light-content' : 'dark-content'}
+        barStyle={
+          userColorScheme === 'light' ? 'light-content' : 'dark-content'
+        }
       />
       <View style={{display: 'flex', width: '100%', height: '100%'}}>
         <Appbar.Header

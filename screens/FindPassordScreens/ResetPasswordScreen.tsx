@@ -20,7 +20,7 @@ import axiosInstance from '../../utils/request';
 import {AuthNavigationProp} from '../../navigation/AuthStack';
 import CryptoJS from 'crypto-js';
 import JSEncrypt from 'jsencrypt';
-import {AuthContext} from '../../components/context';
+import useTheme from '../../hooks/utils/useTheme';
 
 const ResetPasswordScreen = () => {
   const navigation = useNavigation<AuthNavigationProp>();
@@ -29,7 +29,7 @@ const ResetPasswordScreen = () => {
   const [isAlert, setIsAlert] = React.useState<boolean>(false);
   const [alertMessage, setAlertMessage] = React.useState<any>();
   const [loading, setLoading] = useState(false);
-  const { theme, isDarkTheme } = React.useContext<any>(AuthContext);
+  const {theme, userColorScheme} = useTheme();
 
   const validationSchema = object({
     password: string()
@@ -101,8 +101,12 @@ const ResetPasswordScreen = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor={theme.colors.background}
-        barStyle={isDarkTheme ? 'light-content' : 'dark-content'} />
+      <StatusBar
+        backgroundColor={theme.colors.background}
+        barStyle={
+          userColorScheme === 'light' ? 'light-content' : 'dark-content'
+        }
+      />
       <Appbar.Header style={{backgroundColor: '#F4F3F3'}}>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
         <Appbar.Content

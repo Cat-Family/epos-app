@@ -17,11 +17,10 @@ import {useForm, Controller} from 'react-hook-form';
 import {Button, Paragraph, Dialog, Portal} from 'react-native-paper';
 import {useNavigation} from '@react-navigation/native';
 import {AuthNavigationProp} from '../navigation/AuthStack';
-import {AuthContext} from '../components/context';
 import {object, string, TypeOf} from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
-import AppContext from '../app/context/AppContext';
 import useAuth from '../hooks/actions/useAuth';
+import useTheme from '../hooks/utils/useTheme';
 
 const SignInScreen = () => {
   const validationSchema = object({
@@ -34,7 +33,8 @@ const SignInScreen = () => {
 
   type ValidationInput = TypeOf<typeof validationSchema>;
 
-  const {theme} = React.useContext<any>(AuthContext);
+  const {theme, userColorScheme} = useTheme();
+
   const {signInHandler, isLoading, error, dispatch} = useAuth();
 
   const [secureTextEntry, setSecureTextEntry] = React.useState(true);

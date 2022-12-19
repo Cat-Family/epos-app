@@ -6,15 +6,16 @@ import ProfileScreen from '../screens/ProfileScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import TabNavigator from './TabNavigator';
 import CustomDrawer from '../components/CustomDrawer';
-import {AuthContext} from '../components/context';
 import AppContext from '../app/context/AppContext';
 import {Store} from '../app/models/Store';
+import useTheme from '../hooks/utils/useTheme';
 const {useQuery} = AppContext;
 
 const Drawer = createDrawerNavigator();
 
 const DrawerStack = () => {
-  const {theme} = React.useContext<any>(AuthContext);
+  const {theme, userColorScheme} = useTheme();
+
   const store = useQuery(Store);
 
   return (
