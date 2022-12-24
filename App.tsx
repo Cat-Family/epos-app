@@ -10,15 +10,17 @@ import {Auth} from './app/models/Auth';
 import AppContext from './app/context/AppContext';
 const {RealmProvider, useQuery, useObject, useRealm} = AppContext;
 import useTheme from './hooks/utils/useTheme';
+import RealmPlugin from 'realm-flipper-plugin-device';
 
 const App = () => {
   const {theme, userColorScheme} = useTheme();
-
+  const realm = useRealm();
   const auth = useQuery(Auth);
 
   return (
     <PaperProvider theme={theme}>
       <NavigationContainer theme={theme}>
+        <RealmPlugin realms={[realm]} />
         {auth[0]?.token ? <AppStack /> : <AuthStack />}
       </NavigationContainer>
     </PaperProvider>

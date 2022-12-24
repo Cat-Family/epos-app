@@ -45,6 +45,7 @@
     "realm": "^11.3.1",
     "realm-flipper-plugin-device": "^1.0.27",
     "recoil": "^0.7.6",
+    "rn-flipper-async-storage-advanced": "^1.0.4",
     "yup": "^0.32.11"
   },
   "devDependencies": {

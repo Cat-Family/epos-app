@@ -1,4 +1,4 @@
-import {Realm, createRealmContext} from '@realm/react';
+import {Realm} from '@realm/react';
 
 export class Store extends Realm.Object {
   _id!: Realm.BSON.ObjectId;
