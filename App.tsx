@@ -1,5 +1,4 @@
-import React, {useEffect, useMemo} from 'react';
-import {View, Image} from 'react-native';
+import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {Provider as PaperProvider, Text} from 'react-native-paper';
 
@@ -8,12 +7,12 @@ import AppStack from './navigation/AppStack';
 
 import {Auth} from './app/models/Auth';
 import AppContext from './app/context/AppContext';
-const {RealmProvider, useQuery, useObject, useRealm} = AppContext;
+const {RealmProvider, useQuery, useRealm} = AppContext;
 import useTheme from './hooks/utils/useTheme';
 import RealmPlugin from 'realm-flipper-plugin-device';
 
 const App = () => {
-  const {theme, userColorScheme} = useTheme();
+  const {theme} = useTheme();
   const realm = useRealm();
   const auth = useQuery(Auth);
 

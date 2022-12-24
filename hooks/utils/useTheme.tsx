@@ -7,7 +7,9 @@ import {
   DarkTheme as NavigationDarkTheme,
 } from '@react-navigation/native';
 import {useEffect, useState} from 'react';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage, {
+  useAsyncStorage,
+} from '@react-native-community/async-storage';
 import {useColorScheme} from 'react-native';
 
 const CustomDefaultTheme = {
@@ -113,6 +115,7 @@ const CustomDarkTheme = {
 
 const useTheme = () => {
   const colorScheme = useColorScheme();
+  const {getItem, setItem} = useAsyncStorage('userScheme');
   const [userColorScheme, setUserColorScheme] = useState<'light' | 'dark'>(
     colorScheme as 'light' | 'dark',
   );
@@ -122,15 +125,19 @@ const useTheme = () => {
   );
 
   const setDarkTheme = async (): Promise<void> => {
-    await AsyncStorage.setItem('userScheme', 'dark');
-    setTheme(CustomDarkTheme);
-    setUserColorScheme('dark');
+    try {
+      await setItem('dark');
+      setTheme(CustomDarkTheme);
+      setUserColorScheme('dark');
+    } catch (error) {}
   };
 
   const setLightTheme = async (): Promise<void> => {
-    AsyncStorage.setItem('userScheme', 'light');
-    setTheme(CustomDefaultTheme);
-    setUserColorScheme('light');
+    try {
+      await setItem('light');
+      setTheme(CustomDefaultTheme);
+      setUserColorScheme('light');
+    } catch (error) {}
   };
 
   const setAppearanceTheme = async (): Promise<void> => {
@@ -151,7 +158,7 @@ const useTheme = () => {
   }, [colorScheme]);
 
   useEffect(() => {
-    AsyncStorage.getItem('userScheme').then(userScheme => {
+    getItem().then(userScheme => {
       if (userScheme) {
         setIsAppearanceTheme(false);
         if (userScheme === 'dark') {
