@@ -16,13 +16,17 @@ import {TouchableOpacity} from 'react-native-gesture-handler';
 import {Store} from '../app/models/Store';
 import AppContext from '../app/context/AppContext';
 import useTheme from '../hooks/utils/useTheme';
+import {Auth} from '../app/models/Auth';
+import useFetch from '../hooks/useFetch';
 const {useQuery} = AppContext;
 
 const {width, height} = Dimensions.get('screen');
 
 export default function OrderScreen() {
   const store = useQuery(Store);
+  const auth = useQuery(Auth);
   const {theme, userColorScheme} = useTheme();
+  const {fetchData} = useFetch();
 
   const [cateIndex, setCateIndex] = useState(0);
   const [refreshing, setRefreshing] = React.useState(false);
@@ -51,10 +55,24 @@ export default function OrderScreen() {
   //   }
   // };
 
+  const getGoods = async () => {
+    try {
+      const res = await fetchData(
+        '/goods/QueryGoodsList/magicApiJSON.do',
+        'POST',
+      );
+
+      setProducts(res.info[auth[0].tenantId + 'goods']);
+      setCateIndex(res.info[auth[0].tenantId + 'goods'][0].classCode);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     try {
-      // await getGoods();
+      await getGoods();
     } catch (error: any) {
       console.error(error);
     }
@@ -64,7 +82,7 @@ export default function OrderScreen() {
   }, []);
 
   useLayoutEffect(() => {
-    // getGoods();
+    getGoods();
   }, []);
 
   return (
