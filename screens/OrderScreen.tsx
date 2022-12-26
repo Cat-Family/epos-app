@@ -117,7 +117,7 @@ export default function OrderScreen() {
               navigation.toggleDrawer();
             }}
           />
-          <Appbar.Content title={store[0].storeName} />
+          <Appbar.Content title={store[0]?.storeName} />
           <TouchableOpacity
             onPress={() => navigation.navigate('MessageScreen')}>
             <View style={styles.badgeContainer}>

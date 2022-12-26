@@ -35,7 +35,7 @@ function useInit() {
 
             if (Boolean(results)) {
               if (results?.dataVersion !== res.version) {
-                getMessagesHandler();
+                getMessagesHandler(false, false);
                 realm.write(() => {
                   // clean
                   realm.delete(results);
@@ -53,7 +53,7 @@ function useInit() {
               }
             } else {
               // getMessage
-              getMessagesHandler();
+              getMessagesHandler(false, false);
               realm.write(() => {
                 realm.create('DataVersion', {
                   _id: new Realm.BSON.ObjectId(),

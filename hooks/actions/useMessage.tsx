@@ -4,7 +4,7 @@ import AppContext from '../../app/context/AppContext';
 import {Auth} from '../../app/models/Auth';
 const {useRealm, useQuery} = AppContext;
 
-type ReaducerType = 'LOADING' | 'SUCCESS' | 'FAIL';
+type ReaducerType = 'LOADING' | 'SUCCESS' | 'FAIL' | 'RESTORE';
 
 const useMessage = () => {
   const auth = useQuery(Auth);
@@ -38,6 +38,12 @@ const useMessage = () => {
             isLoading: false,
             error: action.error,
           };
+        case 'RESTORE':
+          return {
+            ...prevState,
+            error: undefined,
+            isLoading: false,
+          };
         default:
           return prevState;
       }
@@ -49,14 +55,16 @@ const useMessage = () => {
   );
   const {fetchData} = useFetch();
 
-  const getMessagesHandler = async (needLoading?: boolean) => {
+  const getMessagesHandler = async (
+    needLoading?: boolean,
+    isWriteVersion?: boolean,
+  ) => {
     try {
       needLoading && dispatch({type: 'LOADING'});
       const res = await fetchData(
         '/msg/QueryMessageList/magicApiJSON.do',
         'POST',
       );
-      console.log(res.info.version);
 
       realm.write(() => {
         // messages
@@ -78,18 +86,24 @@ const useMessage = () => {
           });
         });
 
-        // version
-        const dataversion = realm
-          .objects<any>('DataVersion')
-          .find(it => it.dataName === 'api/appClient/msg/ChangeMessageStatus');
+        if (isWriteVersion) {
+          // version
+          const dataversion = realm
+            .objects<any>('DataVersion')
+            .find(
+              it => it.dataName === 'api/appClient/msg/ChangeMessageStatus',
+            );
 
-        realm.delete(dataversion);
+          if (dataversion) {
+            realm.delete(dataversion);
+          }
+        }
 
         realm.create('DataVersion', {
           _id: new Realm.BSON.ObjectId(),
           dataName: 'api/appClient/msg/ChangeMessageStatus',
           dataVersion: res.info.version,
-          userId: auth[0].userId,
+          userId: auth[0]?.userId,
           createdAt: new Date(),
         });
       });
@@ -97,11 +111,11 @@ const useMessage = () => {
         type: 'SUCCESS',
       });
     } catch (error: any) {
-      dispatch({type: 'FAIL', error: error});
+      dispatch({type: 'FAIL', error: error.message || '网络错误'});
     }
   };
 
-  const readMessageHandler = async (id: number, isTop: number) => {
+  const readMessageHandler = async (id: number) => {
     try {
       realm.write(() => {
         const msg = realm.objectForPrimaryKey<any>('Message', id);
@@ -119,7 +133,7 @@ const useMessage = () => {
         OpeType: 1,
       });
     } catch (error: any) {
-      dispatch({type: 'FAIL', error});
+      dispatch({type: 'FAIL', error: error.message || '网络错误'});
     }
   };
 
@@ -161,7 +175,7 @@ const useMessage = () => {
         OpeType: 3,
       });
     } catch (error: any) {
-      dispatch({type: 'FAIL', error});
+      dispatch({type: 'FAIL', error: error.message || '网络错误'});
     }
   };
   const unTopMessageHandler = async (id: number) => {
@@ -183,12 +197,13 @@ const useMessage = () => {
         OpeType: 4,
       });
     } catch (error: any) {
-      dispatch({type: 'FAIL', error});
+      dispatch({type: 'FAIL', error: error.message || '网络错误'});
     }
   };
 
   return {
     ...state,
+    dispatch,
     getMessagesHandler,
     readMessageHandler,
     deleteMessageHandler,

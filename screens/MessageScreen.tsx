@@ -11,14 +11,14 @@ import {
   View,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {Appbar, Button, TouchableRipple} from 'react-native-paper';
+import {Appbar, Button, Snackbar, TouchableRipple} from 'react-native-paper';
 import {useNavigation} from '@react-navigation/native';
 import * as Animatable from 'react-native-animatable';
 import useMessage from '../hooks/actions/useMessage';
 import useTheme from '../hooks/utils/useTheme';
 import AppContext from '../app/context/AppContext';
 import {Message} from '../app/models/Message';
-const {useRealm, useQuery} = AppContext;
+const {useQuery} = AppContext;
 
 const {width, height} = Dimensions.get('screen');
 
@@ -27,13 +27,14 @@ const MessageScreen = () => {
 
   const navigation = useNavigation();
   const [ellips, setEllips] = useState(true);
-  const [ellipsId, setEllipsId] = useState(undefined);
+  const [ellipsId, setEllipsId] = useState<number | undefined>(undefined);
   let scrollRef = useRef<any>();
   const msgs = useQuery(Message).sorted('_id');
 
   const {
     error,
     isLoading,
+    dispatch,
     getMessagesHandler,
     readMessageHandler,
     topMessageHandler,
@@ -44,7 +45,7 @@ const MessageScreen = () => {
   const onRefresh = async () => {
     setEllips(true);
     setEllipsId(undefined);
-    getMessagesHandler(true);
+    getMessagesHandler(true, true);
   };
 
   useEffect(() => {
@@ -92,7 +93,7 @@ const MessageScreen = () => {
         {msgs
           .filter(item => item.isTop)
           .sort((a, b) => b.updatedAt.valueOf() - a.updatedAt.valueOf())
-          .map((item: any, index: number) => (
+          .map((item: Message, index: number) => (
             <TouchableRipple
               key={item._id}
               style={[
@@ -100,8 +101,8 @@ const MessageScreen = () => {
                 item.isTop && {backgroundColor: 'rgba(196, 198, 207, 0.3)'},
               ]}
               onPress={() => {
-                if (item.isRead === 0) {
-                  readMessageHandler(item._id, item.isTop);
+                if (!item.isRead) {
+                  readMessageHandler(item._id);
                 }
                 // unSelect message (ellipsId: undefined)
                 if (Boolean(ellipsId)) {
@@ -125,7 +126,7 @@ const MessageScreen = () => {
               // easing="ease-in-out"
               >
                 <Text style={styles.subject}>{`${item?.subject}`}</Text>
-                {item?.isRead === 0 && <Text style={styles.statusIcon}></Text>}
+                {!item.isRead && <Text style={styles.statusIcon}></Text>}
                 <Text>{`${item?.createdAt}`}</Text>
                 <Text
                   numberOfLines={
@@ -165,7 +166,7 @@ const MessageScreen = () => {
         {msgs
           .filter(item => !item.isTop)
           .sort((a, b) => b.createdAt.valueOf() - a.createdAt.valueOf())
-          .map((item: any, index: number) => (
+          .map((item: Message & Realm.Object, index: number) => (
             <TouchableRipple
               key={item._id}
               style={[
@@ -173,8 +174,8 @@ const MessageScreen = () => {
                 item.isTop && {backgroundColor: 'rgba(196, 198, 207, 0.3)'},
               ]}
               onPress={() => {
-                if (item.isRead === 0) {
-                  readMessageHandler(item._id, item.isTop);
+                if (!item.isRead) {
+                  readMessageHandler(item._id);
                 }
                 // unSelect message (ellipsId: undefined)
                 if (Boolean(ellipsId)) {
@@ -198,7 +199,7 @@ const MessageScreen = () => {
               // easing="ease-in-out"
               >
                 <Text style={styles.subject}>{`${item?.subject}`}</Text>
-                {item?.isRead === 0 && <Text style={styles.statusIcon}></Text>}
+                {!item?.isRead && <Text style={styles.statusIcon}></Text>}
                 <Text style={{color: 'grey'}}>{`${item?.createdAt}`}</Text>
                 <Text
                   numberOfLines={
@@ -238,6 +239,14 @@ const MessageScreen = () => {
           ))}
         <View style={{height: 92}}></View>
       </ScrollView>
+      <Snackbar
+        visible={Boolean(error)}
+        onDismiss={() => dispatch({type: 'RESTORE'})}
+        action={{
+          label: '关闭',
+        }}>
+        {error}
+      </Snackbar>
     </SafeAreaView>
   );
 };
