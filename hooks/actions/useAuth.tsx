@@ -4,20 +4,12 @@ import CryptoJS from 'crypto-js';
 import AppContext from '../../app/context/AppContext';
 const {useRealm, useQuery} = AppContext;
 import JSEncrypt from 'jsencrypt';
-import {Auth} from '../../app/models/Auth';
-import {User} from '../../app/models/User';
-import {Store} from '../../app/models/Store';
-import {Printer} from '../../app/models/Printer';
 
 type ReaducerType = 'LOADING' | 'SUCCESS' | 'FAIL' | 'RESTORE';
 
 const useAuth = () => {
   const realm = useRealm();
   const {fetchData} = useFetch();
-  const auth = useQuery(Auth);
-  const user = useQuery(User);
-  const printers = useQuery(Store);
-  const store = useQuery(Printer);
 
   const [state, dispatch] = useReducer(
     (
@@ -168,10 +160,7 @@ const useAuth = () => {
 
   const signOutHandler = () => {
     realm.write(() => {
-      realm.delete(auth);
-      realm.delete(user);
-      realm.delete(printers);
-      realm.delete(store);
+      realm.deleteAll();
     });
   };
 

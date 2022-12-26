@@ -1,8 +1,4 @@
 import React from 'react';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
-
 import OrderScreen from '../screens/OrderScreen';
 import CartScreen from '../screens/CartScreen';
 import FavoriteScreen from '../screens/FavoriteScreen';
@@ -10,7 +6,6 @@ import FavoriteScreen from '../screens/FavoriteScreen';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import {Route} from '@react-navigation/routers';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 import useTheme from '../hooks/utils/useTheme';
 
@@ -36,7 +31,7 @@ const TabNavigator = () => {
           ),
         })}
       />
-      <Tab.Screen
+      <Tab.Screen  
         name="Bill"
         component={CartScreen}
         options={{

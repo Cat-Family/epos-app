@@ -1,8 +1,7 @@
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
+import {useNavigation} from '@react-navigation/native';
+import React, {useLayoutEffect, useRef, useState} from 'react';
 import {
   View,
-  Text,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -10,7 +9,7 @@ import {
   RefreshControl,
   Dimensions,
 } from 'react-native';
-import {Appbar, Badge, Button, FAB, Portal} from 'react-native-paper';
+import {Appbar, Badge, Button} from 'react-native-paper';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {Store} from '../app/models/Store';

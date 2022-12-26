@@ -13,12 +13,10 @@ import {
 import JSEncrypt from 'jsencrypt';
 import AppContext from '../app/context/AppContext';
 import {Auth} from '../app/models/Auth';
-import {User} from '../app/models/User';
-import {Store} from '../app/models/Store';
-import {Printer} from '../app/models/Printer';
 const {useQuery, useRealm} = AppContext;
 
 export const baseURL: string = 'https://qianyushop.shop/api/appClient';
+// export const baseURL: string = 'https://290b8407y1.oicp.vip/api/appClient';
 
 const useFetch = (): {
   fetchData: (
@@ -49,9 +47,6 @@ const useFetch = (): {
   const carrier = getCarrierSync();
   const userAggent = getUserAgentSync();
   const auth = useQuery(Auth);
-  const user = useQuery(User);
-  const printers = useQuery(Store);
-  const store = useQuery(Printer);
   const realm = useRealm();
 
   const deviceInfo = {
@@ -114,18 +109,15 @@ const useFetch = (): {
 
         if (parseResponse.code === 10000) {
           return Promise.resolve(parseResponse.data);
-        }
-        if (parseResponse.code === -14444) {
+        } else if (parseResponse.code === -14444) {
           // logout
           realm.write(() => {
-            realm.delete(auth);
-            realm.delete(user);
-            realm.delete(printers);
-            realm.delete(store);
+            realm.deleteAll();
           });
           return Promise.reject(parseResponse);
+        } else {
+          return Promise.reject(parseResponse);
         }
-        return Promise.reject(parseResponse);
       } else {
         return Promise.reject(response);
       }
