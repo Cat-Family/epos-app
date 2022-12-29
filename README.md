@@ -25,6 +25,10 @@ Please follow the [React native CLI Quickstart](https://reactnative.dev/docs/env
  yarn
  # or
  npm i
+ 
+ // If you are debugging width ios
+ cd ios
+ pod install
 ```
 
 ## Start
@@ -41,6 +45,10 @@ Please follow the [React native CLI Quickstart](https://reactnative.dev/docs/env
 
 
 2. IOS
+
+```shell
+  yarn ios
+```
 
 
 ## Build
