@@ -21,7 +21,7 @@ const App = () => {
 
   useEffect(() => {
     if (auth[0]?.token && auth[0]?.userId && auth[0]?.tenantId) {
-      if (socket?.readyState !== 1) {
+      if (!socket || socket?.readyState !== 1) {
         console.log('create websocket...');
         setSocket(
           new WebSocket(
