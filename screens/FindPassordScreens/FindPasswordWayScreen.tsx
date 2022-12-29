@@ -26,9 +26,7 @@ const FindPasswordWayScreen = () => {
     <View style={styles.container}>
       <StatusBar
         backgroundColor={theme.colors.background}
-        barStyle={
-          userColorScheme === 'light' ? 'light-content' : 'dark-content'
-        }
+        barStyle={userColorScheme === 'dark' ? 'light-content' : 'dark-content'}
       />
       <Appbar.Header style={{backgroundColor: '#F4F3F3'}}>
         <Appbar.BackAction onPress={() => navigation.goBack()} />

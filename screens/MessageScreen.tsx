@@ -1,10 +1,8 @@
-import React, {useEffect, useRef, useState} from 'react';
-import PropTypes from 'prop-types';
+import React, {useRef, useState} from 'react';
 import {
   Dimensions,
   RefreshControl,
   ScrollView,
-  SectionList,
   StatusBar,
   StyleSheet,
   Text,
@@ -139,7 +137,6 @@ const MessageScreen = () => {
                           borderRadius: 6,
                           height: 38,
                           marginLeft: 10,
-                          fontWeight: '600',
                         },
                       ]}
                       onPress={() => {
@@ -149,7 +146,7 @@ const MessageScreen = () => {
                     </Button>
                     <Button
                       labelStyle={{color: theme.colors.error}}
-                      style={[{borderRadius: 6, height: 38, fontWeight: '600'}]}
+                      style={[{borderRadius: 6, height: 38}]}
                       onPress={() => deleteMessageHandler(item._id)}>
                       删除
                     </Button>
@@ -212,7 +209,6 @@ const MessageScreen = () => {
                           borderRadius: 6,
                           height: 38,
                           marginLeft: 10,
-                          fontWeight: '600',
                         },
                       ]}
                       onPress={() => {
@@ -223,7 +219,7 @@ const MessageScreen = () => {
 
                     <Button
                       labelStyle={{color: theme.colors.error}}
-                      style={[{borderRadius: 6, height: 38, fontWeight: '600'}]}
+                      style={[{borderRadius: 6, height: 38}]}
                       onPress={() => deleteMessageHandler(item._id)}>
                       删除
                     </Button>

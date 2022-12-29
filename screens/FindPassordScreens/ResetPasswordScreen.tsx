@@ -1,6 +1,5 @@
-import React, {useLayoutEffect, useState} from 'react';
+import React from 'react';
 import {
-  Alert,
   Platform,
   StatusBar,
   StyleSheet,
@@ -9,26 +8,20 @@ import {
   View,
 } from 'react-native';
 import {Appbar, Button, Dialog, Paragraph, Portal} from 'react-native-paper';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import {TextInput} from 'react-native-gesture-handler';
 import {Controller, useForm} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {object, ref, string, TypeOf} from 'yup';
 import Feather from 'react-native-vector-icons/Feather';
-import axiosInstance from '../../utils/request';
 import {AuthNavigationProp} from '../../navigation/AuthStack';
-import CryptoJS from 'crypto-js';
-import JSEncrypt from 'jsencrypt';
 import useTheme from '../../hooks/utils/useTheme';
+import useResetPassord from '../../hooks/actions/useResetPassord';
 
 const ResetPasswordScreen = () => {
   const navigation = useNavigation<AuthNavigationProp>();
   const authNavigation = useNavigation<AuthNavigationProp>();
-  const route = useRoute<any>();
-  const [isAlert, setIsAlert] = React.useState<boolean>(false);
-  const [alertMessage, setAlertMessage] = React.useState<any>();
-  const [loading, setLoading] = useState(false);
   const {theme, userColorScheme} = useTheme();
 
   const validationSchema = object({
@@ -45,55 +38,17 @@ const ResetPasswordScreen = () => {
       .oneOf([ref('password'), null], '密码不匹配'),
   });
   const [secureTextEntry, setSecureTextEntry] = React.useState(true);
-
+  const {isLoading, error, dispatch, resetPasswordHandler} = useResetPassord();
   type ValidationInput = TypeOf<typeof validationSchema>;
 
   const {
     control,
     handleSubmit,
-    getValues,
     watch,
-    getFieldState,
     formState: {errors, isSubmitted},
   } = useForm<ValidationInput>({
     resolver: yupResolver(validationSchema),
   });
-  const onSubmit = async (value: any) => {
-    setLoading(true);
-    const jsencrypt = new JSEncrypt({});
-    jsencrypt.setPublicKey(
-      'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1d/4OjtZKvWDgp9yFaAiQmhAB0EvupK38QgcrdxcPjuK/BNhTHXgXAPPV1GNNN5dEctHpS2V10DFgqcjBT4iUm9U0edbexYhOmmoJhBp7IGwE1joM7lw0Ik8MfrLKJfDq2R6D8EnqnnBmVBc88jDRdhyw/W9PDxbAcTVAw0pmqLQpkuVID54gutjolt259Sb/70cHJT0fr9hqytUMl83yDy/6bw1rUBjjlr2ICDOZpsPaMB/blqDBRkfpBTwkJT2Xvax6Ik2e5I409RDQA9c/TDfsQYoWp8MqxzErHL66mPpQf05w7uFRB1CTsaaSIw9myHsi4m0FwYCziDs7pEv+QIDAQAB',
-    );
-    try {
-      const response = await axiosInstance.post(
-        '/user/ResetPassword/magicApiJSON.do',
-        {
-          SigninName: route.params.signinName,
-          Password: jsencrypt.encrypt(
-            CryptoJS.SHA3(value.password as string, {
-              outputLength: 512,
-            }).toString(CryptoJS.enc.Base64),
-          ),
-          RepeatPassword: jsencrypt.encrypt(
-            CryptoJS.SHA3(value.verifyPassword as string, {
-              outputLength: 512,
-            }).toString(CryptoJS.enc.Base64),
-          ),
-          VerifyCode: route.params.verifyCode,
-          authInfo: {
-            reqTime: new Date().getTime(),
-            reqUid: CryptoJS.MD5(new Date().getTime().toString()).toString(),
-          },
-        },
-      );
-
-      navigation.navigate('SignInScreen');
-    } catch (error: any) {
-      setIsAlert(true);
-      setAlertMessage({message: error.message || '网络异常'});
-    }
-    setLoading(false);
-  };
 
   const updateSecureTextEntry = () => {
     setSecureTextEntry(!secureTextEntry);
@@ -103,9 +58,7 @@ const ResetPasswordScreen = () => {
     <View style={styles.container}>
       <StatusBar
         backgroundColor={theme.colors.background}
-        barStyle={
-          userColorScheme === 'light' ? 'light-content' : 'dark-content'
-        }
+        barStyle={userColorScheme === 'dark' ? 'light-content' : 'dark-content'}
       />
       <Appbar.Header style={{backgroundColor: '#F4F3F3'}}>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
@@ -243,7 +196,7 @@ const ResetPasswordScreen = () => {
         </Text>
       </View>
       <Button
-        loading={loading}
+        loading={isLoading}
         disabled={!watch('password') && !watch('verifyPassword')}
         style={{
           width: '96%',
@@ -256,7 +209,7 @@ const ResetPasswordScreen = () => {
         labelStyle={{textAlign: 'center'}}
         mode="contained"
         buttonColor="#096BDE"
-        onPress={handleSubmit(onSubmit)}>
+        onPress={handleSubmit(resetPasswordHandler)}>
         提交
       </Button>
       <Text style={{color: '#666666', padding: 20}}>
@@ -281,27 +234,25 @@ const ResetPasswordScreen = () => {
 
       <Portal>
         <Dialog
-          visible={isAlert}
+          visible={Boolean(error)}
           style={{
             backgroundColor: theme.colors.background,
           }}
           onDismiss={() => {
-            setAlertMessage(null);
-            setIsAlert(false);
+            dispatch({type: 'RESTORE'});
           }}>
           <Dialog.Icon icon="alert" color={theme.colors.error} />
           <Dialog.Title style={{textAlign: 'center'}}>
             重置密码失败
           </Dialog.Title>
           <Dialog.Content>
-            <Paragraph>{alertMessage?.message}</Paragraph>
+            <Paragraph>{error}</Paragraph>
           </Dialog.Content>
           <Dialog.Actions>
             <Button
               labelStyle={{color: theme.colors.primary}}
               onPress={() => {
-                setAlertMessage(null);
-                setIsAlert(false);
+                dispatch({type: 'RESTORE'});
               }}>
               确定
             </Button>

@@ -3,66 +3,25 @@ import {Platform, StatusBar, StyleSheet, Text, View} from 'react-native';
 import {Appbar, Button, Dialog, Paragraph, Portal} from 'react-native-paper';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {TextInput} from 'react-native-gesture-handler';
-import CryptoJS from 'crypto-js';
-import JSEncrypt from 'jsencrypt';
-import axiosInstance from '../../utils/request';
 import {FindPasswordNavigationProp} from '../../navigation/FindPasswordStack';
 import {AuthNavigationProp} from '../../navigation/AuthStack';
 import useTheme from '../../hooks/utils/useTheme';
+import useResetPassord from '../../hooks/actions/useResetPassord';
 
 const VerifyWayScreen = () => {
   const navigation = useNavigation<FindPasswordNavigationProp>();
   const authNavigation = useNavigation<AuthNavigationProp>();
   const route = useRoute<any>();
   const [value, setValue] = useState<string>('');
-  const [loading, setLoading] = useState(false);
-  const [isAlert, setIsAlert] = React.useState<boolean>(false);
-  const [alertMessage, setAlertMessage] = React.useState<any>();
   const {theme, userColorScheme} = useTheme();
-
-  const handleSubmit = async () => {
-    setLoading(true);
-    const jsencrypt = new JSEncrypt({});
-    jsencrypt.setPublicKey(
-      'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1d/4OjtZKvWDgp9yFaAiQmhAB0EvupK38QgcrdxcPjuK/BNhTHXgXAPPV1GNNN5dEctHpS2V10DFgqcjBT4iUm9U0edbexYhOmmoJhBp7IGwE1joM7lw0Ik8MfrLKJfDq2R6D8EnqnnBmVBc88jDRdhyw/W9PDxbAcTVAw0pmqLQpkuVID54gutjolt259Sb/70cHJT0fr9hqytUMl83yDy/6bw1rUBjjlr2ICDOZpsPaMB/blqDBRkfpBTwkJT2Xvax6Ik2e5I409RDQA9c/TDfsQYoWp8MqxzErHL66mPpQf05w7uFRB1CTsaaSIw9myHsi4m0FwYCziDs7pEv+QIDAQAB',
-    );
-
-    try {
-      const {data} = await axiosInstance.post(
-        '/user/BackPassword/magicApiJSON.do',
-        {
-          SigninName: route.params?.userName,
-          Type: 1,
-          OpeType: route.params?.method === 'phone' ? 1 : 2,
-          Email: route.params?.email && jsencrypt.encrypt(value),
-          Phone: route.params?.phone && jsencrypt.encrypt(value),
-          VerCode: '',
-          authInfo: {
-            reqTime: new Date().getTime(),
-            reqUid: CryptoJS.MD5(new Date().getTime().toString()).toString(),
-          },
-        },
-      );
-      navigation.navigate('VerfifyCodeScreen', {
-        ...data.sendInfo,
-        method: route?.params?.method,
-      });
-    } catch (error: any) {
-      setIsAlert(true);
-      setAlertMessage({message: error.message || '网络异常'});
-    }
-    setLoading(false);
-  };
-
   const _goBack = () => navigation.goBack();
+  const {isLoading, error, dispatch, verifyWayHandler} = useResetPassord();
 
   return (
     <View style={styles.container}>
       <StatusBar
         backgroundColor={theme.colors.background}
-        barStyle={
-          userColorScheme === 'light' ? 'light-content' : 'dark-content'
-        }
+        barStyle={userColorScheme === 'dark' ? 'light-content' : 'dark-content'}
       />
       <Appbar.Header style={{backgroundColor: '#F4F3F3'}}>
         <Appbar.BackAction onPress={() => _goBack()} />
@@ -121,7 +80,7 @@ const VerifyWayScreen = () => {
       />
       <Button
         disabled={Boolean(!value)}
-        loading={loading}
+        loading={isLoading}
         style={{
           width: 280,
           height: 58,
@@ -133,7 +92,9 @@ const VerifyWayScreen = () => {
         labelStyle={{textAlign: 'center'}}
         mode="contained"
         buttonColor="#096BDE"
-        onPress={handleSubmit}>
+        onPress={() => {
+          verifyWayHandler(value);
+        }}>
         下一步
       </Button>
       <Button
@@ -154,25 +115,23 @@ const VerifyWayScreen = () => {
 
       <Portal>
         <Dialog
-          visible={isAlert}
+          visible={Boolean(error)}
           style={{
             backgroundColor: theme.colors.background,
           }}
           onDismiss={() => {
-            setAlertMessage(null);
-            setIsAlert(false);
+            dispatch({type: 'RESTORE'});
           }}>
           <Dialog.Icon icon="alert" color={theme.colors.error} />
           <Dialog.Title style={{textAlign: 'center'}}>验证失败</Dialog.Title>
           <Dialog.Content>
-            <Paragraph>{alertMessage?.message}</Paragraph>
+            <Paragraph>{error}</Paragraph>
           </Dialog.Content>
           <Dialog.Actions>
             <Button
               labelStyle={{color: theme.colors.primary}}
               onPress={() => {
-                setAlertMessage(null);
-                setIsAlert(false);
+                dispatch({type: 'RESTORE'});
               }}>
               确定
             </Button>

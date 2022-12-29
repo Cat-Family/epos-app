@@ -7,7 +7,6 @@ import {
   Platform,
   StyleSheet,
   StatusBar,
-  Alert,
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';

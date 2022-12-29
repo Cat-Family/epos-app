@@ -35,25 +35,6 @@ export default function OrderScreen() {
   let tagRef = useRef<any>();
   const navigation = useNavigation();
 
-  // const getGoods = async () => {
-  //   try {
-  //     const {data} = await axiosInstance.post(
-  //       '/goods/QueryGoodsList/magicApiJSON.do',
-  //       {
-  //         authInfo: {
-  //           ...authInfo,
-  //           reqTime: new Date().getTime(),
-  //           reqUid: CryptoJS.MD5(new Date().getTime().toString()).toString(),
-  //         },
-  //       },
-  //     );
-  //     setProducts(data.info[authInfo.tenantId + 'goods']);
-  //     setCateIndex(data.info[authInfo.tenantId + 'goods'][0].classCode);
-  //   } catch (error: any) {
-  //     console.log(error);
-  //   }
-  // };
-
   const getGoods = async () => {
     try {
       const res = await fetchData(

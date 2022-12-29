@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
   Platform,
   StatusBar,
@@ -10,100 +10,34 @@ import {
 import {Appbar, Button, Dialog, Paragraph, Portal} from 'react-native-paper';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {TextInput} from 'react-native-gesture-handler';
-import CryptoJS from 'crypto-js';
-import axiosInstance from '../../utils/request';
 import {FindPasswordNavigationProp} from '../../navigation/FindPasswordStack';
 import {AuthNavigationProp} from '../../navigation/AuthStack';
 import useTheme from '../../hooks/utils/useTheme';
+import useResetPassord from '../../hooks/actions/useResetPassord';
 
 const VerfifyCodeScreen = () => {
   const {theme, userColorScheme} = useTheme();
   const navigation = useNavigation<FindPasswordNavigationProp>();
   const authNavigation = useNavigation<AuthNavigationProp>();
-  const route = useRoute<any>();
   const [verifyCode, setVerifyCode] = useState('');
-  const [countdown, setCountdown] = useState(0);
-  const [isAlert, setIsAlert] = React.useState<boolean>(false);
-  const [alertMessage, setAlertMessage] = React.useState<any>();
-  const [loading, setLoading] = useState(false);
+  const route = useRoute<any>();
+
+  const {
+    error,
+    isLoading,
+    countdown,
+    dispatch,
+    reSendCodeHandler,
+    verifyCodeHandler,
+  } = useResetPassord();
 
   const _goBack = () => navigation.goBack();
-
-  const handleSubmit = async () => {
-    setLoading(true);
-    try {
-      const {data} = await axiosInstance.post(
-        '/user/BackPassword/magicApiJSON.do',
-        {
-          SigninName: route.params?.signinName,
-          Type: 1,
-          OpeType: route.params?.method === 'phone' ? 1 : 2,
-          Email: route.params?.remail,
-          Phone: route.params?.Phone,
-          VerCode: verifyCode,
-          authInfo: {
-            reqTime: new Date().getTime(),
-            reqUid: CryptoJS.MD5(new Date().getTime().toString()).toString(),
-          },
-        },
-      );
-      navigation.navigate('ResetPasswordScreen', {
-        signinName: route.params?.signinName,
-        verifyCode: data?.verifyCode,
-      });
-    } catch (error: any) {
-      setIsAlert(true);
-      setAlertMessage({message: error.message || '网络异常'});
-    }
-
-    setLoading(false);
-  };
-
-  const resendHandler = async () => {
-    try {
-      const {data} = await axiosInstance.post(
-        '/user/BackPassword/magicApiJSON.do',
-        {
-          SigninName: route.params?.signinName,
-          Type: 1,
-          OpeType: route.params?.method === 'phone' ? 1 : 2,
-          Email: route.params?.remail,
-          Phone: route.params?.Phone,
-          ReSend: '1',
-          VerCode: '',
-          authInfo: {
-            reqTime: new Date().getTime(),
-            reqUid: CryptoJS.MD5(new Date().getTime().toString()).toString(),
-          },
-        },
-      );
-      setCountdown(60);
-    } catch (error: any) {
-      setIsAlert(true);
-      setAlertMessage({message: error.message || '网络异常'});
-    }
-  };
-
-  useEffect(() => {
-    let timer: number;
-    if (countdown > 0) {
-      timer = setInterval(() => {
-        setCountdown(countdown - 1);
-      }, 1000);
-    }
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, [countdown]);
 
   return (
     <View style={styles.container}>
       <StatusBar
         backgroundColor={theme.colors.background}
-        barStyle={
-          userColorScheme === 'light' ? 'light-content' : 'dark-content'
-        }
+        barStyle={userColorScheme === 'dark' ? 'light-content' : 'dark-content'}
       />
       <Appbar.Header style={{backgroundColor: '#F4F3F3'}}>
         <Appbar.BackAction onPress={() => _goBack()} />
@@ -181,13 +115,13 @@ const VerfifyCodeScreen = () => {
       <TouchableOpacity
         disabled={countdown > 0}
         style={{paddingLeft: 20, paddingTop: 10}}
-        onPress={resendHandler}>
+        onPress={reSendCodeHandler}>
         <Text style={styles.text}>
           {countdown === 0 ? `重新发送` : `已重新发送${countdown}`}
         </Text>
       </TouchableOpacity>
       <Button
-        loading={loading}
+        loading={isLoading}
         style={{
           width: '96%',
           height: 58,
@@ -199,7 +133,7 @@ const VerfifyCodeScreen = () => {
         labelStyle={{textAlign: 'center'}}
         mode="contained"
         buttonColor="#096BDE"
-        onPress={handleSubmit}>
+        onPress={() => verifyCodeHandler(verifyCode)}>
         提交
       </Button>
       <Button
@@ -220,25 +154,23 @@ const VerfifyCodeScreen = () => {
 
       <Portal>
         <Dialog
-          visible={isAlert}
+          visible={Boolean(error)}
           style={{
             backgroundColor: theme.colors.background,
           }}
           onDismiss={() => {
-            setAlertMessage(null);
-            setIsAlert(false);
+            dispatch({type: 'RESTORE'});
           }}>
           <Dialog.Icon icon="alert" color={theme.colors.error} />
           <Dialog.Title style={{textAlign: 'center'}}>验证码错误</Dialog.Title>
           <Dialog.Content>
-            <Paragraph>{alertMessage?.message}</Paragraph>
+            <Paragraph>{error}</Paragraph>
           </Dialog.Content>
           <Dialog.Actions>
             <Button
               labelStyle={{color: theme.colors.primary}}
               onPress={() => {
-                setAlertMessage(null);
-                setIsAlert(false);
+                dispatch({type: 'RESTORE'});
               }}>
               确定
             </Button>
