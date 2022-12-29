@@ -48,11 +48,6 @@ const MessageScreen = () => {
     getMessagesHandler(true, true);
   };
 
-  useEffect(() => {
-    setEllips(true);
-    setEllipsId(undefined);
-  }, []);
-
   return (
     <SafeAreaView
       style={[
