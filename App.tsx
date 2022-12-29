@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {Provider as PaperProvider} from 'react-native-paper';
 import AuthStack from './navigation/AuthStack';
@@ -17,77 +17,39 @@ const App = () => {
   const auth = useQuery(Auth);
   const dataVersions = useQuery(DataVersion);
   const {getMessagesHandler} = useMessage();
-  let socket: WebSocket | undefined;
+  const [socket, setSocket] = useState<WebSocket | undefined>(undefined);
 
   useEffect(() => {
     if (auth[0]?.token && auth[0]?.userId && auth[0]?.tenantId) {
-      if (!socket) {
-        try {
-          socket = new WebSocket(
-            `ws://82.157.67.120:18084/wss/${auth[0]?.tenantId}_${auth[0]?.userId}/${auth[0].token}`,
-          );
-        } catch (error) {
-          console.log(error);
-        }
+      if (socket?.readyState !== 1) {
+        console.log('create websocket...');
+        setSocket(
+          new WebSocket(
+            `ws://82.157.67.120:18084/wss/${auth[0]?.tenantId}_${auth[0]?.userId}/${auth[0]?.token}`,
+          ),
+        );
       }
+    }
 
-      if (socket) {
-        socket.addEventListener('message', async event => {
-          const res = JSON.parse(event.data);
-          try {
-            if (res.code === 10000 && res?.info) {
-              res.info.map((info: any) => {
-                if (info.url && info.userId && info.version) {
-                  const results = dataVersions.find(
-                    item =>
-                      info.url === item.dataName &&
-                      auth[0].userId === item.userId,
-                  );
+    socket?.addEventListener('open', () => {
+      socket.send(JSON.stringify(auth[0]));
+      console.log('websocket is ready!');
+    });
 
-                  if (Boolean(results)) {
-                    if (results?.dataVersion !== info.version) {
-                      getMessagesHandler(false, false);
-                      realm.write(() => {
-                        // clean
-                        realm.delete(results);
-
-                        realm.create('DataVersion', {
-                          _id: new Realm.BSON.ObjectId(),
-                          dataName: info.url,
-                          dataVersion: info.version,
-                          userId: info.userId,
-                          createdAt: new Date(),
-                        });
-                      });
-                    } else {
-                      console.log('ok');
-                    }
-                  } else {
-                    // getMessage
-                    getMessagesHandler(false, false);
-                    realm.write(() => {
-                      realm.create('DataVersion', {
-                        _id: new Realm.BSON.ObjectId(),
-                        dataName: info.url,
-                        dataVersion: info.version,
-                        userId: info.userId,
-                        createdAt: new Date(),
-                      });
-                    });
-                  }
-                }
-              });
-            }
-
-            if (res.url && res.userId && res.version) {
-              console.log(auth[0].token);
+    socket?.addEventListener('message', async event => {
+      const res = JSON.parse(event.data);
+      console.log(res);
+      try {
+        if (res.code === 10000 && res?.info) {
+          res.info.map((info: any) => {
+            if (info.url && info.userId && info.version) {
               const results = dataVersions.find(
                 item =>
-                  res.url === item.dataName && auth[0].userId === res.userId,
+                  info.url === item.dataName && auth[0].userId === item.userId,
               );
 
               if (Boolean(results)) {
-                if (results?.dataVersion !== res.version) {
+                if (results?.dataVersion !== info.version) {
                   getMessagesHandler(false, false);
                   realm.write(() => {
                     // clean
@@ -95,14 +57,13 @@ const App = () => {
 
                     realm.create('DataVersion', {
                       _id: new Realm.BSON.ObjectId(),
-                      dataName: res.url,
-                      dataVersion: res.version,
-                      userId: res.userId,
+                      dataName: info.url,
+                      dataVersion: info.version,
+                      userId: info.userId,
                       createdAt: new Date(),
                     });
                   });
                 } else {
-                  console.log('ok');
                 }
               } else {
                 // getMessage
@@ -110,28 +71,77 @@ const App = () => {
                 realm.write(() => {
                   realm.create('DataVersion', {
                     _id: new Realm.BSON.ObjectId(),
-                    dataName: res.url,
-                    dataVersion: res.version,
-                    userId: res.userId,
+                    dataName: info.url,
+                    dataVersion: info.version,
+                    userId: info.userId,
                     createdAt: new Date(),
                   });
                 });
               }
             }
-          } catch (error) {
-            console.log(error);
+          });
+        }
+
+        if (res.url && res.userId && res.version) {
+          const results = dataVersions.find(
+            item => res.url === item.dataName && auth[0].userId === res.userId,
+          );
+
+          if (Boolean(results)) {
+            if (results?.dataVersion !== res.version) {
+              getMessagesHandler(false, false);
+              realm.write(() => {
+                // clean
+                realm.delete(results);
+
+                realm.create('DataVersion', {
+                  _id: new Realm.BSON.ObjectId(),
+                  dataName: res.url,
+                  dataVersion: res.version,
+                  userId: res.userId,
+                  createdAt: new Date(),
+                });
+              });
+            } else {
+            }
+          } else {
+            // getMessage
+            getMessagesHandler(false, false);
+            realm.write(() => {
+              realm.create('DataVersion', {
+                _id: new Realm.BSON.ObjectId(),
+                dataName: res.url,
+                dataVersion: res.version,
+                userId: res.userId,
+                createdAt: new Date(),
+              });
+            });
           }
-        });
+        }
+      } catch (error) {
+        console.log('update data error by data versio:', error);
       }
-    }
+    });
+
+    socket?.addEventListener('error', error => {
+      console.log('websocket error:', error.message);
+    });
+
+    socket?.addEventListener('close', event => {
+      console.log('websocket close:', event.code);
+    });
 
     return () => {
-      if (socket) {
-        socket.close();
-        socket = undefined;
+      if (!auth[0]) {
+        if (socket?.readyState) {
+          socket.close();
+          setSocket(undefined);
+        } else {
+          setSocket(undefined);
+        }
       }
     };
-  }, [auth[0]?.token, auth[0]?.userId, auth[0]?.tenantId]);
+  }, [auth[0]?.token, auth[0]?.userId, auth[0]?.tenantId, socket?.readyState]);
 
   return (
     <PaperProvider theme={theme}>
