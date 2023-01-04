@@ -1,5 +1,5 @@
 import React, {FC} from 'react';
-import {View, ImageBackground} from 'react-native';
+import {View, ImageBackground, SafeAreaView} from 'react-native';
 import {
   DrawerContentScrollView,
   DrawerItem,
@@ -21,7 +21,12 @@ const CustomDrawer: FC<IProps> = props => {
   const {signOutHandler} = useAuth();
 
   return (
-    <>
+    <SafeAreaView
+    style={{
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column',
+    }}>
       <ImageBackground
         source={require('../assets/images/EPOS.png')}
         resizeMode="contain"
@@ -31,14 +36,14 @@ const CustomDrawer: FC<IProps> = props => {
           backgroundColor: theme.colors.background,
           borderBottomRightRadius: 6,
           borderBottomLeftRadius: 6,
-          shadowColor: theme.colors.shadow,
-          shadowRadius: 10,
-          shadowOpacity: 0.6,
-          elevation: 8,
-          shadowOffset: {
-            width: 2,
-            height: 4,
-          },
+          // shadowColor: theme.colors.shadow,
+          // shadowRadius: 10,
+          // shadowOpacity: 0.6,
+          // elevation: 8,
+          // shadowOffset: {
+          //   width: 2,
+          //   height: 4,
+          // },
         }}>
         <View
           style={{
@@ -67,7 +72,7 @@ const CustomDrawer: FC<IProps> = props => {
           label="退出登录"
         />
       </View>
-    </>
+    </SafeAreaView>
   );
 };
 

@@ -1,15 +1,15 @@
-import {useReducer} from 'react';
+import { useReducer } from 'react';
 import useFetch from '../useFetch';
 import CryptoJS from 'crypto-js';
 import AppContext from '../../app/context/AppContext';
-const {useRealm, useQuery} = AppContext;
+const { useRealm, useQuery } = AppContext;
 import JSEncrypt from 'jsencrypt';
 
 type ReaducerType = 'LOADING' | 'SUCCESS' | 'FAIL' | 'RESTORE';
 
 const useAuth = () => {
   const realm = useRealm();
-  const {fetchData} = useFetch();
+  const { fetchData } = useFetch();
 
   const [state, dispatch] = useReducer(
     (
@@ -61,7 +61,7 @@ const useAuth = () => {
   );
 
   const signInHandler = async (value: any) => {
-    dispatch({type: 'LOADING'});
+    dispatch({ type: 'LOADING' });
     const jsencrypt = new JSEncrypt({});
     jsencrypt.setPublicKey(
       'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1d/4OjtZKvWDgp9yFaAiQmhAB0EvupK38QgcrdxcPjuK/BNhTHXgXAPPV1GNNN5dEctHpS2V10DFgqcjBT4iUm9U0edbexYhOmmoJhBp7IGwE1joM7lw0Ik8MfrLKJfDq2R6D8EnqnnBmVBc88jDRdhyw/W9PDxbAcTVAw0pmqLQpkuVID54gutjolt259Sb/70cHJT0fr9hqytUMl83yDy/6bw1rUBjjlr2ICDOZpsPaMB/blqDBRkfpBTwkJT2Xvax6Ik2e5I409RDQA9c/TDfsQYoWp8MqxzErHL66mPpQf05w7uFRB1CTsaaSIw9myHsi4m0FwYCziDs7pEv+QIDAQAB',
@@ -96,8 +96,8 @@ const useAuth = () => {
             reqTime: new Date().getTime(),
             reqUid: CryptoJS.MD5(
               new Date().getTime() +
-                authResponse.loginInfo.authInfo.tenantId +
-                authResponse.loginInfo.authInfo.userName,
+              authResponse.loginInfo.authInfo.tenantId +
+              authResponse.loginInfo.authInfo.userName,
             ).toString(),
           },
         },
@@ -116,9 +116,7 @@ const useAuth = () => {
           phoneNum: userResponse.userInfo.basicInfo.phoneNum,
           isDelete: userResponse.userInfo.basicInfo.isDelete,
           createTime: new Date(
-            new Date(
-              userResponse.userInfo.basicInfo.createTime.replace(/-/g, '/'),
-            ).valueOf(),
+            userResponse.userInfo.basicInfo.createTime
           ),
           createdAt: new Date(),
         });
@@ -129,9 +127,7 @@ const useAuth = () => {
           storeName: userResponse.userInfo.storeInfo.storeName,
           tenantId: userResponse.userInfo.storeInfo.tenantId,
           createTime: new Date(
-            new Date(
-              userResponse.userInfo.basicInfo.createTime.replace(/-/g, '/'),
-            ).valueOf(),
+            userResponse.userInfo.basicInfo.createTime
           ),
           createdAt: new Date(),
         });
@@ -144,17 +140,15 @@ const useAuth = () => {
             deviceSecret: printer.deviceSecret,
             vendorName: printer.vendorName,
             createTime: new Date(
-              new Date(
-                userResponse.userInfo.basicInfo.createTime.replace(/-/g, '/'),
-              ).valueOf(),
+              userResponse.userInfo.basicInfo.createTime
             ),
             createdAt: new Date(),
           });
         });
       });
-      dispatch({type: 'SUCCESS'});
+      dispatch({ type: 'SUCCESS' });
     } catch (error: any) {
-      dispatch({type: 'FAIL', error: error.message || '网络异常'});
+      dispatch({ type: 'FAIL', error: error.message || '网络异常' });
     }
   };
 

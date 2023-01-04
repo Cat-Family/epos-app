@@ -47,19 +47,7 @@ const MessageScreen = () => {
   };
 
   return (
-    <SafeAreaView
-      style={[
-        {...styles.container},
-        {
-          backgroundColor: theme.colors.mainbackground,
-        },
-      ]}>
-      <StatusBar
-        backgroundColor={theme.colors.background}
-        barStyle={
-          userColorScheme === 'light' ? 'light-content' : 'dark-content'
-        }
-      />
+    <>
       <Appbar.Header>
         <Appbar.BackAction
           onPress={() => {
@@ -238,7 +226,7 @@ const MessageScreen = () => {
         }}>
         {error}
       </Snackbar>
-    </SafeAreaView>
+    </>
   );
 };
 

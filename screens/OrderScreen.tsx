@@ -66,31 +66,10 @@ export default function OrderScreen() {
   }, []);
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: theme.colors.background,
-        display: 'flex',
-        flexDirection: 'row',
-      }}>
-      <StatusBar
-        backgroundColor={theme.colors.background}
-        barStyle={
-          userColorScheme === 'light' ? 'light-content' : 'dark-content'
-        }
-      />
-      <View style={{display: 'flex', width: '100%', height: '100%'}}>
+    <>
         <Appbar.Header
           style={{
             backgroundColor: theme.colors.background,
-            shadowColor: theme.colors.shadow,
-            shadowRadius: 10,
-            shadowOpacity: 0.6,
-            elevation: 8,
-            shadowOffset: {
-              width: 2,
-              height: 2,
-            },
           }}>
           <Appbar.Action
             icon="menu"
@@ -192,8 +171,7 @@ export default function OrderScreen() {
                 </Button>
               ))}
         </ScrollView>
-      </View>
-    </SafeAreaView>
+    </>
   );
 }
 

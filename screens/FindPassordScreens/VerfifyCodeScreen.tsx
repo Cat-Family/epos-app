@@ -44,7 +44,6 @@ const VerfifyCodeScreen = () => {
         <Appbar.Content
           title="身份验证"
           titleStyle={{fontSize: 18}}
-          style={{paddingLeft: '26%'}}
         />
       </Appbar.Header>
       <View
