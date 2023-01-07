@@ -1,6 +1,7 @@
 {
   "name": "epos",
   "version": "0.0.1",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
