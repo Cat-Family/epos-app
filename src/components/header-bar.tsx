@@ -1,0 +1,23 @@
+import AnimatedBox, { AnimatedBoxProps } from '@/atoms/animated-box'
+import Bar from '@/atoms/bar'
+import * as React from 'react'
+
+const HeaderBar: React.FC<AnimatedBoxProps> = ({ children, ...rest }) => {
+  return (
+    <AnimatedBox position="absolute" top={40} left={0} right={0} {...rest}>
+      <Bar
+        variant={'headerBar'}
+        flexDirectio="row"
+        alignItems="center"
+        mx="lg"
+        my="md"
+        px="sm"
+        minHeight={44}
+      >
+        {children}
+      </Bar>
+    </AnimatedBox>
+  )
+}
+
+export default HeaderBar
