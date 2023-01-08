@@ -1,37 +1,37 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import { Message } from '@/app/models/Message'
-import { Theme } from '@/themes'
-import { createBox } from '@shopify/restyle'
-import { FlatList, FlatListProps } from 'react-native'
-import MessageListItem from './message-list'
-import AppContext from '@/app/context/AppContext'
-const { useQuery } = AppContext
+import { Box, Text } from '@/atoms'
+import { useWindowDimensions } from 'react-native'
 
-const StyledFlatList = createBox<Theme, FlatListProps<Message & Realm.Object>>(
-  FlatList
-)
-
-interface Props {}
-
-const MessageList: React.FC<Props> = () => {
-  const msgs = useQuery(Message)
-
-  const renderItem = useCallback(
-    ({ item }: { item: Message & Realm.Object }) => {
-      return <MessageListItem key={item._id} item={item} />
-    },
-    [msgs]
-  )
-
+const MessageListItem = ({ item }: { item: Message & Realm.Object }) => {
+  const { width, height } = useWindowDimensions()
   return (
-    <StyledFlatList
-      contentInsetAdjustmentBehavior="automatic"
-      data={msgs}
-      renderItem={renderItem}
-      keyExtractor={item => item._id.toString()}
-      width="100%"
-    />
+    <Box bg="$background" justifyContent="center" alignItems="center">
+      <Box
+        bg="$windowBackground"
+        px="lg"
+        py="sm"
+        width={width * 0.97}
+        style={{
+          marginHorizontal: 10,
+          marginVertical: 6,
+          padding: 10,
+          borderRadius: 10
+        }}
+      >
+        <Text style={{}}>{`${item?.subject}`}</Text>
+        <Text fontSize={14}>{item.createdAt.toUTCString()}</Text>
+        <Text
+          numberOfLines={2}
+          ellipsizeMode="tail"
+          fontSize={14}
+          opacity={0.7}
+        >
+          {item.content}
+        </Text>
+      </Box>
+    </Box>
   )
 }
 
-export default MessageList
+export default MessageListItem

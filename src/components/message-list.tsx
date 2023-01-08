@@ -1,37 +1,50 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { Message } from '@/app/models/Message'
-import { Box, Text } from '@/atoms'
-import { useWindowDimensions } from 'react-native'
+import { Theme } from '@/themes'
+import { createBox } from '@shopify/restyle'
+import MessageListItem from './message-list-item'
+import AppContext from '@/app/context/AppContext'
+import Animated, { AnimateProps } from 'react-native-reanimated'
+import {
+  FlatListProps,
+  NativeScrollEvent,
+  NativeSyntheticEvent
+} from 'react-native'
+import { Box } from '@/atoms'
+const { useQuery } = AppContext
 
-const MessageListItem = ({ item }: { item: Message & Realm.Object }) => {
-  const { width, height } = useWindowDimensions()
+const StyledFlatList = createBox<
+  Theme,
+  AnimateProps<FlatListProps<Message & Realm.Object>>
+>(Animated.FlatList)
+
+interface Props {
+  contentInsetTop: number
+  onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+}
+
+const MessageList: React.FC<Props> = ({ onScroll, contentInsetTop }) => {
+  const msgs = useQuery(Message)
+
+  const renderItem = useCallback(
+    ({ item }: { item: Message & Realm.Object }) => {
+      return <MessageListItem key={item._id} item={item} />
+    },
+    [msgs]
+  )
+
   return (
-    <Box bg="$background" justifyContent="center" alignItems="center">
-      <Box
-        bg="$windowBackground"
-        px="lg"
-        py="sm"
-        width={width * 0.97}
-        style={{
-          marginHorizontal: 10,
-          marginVertical: 6,
-          padding: 10,
-          borderRadius: 10
-        }}
-      >
-        <Text style={{}}>{`${item?.subject}`}</Text>
-        <Text fontSize={14}>{item.createdAt.toUTCString()}</Text>
-        <Text
-          numberOfLines={2}
-          ellipsizeMode="tail"
-          fontSize={14}
-          opacity={0.7}
-        >
-          {item.content}
-        </Text>
-      </Box>
-    </Box>
+    <StyledFlatList
+      contentInsetAdjustmentBehavior="automatic"
+      data={msgs}
+      renderItem={renderItem}
+      keyExtractor={item => item._id.toString()}
+      width="100%"
+      onScroll={onScroll}
+      scrollEventThrottle={16}
+      ListHeaderComponent={<Box width="100%" height={contentInsetTop} />}
+    />
   )
 }
 
-export default MessageListItem
+export default MessageList
