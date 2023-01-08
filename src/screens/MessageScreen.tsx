@@ -27,7 +27,7 @@ const MessageScreen = () => {
   const [ellips, setEllips] = useState(true)
   const [ellipsId, setEllipsId] = useState<number | undefined>(undefined)
   let scrollRef = useRef<any>()
-  const msgs = useQuery(Message).sorted('_id')
+  const msgs = useQuery(Message)
 
   const {
     error,

@@ -79,7 +79,7 @@ export default function OrderScreen() {
           }}
         />
         <Appbar.Content title={store[0]?.storeName} />
-        <TouchableOpacity onPress={() => navigation.navigate('MessageScreen')}>
+        <TouchableOpacity onPress={() => navigation.navigate('Message')}>
           <View style={styles.badgeContainer}>
             <AntDesign
               name="message1"
