@@ -21,16 +21,30 @@ const StyledFlatList = createBox<
 interface Props {
   contentInsetTop: number
   onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
+  onItemPress: (messageId: string) => void
+  onItemSwipeLeft: (messageId: string, cancel: () => void) => void
 }
 
-const MessageList: React.FC<Props> = ({ onScroll, contentInsetTop }) => {
+const MessageList: React.FC<Props> = ({
+  onScroll,
+  contentInsetTop,
+  onItemPress,
+  onItemSwipeLeft
+}) => {
   const msgs = useQuery(Message)
 
   const renderItem = useCallback(
     ({ item }: { item: Message & Realm.Object }) => {
-      return <MessageListItem key={item._id} item={item} />
+      return (
+        <MessageListItem
+          key={item._id}
+          item={item}
+          onPress={onItemPress}
+          onSwipeLeft={onItemSwipeLeft}
+        />
+      )
     },
-    [msgs]
+    [msgs, onItemPress, onItemSwipeLeft]
   )
 
   return (

@@ -1,36 +1,68 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { Message } from '@/app/models/Message'
-import { Box, Text } from '@/atoms'
+import { Box, Text, TouchableOpacity } from '@/atoms'
 import { useWindowDimensions } from 'react-native'
+import MessageListItemActionView from './message-list-item-action-view'
+import { SharedValue } from 'react-native-reanimated'
+import SwipeableView, { BackViewProps } from './swipeable-view'
 
-const MessageListItem = ({ item }: { item: Message & Realm.Object }) => {
+const MessageListItem = ({
+  item,
+  onPress,
+  onSwipeLeft
+}: {
+  item: Message & Realm.Object
+  onPress: (messageId: string) => void
+  onSwipeLeft?: (messageId: string, done: () => void) => void
+}) => {
   const { width, height } = useWindowDimensions()
+
+  const handlePress = useCallback(() => {
+    onPress(item._id.toString())
+  }, [onPress])
+
+  const handleSwipeLeft = useCallback(
+    (done: () => void) => {
+      onSwipeLeft && onSwipeLeft(item._id.toString(), done)
+    },
+    [item._id, onSwipeLeft]
+  )
+
+  const renderBackView = useCallback(
+    ({ progress }: BackViewProps) => (
+      <MessageListItemActionView progress={progress} />
+    ),
+    []
+  )
   return (
-    <Box bg="$background" justifyContent="center" alignItems="center">
-      <Box
-        bg="$windowBackground"
-        px="lg"
-        py="sm"
-        width={width * 0.97}
-        style={{
-          marginHorizontal: 10,
-          marginVertical: 6,
-          padding: 10,
-          borderRadius: 10
-        }}
-      >
-        <Text style={{}}>{`${item?.subject}`}</Text>
-        <Text fontSize={14}>{item.createdAt.toUTCString()}</Text>
-        <Text
-          numberOfLines={2}
-          ellipsizeMode="tail"
-          fontSize={14}
-          opacity={0.7}
+    <SwipeableView onSwipeLeft={handleSwipeLeft} backView={renderBackView}>
+      <Box bg="$windowBackground">
+        <TouchableOpacity
+          onPress={handlePress}
+          bg="$windowBackground"
+          px="lg"
+          py="sm"
+          width={width * 0.97}
+          style={{
+            marginHorizontal: 10,
+            marginVertical: 6,
+            padding: 10,
+            borderRadius: 10
+          }}
         >
-          {item.content}
-        </Text>
+          <Text style={{}}>{`${item?.subject}`}</Text>
+          <Text fontSize={14}>{item.createdAt.toUTCString()}</Text>
+          <Text
+            numberOfLines={2}
+            ellipsizeMode="tail"
+            fontSize={14}
+            opacity={0.7}
+          >
+            {item.content}
+          </Text>
+        </TouchableOpacity>
       </Box>
-    </Box>
+    </SwipeableView>
   )
 }
 

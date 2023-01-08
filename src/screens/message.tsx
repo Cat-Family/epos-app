@@ -25,9 +25,22 @@ function MessageScreen({ navigation }: Props) {
     navigation.toggleDrawer()
   }, [navigation])
 
+  const onItemPress = (messageId: string) => {
+    console.log(messageId)
+  }
+
+  const onItemSwipeLeft = () => {
+    console.log('swipe')
+  }
+
   return (
     <Container justifyContent="center" alignItems="center">
-      <MessageList contentInsetTop={headerBarHeight} onScroll={handleScroll} />
+      <MessageList
+        contentInsetTop={headerBarHeight}
+        onScroll={handleScroll}
+        onItemPress={onItemPress}
+        onItemSwipeLeft={onItemSwipeLeft}
+      />
       <HeaderBar style={headerBarStyle} onLayout={handleMessageListLayout}>
         <TouchableOpacity
           m="xs"
