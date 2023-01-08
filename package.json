@@ -24,6 +24,7 @@
     "@realm/react": "^0.4.1",
     "@shopify/restyle": "^2.1.0",
     "crypto-js": "^4.1.1",
+    "jotai": "^1.12.1",
     "jsencrypt": "^3.3.1",
     "react": "18.2.0",
     "react-hook-form": "^7.41.5",
