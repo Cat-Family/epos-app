@@ -3,7 +3,6 @@ import { Message } from '@/app/models/Message'
 import { Box, Text, TouchableOpacity } from '@/atoms'
 import { useWindowDimensions } from 'react-native'
 import MessageListItemActionView from './message-list-item-action-view'
-import { SharedValue } from 'react-native-reanimated'
 import SwipeableView, { BackViewProps } from './swipeable-view'
 
 const MessageListItem = ({
@@ -17,9 +16,9 @@ const MessageListItem = ({
 }) => {
   const { width, height } = useWindowDimensions()
 
-  const handlePress = useCallback(() => {
-    onPress(item._id.toString())
-  }, [onPress])
+  // const handlePress = useCallback(() => {
+  //   onPress(item._id.toString())
+  // }, [onPress])
 
   const handleSwipeLeft = useCallback(
     (done: () => void) => {
@@ -38,11 +37,10 @@ const MessageListItem = ({
     <SwipeableView onSwipeLeft={handleSwipeLeft} backView={renderBackView}>
       <Box bg="$windowBackground">
         <TouchableOpacity
-          onPress={handlePress}
+          // onPress={handlePress}
           bg="$windowBackground"
           px="lg"
           py="sm"
-          width={width * 0.97}
           style={{
             marginHorizontal: 10,
             marginVertical: 6,
