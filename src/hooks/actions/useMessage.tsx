@@ -2,7 +2,8 @@ import { useReducer } from 'react'
 import useFetch from '../useFetch'
 import AppContext from '../../app/context/AppContext'
 import { Auth } from '../../app/models/Auth'
-const { useRealm, useQuery } = AppContext
+import { DataVersion } from '@/app/models/DataVersion'
+const { useRealm, useQuery, useObject } = AppContext
 
 type ReaducerType = 'LOADING' | 'SUCCESS' | 'FAIL' | 'RESTORE'
 
@@ -55,61 +56,59 @@ const useMessage = () => {
   )
   const { fetchData } = useFetch()
 
-  const getMessagesHandler = async (
-    needLoading?: boolean,
-    isWriteVersion?: boolean
-  ) => {
+  const getMessagesHandler = async () => {
     try {
-      needLoading && dispatch({ type: 'LOADING' })
+      dispatch({ type: 'LOADING' })
       const res = await fetchData(
         '/msg/QueryMessageList/magicApiJSON.do',
         'POST'
       )
 
       realm.write(() => {
-        // messages
         const messages = realm.objects('Message')
         realm.delete(messages)
 
         res.info.info.map((msg: any) => {
-          realm.create('Message', {
-            _id: msg.id,
-            subject: msg.subject,
-            content: msg.content,
-            isTop: Boolean(msg.isTop),
-            isRead: Boolean(msg.isRead),
-            isHtml: Boolean(msg.isHtml),
-            tenantId: msg.tenantId,
-            userId: msg.userId,
-            updatedAt: new Date(),
+          try {
+            realm.create('Message', {
+              _id: msg.id,
+              subject: msg.subject,
+              content: msg.content,
+              isTop: Boolean(msg.isTop),
+              isRead: Boolean(msg.isRead),
+              isHtml: Boolean(msg.isHtml),
+              tenantId: msg.tenantId,
+              userId: msg.userId,
+              updatedAt: msg.updateTime,
+              createdAt: msg.creatTime
+            })
+          } catch (error: any) {
+            dispatch({ type: 'FAIL', error: error })
+          }
+        })
+
+        const results = realm.objectForPrimaryKey<DataVersion & Realm.Object>(
+          'DataVersion',
+          res.info.url
+        )
+        if (results) {
+          results.dataVersion = res.info.version
+        } else {
+          realm.create('DataVersion', {
+            _id: res.info.url,
+            dataVersion: res.info.version,
+            userId: auth[0]?.userId,
             createdAt: new Date()
           })
-        })
-
-        if (isWriteVersion) {
-          // version
-          const dataversion = realm
-            .objects<any>('DataVersion')
-            .find(it => it.dataName === 'api/appClient/msg/ChangeMessageStatus')
-
-          if (dataversion) {
-            realm.delete(dataversion)
-          }
         }
-
-        realm.create('DataVersion', {
-          _id: new Realm.BSON.ObjectId(),
-          dataName: 'api/appClient/msg/ChangeMessageStatus',
-          dataVersion: res.info.version,
-          userId: auth[0]?.userId,
-          createdAt: new Date()
-        })
       })
+
       dispatch({
         type: 'SUCCESS'
       })
     } catch (error: any) {
       dispatch({ type: 'FAIL', error: error.message || '网络错误' })
+      console.log(error)
     }
   }
 
@@ -162,11 +161,11 @@ const useMessage = () => {
         msg.updatedAt = new Date()
         msg.isTop = true
 
-        const dataversion = realm
-          .objects<any>('DataVersion')
-          .find(it => it.dataName === 'api/appClient/msg/ChangeMessageStatus')
+        const dataversion = realm.objectForPrimaryKey<
+          DataVersion & Realm.Object
+        >('DataVersion', 'api/appClient/msg/ChangeMessageStatus')
 
-        dataversion.dataVersion += 1
+        if (dataversion) dataversion.dataVersion += 1
       })
       await fetchData('/msg/ChangeMessageStatus/magicApiJSON.do', 'POST', {
         Id: id,
@@ -183,11 +182,11 @@ const useMessage = () => {
         msg.updatedAt = new Date()
         msg.isTop = false
 
-        const dataversion = realm
-          .objects<any>('DataVersion')
-          .find(it => it.dataName === 'api/appClient/msg/ChangeMessageStatus')
+        const dataversion = realm.objectForPrimaryKey<
+          DataVersion & Realm.Object
+        >('DataVersion', 'api/appClient/msg/ChangeMessageStatus')
 
-        dataversion.dataVersion += 1
+        if (dataversion) dataversion.dataVersion += 1
       })
 
       await fetchData('/msg/ChangeMessageStatus/magicApiJSON.do', 'POST', {

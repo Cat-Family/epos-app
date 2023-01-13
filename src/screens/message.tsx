@@ -11,6 +11,7 @@ import useStickyHeader from '@/hooks/use-sticky-header'
 import ActionMessageSheet from '@/components/action-message-sheet'
 import { Message } from '@/app/models/Message'
 import AppContext from '@/app/context/AppContext'
+import useMessage from '@/hooks/actions/useMessage'
 const { useQuery } = AppContext
 
 type Props = CompositeScreenProps<
@@ -20,16 +21,29 @@ type Props = CompositeScreenProps<
 
 function MessageScreen({ navigation }: Props) {
   const msgs = useQuery(Message)
+  const {
+    error,
+    isLoading,
+    dispatch,
+    getMessagesHandler,
+    readMessageHandler,
+    topMessageHandler,
+    unTopMessageHandler,
+    deleteMessageHandler
+  } = useMessage()
   const refActionMessageSheet = useRef<ActionMessageSheet>(null)
+
   const {
     handleMessageListLayout,
     handleScroll,
     headerBarStyle,
     headerBarHeight
   } = useStickyHeader()
+
   const [concealMessageListItem, setConcealMessageListItem] = useState<
     (() => void) | null
   >(null)
+
   const handleSidebarToggle = useCallback(() => {
     navigation.toggleDrawer()
   }, [navigation])
@@ -39,15 +53,14 @@ function MessageScreen({ navigation }: Props) {
       const { current: menu } = refActionMessageSheet
       if (menu) {
         menu.setMessageId(messageId)
-        menu.show()
         setConcealMessageListItem(() => conceal)
+        menu.show()
       }
     },
     [msgs]
   )
+
   const handleActionMessageSheetClose = useCallback(() => {
-    const { current: menu } = refActionMessageSheet
-    menu?.setMessageId('')
     if (concealMessageListItem) {
       concealMessageListItem()
     }
@@ -59,14 +72,29 @@ function MessageScreen({ navigation }: Props) {
       menu?.setMessageId(messageId)
       menu?.show()
     },
-    [msgs, concealMessageListItem]
+    [msgs]
   )
+
+  const handleMessageListItemLongPress = useCallback(
+    (messageId: string, isTop: boolean) => {
+      isTop
+        ? unTopMessageHandler(Number(messageId))
+        : topMessageHandler(Number(messageId))
+    },
+    [msgs]
+  )
+
+  const handleRefreshMessage = useCallback(() => getMessagesHandler(), [msgs])
+
   return (
     <Container justifyContent="center" alignItems="center">
       <MessageList
+        isLoading={isLoading}
+        onRefresh={handleRefreshMessage}
         contentInsetTop={headerBarHeight}
         onScroll={handleScroll}
         onItemPress={handleMessageListItemPress}
+        onItemLongPress={handleMessageListItemLongPress}
         onItemSwipeLeft={handleMessageListItemSwipeLeft}
       />
 

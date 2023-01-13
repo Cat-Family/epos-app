@@ -7,18 +7,24 @@ import SwipeableView, { BackViewProps } from './swipeable-view'
 
 const MessageListItem = ({
   item,
+  onLongPress,
   onPress,
   onSwipeLeft
 }: {
   item: Message & Realm.Object
   onPress: (messageId: string) => void
+  onLongPress: (messageId: string, isTop: boolean) => void
   onSwipeLeft?: (messageId: string, done: () => void) => void
 }) => {
   const { width, height } = useWindowDimensions()
 
   const handlePress = useCallback(() => {
     onPress(item._id.toString())
-  }, [onPress])
+  }, [item._id, onPress])
+
+  const handleLongPress = useCallback(() => {
+    onLongPress(item._id.toString(), item.isTop)
+  }, [item._id, onLongPress])
 
   const handleSwipeLeft = useCallback(
     (done: () => void) => {
@@ -38,7 +44,8 @@ const MessageListItem = ({
       <Box bg="$windowBackground">
         <TouchableOpacity
           onPress={handlePress}
-          bg="$windowBackground"
+          onLongPress={handleLongPress}
+          bg={item.isTop ? 'red' : '$windowBackground'}
           px="lg"
           py="sm"
           style={{

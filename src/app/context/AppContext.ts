@@ -8,7 +8,7 @@ import { Message } from '../models/Message'
 
 const config = {
   schema: [Auth, User, Printer, Store, DataVersion, Message],
-  schemaVersion: 4
+  schemaVersion: 12
 }
 
 const AppContext = createRealmContext(config)

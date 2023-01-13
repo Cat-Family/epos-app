@@ -8,12 +8,10 @@ import {
   FlatListProps,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  RefreshControl,
   useWindowDimensions
 } from 'react-native'
 import { Box, Text } from '@/atoms'
 import AppContext from '@/app/context/AppContext'
-import useMessage from '@/hooks/actions/useMessage'
 const { useQuery } = AppContext
 
 const StyledFlatList = createBox<
@@ -25,28 +23,31 @@ interface Props {
   contentInsetTop: number
   onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onItemPress: (messageId: string) => void
+  onItemLongPress: (messageId: string, isTop: boolean) => void
   onItemSwipeLeft: (messageId: string, cancel: () => void) => void
+  onRefresh: () => void
+  isLoading: boolean
 }
 
 const MessageList: React.FC<Props> = ({
   onScroll,
   contentInsetTop,
   onItemPress,
-  onItemSwipeLeft
+  onItemLongPress,
+  onItemSwipeLeft,
+  onRefresh,
+  isLoading
 }) => {
   const msgs = useQuery(Message)
-  const { isLoading, getMessagesHandler } = useMessage()
   const { width, height } = useWindowDimensions()
 
-  const onRefresh = async () => {
-    getMessagesHandler(true, true)
-  }
   const renderItem = useCallback(
     ({ item }: { item: Message & Realm.Object }) => {
       return (
         <MessageListItem
           key={item._id}
           item={item}
+          onLongPress={onItemLongPress}
           onPress={onItemPress}
           onSwipeLeft={onItemSwipeLeft}
         />
@@ -59,7 +60,15 @@ const MessageList: React.FC<Props> = ({
     <StyledFlatList
       contentInsetAdjustmentBehavior="automatic"
       width="100%"
-      data={msgs}
+      progressViewOffset={contentInsetTop}
+      data={[
+        ...msgs
+          .filter(i => i.isTop)
+          .sort((a, b) => b.updatedAt.valueOf() - a.updatedAt.valueOf()),
+        ...msgs
+          .filter(i => !i.isTop)
+          .sort((a, b) => b.createdAt.valueOf() - a.createdAt.valueOf())
+      ]}
       onScroll={onScroll}
       onRefresh={onRefresh}
       refreshing={isLoading}

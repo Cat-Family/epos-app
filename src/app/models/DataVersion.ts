@@ -1,8 +1,7 @@
 import { Realm } from '@realm/react'
 
 export class DataVersion extends Realm.Object {
-  _id!: Realm.BSON.ObjectId
-  dataName!: string
+  _id!: string
   dataVersion!: number
   userId!: string
   createdAt!: Date
@@ -11,8 +10,7 @@ export class DataVersion extends Realm.Object {
     name: 'DataVersion',
     primaryKey: '_id',
     properties: {
-      _id: 'objectId',
-      dataName: 'string',
+      _id: 'string',
       dataVersion: 'int',
       userId: 'string',
       createdAt: 'date'

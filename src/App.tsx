@@ -12,8 +12,9 @@ import { useAtom } from 'jotai'
 import { activeThemeAtom } from './states/theme'
 import AuthStack from './navigation/AuthStack'
 import AppStack from './navigation/AppStack'
-const { RealmProvider, useQuery, useRealm } = AppContext
+const { RealmProvider, useQuery, useRealm, useObject } = AppContext
 import { Provider } from 'react-native-paper'
+import { Message } from './app/models/Message'
 
 const App = () => {
   const realm = useRealm()
@@ -51,82 +52,22 @@ const App = () => {
       const res = JSON.parse(event.data)
       console.log(res)
       try {
-        if (res.code === 10000 && res?.info) {
-          res.info.map((info: any) => {
-            if (info.url && info.userId && info.version) {
-              const results = dataVersions.find(
-                item =>
-                  info.url === item.dataName && auth[0].userId === item.userId
-              )
-
-              if (Boolean(results)) {
-                if (results?.dataVersion !== info.version) {
-                  getMessagesHandler(false, false)
-                  realm.write(() => {
-                    // clean
-                    realm.delete(results)
-
-                    realm.create('DataVersion', {
-                      _id: new Realm.BSON.ObjectId(),
-                      dataName: info.url,
-                      dataVersion: info.version,
-                      userId: info.userId,
-                      createdAt: new Date()
-                    })
-                  })
-                } else {
-                }
-              } else {
-                // getMessage
-                getMessagesHandler(false, false)
-                realm.write(() => {
-                  realm.create('DataVersion', {
-                    _id: new Realm.BSON.ObjectId(),
-                    dataName: info.url,
-                    dataVersion: info.version,
-                    userId: info.userId,
-                    createdAt: new Date()
-                  })
-                })
-              }
+        if (res?.code === 10000 && res?.info) {
+          res?.info.map((info: any) => {
+            const results = realm.objectForPrimaryKey<
+              DataVersion & Realm.Object
+            >('DataVersion', info?.url)
+            if (!results || results?.dataVersion !== info?.version) {
+              getMessagesHandler()
             }
           })
-        }
-
-        if (res.url && res.userId && res.version) {
-          const results = dataVersions.find(
-            item => res.url === item.dataName && auth[0].userId === res.userId
+        } else {
+          const results = realm.objectForPrimaryKey<DataVersion & Realm.Object>(
+            'DataVersion',
+            res?.url
           )
-
-          if (Boolean(results)) {
-            if (results?.dataVersion !== res.version) {
-              getMessagesHandler(false, false)
-              realm.write(() => {
-                // clean
-                realm.delete(results)
-
-                realm.create('DataVersion', {
-                  _id: new Realm.BSON.ObjectId(),
-                  dataName: res.url,
-                  dataVersion: res.version,
-                  userId: res.userId,
-                  createdAt: new Date()
-                })
-              })
-            } else {
-            }
-          } else {
-            // getMessage
-            getMessagesHandler(false, false)
-            realm.write(() => {
-              realm.create('DataVersion', {
-                _id: new Realm.BSON.ObjectId(),
-                dataName: res.url,
-                dataVersion: res.version,
-                userId: res.userId,
-                createdAt: new Date()
-              })
-            })
+          if (!results || results?.dataVersion !== res?.version) {
+            await getMessagesHandler()
           }
         }
       } catch (error) {
