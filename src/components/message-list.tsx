@@ -3,14 +3,17 @@ import { Message } from '@/app/models/Message'
 import { Theme } from '@/themes'
 import { createBox } from '@shopify/restyle'
 import MessageListItem from './message-list-item'
-import AppContext from '@/app/context/AppContext'
 import Animated, { AnimateProps } from 'react-native-reanimated'
 import {
   FlatListProps,
   NativeScrollEvent,
-  NativeSyntheticEvent
+  NativeSyntheticEvent,
+  RefreshControl,
+  useWindowDimensions
 } from 'react-native'
-import { Box } from '@/atoms'
+import { Box, Text } from '@/atoms'
+import AppContext from '@/app/context/AppContext'
+import useMessage from '@/hooks/actions/useMessage'
 const { useQuery } = AppContext
 
 const StyledFlatList = createBox<
@@ -32,7 +35,12 @@ const MessageList: React.FC<Props> = ({
   onItemSwipeLeft
 }) => {
   const msgs = useQuery(Message)
+  const { isLoading, getMessagesHandler } = useMessage()
+  const { width, height } = useWindowDimensions()
 
+  const onRefresh = async () => {
+    getMessagesHandler(true, true)
+  }
   const renderItem = useCallback(
     ({ item }: { item: Message & Realm.Object }) => {
       return (
@@ -50,13 +58,27 @@ const MessageList: React.FC<Props> = ({
   return (
     <StyledFlatList
       contentInsetAdjustmentBehavior="automatic"
+      width="100%"
       data={msgs}
+      onScroll={onScroll}
+      onRefresh={onRefresh}
+      refreshing={isLoading}
       renderItem={renderItem}
       keyExtractor={item => item._id.toString()}
-      width="100%"
-      onScroll={onScroll}
       scrollEventThrottle={16}
+      ListEmptyComponent={
+        <Box
+          justifyContent="center"
+          alignItems="center"
+          flex={1}
+          height={height - contentInsetTop}
+          bg={'red'}
+        >
+          <Text>Empty Message!</Text>
+        </Box>
+      }
       ListHeaderComponent={<Box width="100%" height={contentInsetTop} />}
+      ListFooterComponent={<Box width="100%" height={24} />}
     />
   )
 }

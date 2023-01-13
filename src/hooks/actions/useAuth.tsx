@@ -115,9 +115,7 @@ const useAuth = () => {
           userName: userResponse.userInfo.basicInfo.userName,
           phoneNum: userResponse.userInfo.basicInfo.phoneNum,
           isDelete: userResponse.userInfo.basicInfo.isDelete,
-          createTime: new Date(
-            userResponse.userInfo.basicInfo.createTime.replace(/-/g, '/')
-          ),
+          createTime: new Date(),
           createdAt: new Date()
         })
 
@@ -126,9 +124,7 @@ const useAuth = () => {
           storeCode: userResponse.userInfo.storeInfo.storeCode,
           storeName: userResponse.userInfo.storeInfo.storeName,
           tenantId: userResponse.userInfo.storeInfo.tenantId,
-          createTime: new Date(
-            userResponse.userInfo.basicInfo.createTime.replace(/-/g, '/')
-          ),
+          createTime: new Date(),
           createdAt: new Date()
         })
 
@@ -139,9 +135,7 @@ const useAuth = () => {
             deviceId: printer.deviceId,
             deviceSecret: printer.deviceSecret,
             vendorName: printer.vendorName,
-            createTime: new Date(
-              userResponse.userInfo.basicInfo.createTime.replace(/-/g, '/')
-            ),
+            createTime: new Date(),
             createdAt: new Date()
           })
         })

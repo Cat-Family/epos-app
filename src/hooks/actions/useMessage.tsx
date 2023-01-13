@@ -81,8 +81,8 @@ const useMessage = () => {
             isHtml: Boolean(msg.isHtml),
             tenantId: msg.tenantId,
             userId: msg.userId,
-            updatedAt: new Date(msg.updateTime.replace(/-/g, '/')),
-            createdAt: new Date(msg.creatTime.replace(/-/g, '/'))
+            updatedAt: new Date(),
+            createdAt: new Date()
           })
         })
 

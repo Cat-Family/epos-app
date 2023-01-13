@@ -13,6 +13,7 @@ import { activeThemeAtom } from './states/theme'
 import AuthStack from './navigation/AuthStack'
 import AppStack from './navigation/AppStack'
 const { RealmProvider, useQuery, useRealm } = AppContext
+import { Provider } from 'react-native-paper'
 
 const App = () => {
   const realm = useRealm()
@@ -29,7 +30,7 @@ const App = () => {
         // setSocket(
         // )
         const ws = new WebSocket(
-          `ws://82.157.67.120:18084/wss/89CC42FEE09306971A4AE36868581BDD_2/eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJMT0dJTiIsImlhdCI6MTY3MzE4NzExOSwiZXhwIjoxNjczNDQ2MzE5LCI4OUNDNDJGRUUwOTMwNjk3MUE0QUUzNjg2ODU4MUJERCI6ImNhdCJ9.YPawfJZMnVt4UplyGqcXC5AqAqCFY0vjGIjTr802VyE`,
+          `ws://82.157.67.120:18084/wss/${auth[0].tenantId}_${auth[0].userId}/${auth[0].token}`,
           undefined,
           {
             headers: {
@@ -155,12 +156,13 @@ const App = () => {
 
   return (
     <NavigationContainer>
-      <ThemeProvider theme={activeTheme}>
-        <RealmPlugin realms={[realm]} />
-        {/* {auth[0]?.token ? <AppStack /> : <AuthStack />} */}
-        <StatusBar />
-        <Navigations />
-      </ThemeProvider>
+      <Provider>
+        <ThemeProvider theme={activeTheme}>
+          <RealmPlugin realms={[realm]} />
+          {auth[0]?.token ? <Navigations /> : <AuthStack />}
+          <StatusBar />
+        </ThemeProvider>
+      </Provider>
     </NavigationContainer>
   )
 }

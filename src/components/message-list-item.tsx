@@ -16,9 +16,9 @@ const MessageListItem = ({
 }) => {
   const { width, height } = useWindowDimensions()
 
-  // const handlePress = useCallback(() => {
-  //   onPress(item._id.toString())
-  // }, [onPress])
+  const handlePress = useCallback(() => {
+    onPress(item._id.toString())
+  }, [onPress])
 
   const handleSwipeLeft = useCallback(
     (done: () => void) => {
@@ -37,7 +37,7 @@ const MessageListItem = ({
     <SwipeableView onSwipeLeft={handleSwipeLeft} backView={renderBackView}>
       <Box bg="$windowBackground">
         <TouchableOpacity
-          // onPress={handlePress}
+          onPress={handlePress}
           bg="$windowBackground"
           px="lg"
           py="sm"

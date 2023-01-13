@@ -9,6 +9,9 @@ import { HomeDrawerParamList, RootStackParamList } from '@/navigation/AppNavs'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import useStickyHeader from '@/hooks/use-sticky-header'
 import ActionMessageSheet from '@/components/action-message-sheet'
+import { Message } from '@/app/models/Message'
+import AppContext from '@/app/context/AppContext'
+const { useQuery } = AppContext
 
 type Props = CompositeScreenProps<
   DrawerScreenProps<HomeDrawerParamList, 'Message'>,
@@ -16,6 +19,7 @@ type Props = CompositeScreenProps<
 >
 
 function MessageScreen({ navigation }: Props) {
+  const msgs = useQuery(Message)
   const refActionMessageSheet = useRef<ActionMessageSheet>(null)
   const {
     handleMessageListLayout,
@@ -30,22 +34,33 @@ function MessageScreen({ navigation }: Props) {
     navigation.toggleDrawer()
   }, [navigation])
 
-  const handleMessageListItemPress = useCallback((messageId: string) => {}, [])
-
   const handleMessageListItemSwipeLeft = useCallback(
     (messageId: string, conceal: () => void) => {
       const { current: menu } = refActionMessageSheet
       if (menu) {
+        menu.setMessageId(messageId)
         menu.show()
         setConcealMessageListItem(() => conceal)
       }
     },
-    []
+    [msgs]
   )
   const handleActionMessageSheetClose = useCallback(() => {
-    concealMessageListItem && concealMessageListItem()
-    setConcealMessageListItem(null)
+    const { current: menu } = refActionMessageSheet
+    menu?.setMessageId('')
+    if (concealMessageListItem) {
+      concealMessageListItem()
+    }
   }, [concealMessageListItem])
+
+  const handleMessageListItemPress = useCallback(
+    (messageId: string) => {
+      const { current: menu } = refActionMessageSheet
+      menu?.setMessageId(messageId)
+      menu?.show()
+    },
+    [msgs, concealMessageListItem]
+  )
   return (
     <Container justifyContent="center" alignItems="center">
       <MessageList
