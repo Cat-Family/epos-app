@@ -2,12 +2,11 @@ import { useNavigation } from '@react-navigation/native'
 import React, { useLayoutEffect, useRef, useState } from 'react'
 import {
   View,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
   RefreshControl,
-  Dimensions
+  useWindowDimensions
 } from 'react-native'
 import { Appbar, Badge, Button } from 'react-native-paper'
 import AntDesign from 'react-native-vector-icons/AntDesign'
@@ -19,14 +18,12 @@ import { Auth } from '../app/models/Auth'
 import useFetch from '../hooks/useFetch'
 const { useQuery } = AppContext
 
-const { width, height } = Dimensions.get('screen')
-
 export default function OrderScreen() {
+  const { width, height } = useWindowDimensions()
   const store = useQuery(Store)
   const auth = useQuery(Auth)
   const { theme, userColorScheme } = useTheme()
   const { fetchData } = useFetch()
-
   const [cateIndex, setCateIndex] = useState(0)
   const [refreshing, setRefreshing] = React.useState(false)
   const [products, setProducts] = useState<any>()
@@ -104,7 +101,8 @@ export default function OrderScreen() {
             backgroundColor: '#D5E3EF',
             height: 60,
             alignItems: 'center',
-            padding: 2
+            padding: 2,
+            width: width
           }}
         >
           {products?.map((item: any) => (

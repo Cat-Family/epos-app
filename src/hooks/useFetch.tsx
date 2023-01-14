@@ -16,7 +16,7 @@ import { Auth } from '../app/models/Auth'
 const { useQuery, useRealm } = AppContext
 
 export const baseURL: string = 'https://qianyushop.shop/api/appClient'
-// export const baseURL: string = 'https://290b8407y1.oicp.vip/api/appClient';
+// export const baseURL: string = 'https://290b8407y1.oicp.vip/api/appClient'
 
 const useFetch = (): {
   fetchData: (
