@@ -11,89 +11,65 @@ import StatusBar from '@/components/status-bar'
 import { useAtom } from 'jotai'
 import { activeThemeAtom } from './states/theme'
 import AuthStack from './navigation/AuthStack'
-import AppStack from './navigation/AppStack'
-const { RealmProvider, useQuery, useRealm, useObject } = AppContext
+const { RealmProvider, useQuery, useRealm } = AppContext
 import { Provider } from 'react-native-paper'
-import { Message } from './app/models/Message'
 
 const App = () => {
   const realm = useRealm()
-  const auth = useQuery(Auth)
-  const dataVersions = useQuery(DataVersion)
+  const auth = useQuery<Auth & Realm.Object>(Auth)
   const { getMessagesHandler } = useMessage()
-  const [socket, setSocket] = useState<WebSocket | undefined>(undefined)
   const [activeTheme] = useAtom(activeThemeAtom)
 
   useEffect(() => {
-    if (auth[0]?.token && auth[0]?.userId && auth[0]?.tenantId) {
-      if (!socket || socket?.readyState !== 1) {
-        console.log('create websocket...')
-        // setSocket(
-        // )
-        const ws = new WebSocket(
-          `ws://82.157.67.120:18084/wss/${auth[0].tenantId}_${auth[0].userId}/${auth[0].token}`,
-          undefined,
-          {
-            headers: {
-              test: 'test'
+    if (auth[0]?.tenantId && auth[0]?.userId && auth[0].token) {
+      let ws: WebSocket | undefined = new WebSocket(
+        `ws://82.157.67.120:18084/wss/${auth[0]?.tenantId}_${auth[0]?.userId}/${auth[0]?.token}`
+      )
+      ws?.addEventListener('open', () => {
+        ws.send(JSON.stringify(auth[0]))
+        console.log('websocket is ready!')
+      })
+
+      ws?.addEventListener('message', async event => {
+        const res = JSON.parse(event.data)
+        console.log(res)
+        ws.send(JSON.stringify({ status: 'ok', ...event.data }))
+
+        try {
+          if (res?.code === 10000 && res?.info) {
+            res?.info.map((info: any) => {
+              const results = realm.objectForPrimaryKey<
+                DataVersion & Realm.Object
+              >('DataVersion', info?.url)
+              if (!results || results?.dataVersion !== info?.version) {
+                getMessagesHandler()
+              }
+            })
+          } else if (res?.code === 1) {
+            ws = undefined
+          } else {
+            const results = realm.objectForPrimaryKey<DataVersion & Realm.Object>(
+              'DataVersion',
+              res?.url
+            )
+            if (!results || results?.dataVersion !== res?.version) {
+              await getMessagesHandler()
             }
           }
-        )
-        setSocket(ws)
-      }
-    }
-
-    socket?.addEventListener('open', () => {
-      socket.send(JSON.stringify(auth[0]))
-      console.log('websocket is ready!')
-    })
-
-    socket?.addEventListener('message', async event => {
-      const res = JSON.parse(event.data)
-      console.log(res)
-      try {
-        if (res?.code === 10000 && res?.info) {
-          res?.info.map((info: any) => {
-            const results = realm.objectForPrimaryKey<
-              DataVersion & Realm.Object
-            >('DataVersion', info?.url)
-            if (!results || results?.dataVersion !== info?.version) {
-              getMessagesHandler()
-            }
-          })
-        } else {
-          const results = realm.objectForPrimaryKey<DataVersion & Realm.Object>(
-            'DataVersion',
-            res?.url
-          )
-          if (!results || results?.dataVersion !== res?.version) {
-            await getMessagesHandler()
-          }
+        } catch (error) {
+          console.log('update data error by data versio:', error)
         }
-      } catch (error) {
-        console.log('update data error by data versio:', error)
-      }
-    })
+      })
 
-    socket?.addEventListener('error', error => {
-      console.log('websocket error:', error)
-    })
+      ws?.addEventListener('error', error => {
+        console.log('websocket error:', error)
+      })
 
-    socket?.addEventListener('close', event => {
-      console.log('websocket close:', event.code)
-    })
-
-    return () => {
-      if (!auth[0]) {
-        if (socket?.readyState) {
-          socket.close()
-          setSocket(undefined)
-        } else {
-          setSocket(undefined)
-        }
-      }
+      ws?.addEventListener('close', event => {
+        console.log('websocket close:', event.code)
+      })
     }
-  }, [auth[0]?.token, auth[0]?.userId, auth[0]?.tenantId, socket?.readyState])
+  }, [auth[0]?.tenantId, auth[0]?.userId, auth[0]?.token])
 
   return (
     <NavigationContainer>

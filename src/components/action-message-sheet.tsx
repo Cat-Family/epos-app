@@ -11,6 +11,7 @@ import RNButtomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet'
 import BottomSheet from '@/atoms/bottom-sheet'
 import { Box, Text } from '@/atoms'
 import AppContext from '@/app/context/AppContext'
+import { Message } from '@/app/models/Message'
 const { useObject } = AppContext
 interface Props {
   onClose?: () => void
@@ -26,7 +27,7 @@ const ActionMessageSheet = forwardRef<ActionMessageSheetHandle, Props>(
     const refButtomSheet = useRef<RNButtomSheet>(null)
     const snapPoints = useMemo(() => ['60%', '90%'], [])
     const [messageId, setMessageId] = useState<string>('')
-    const message = useObject('Message', Number(messageId))
+    const message = useObject<Message & Realm.Object>('Message', Number(messageId))
 
     useImperativeHandle(ref, () => ({
       setMessageId,
@@ -56,8 +57,12 @@ const ActionMessageSheet = forwardRef<ActionMessageSheetHandle, Props>(
         style={{ marginHorizontal: 12 }}
         onClose={onClose}
       >
-        <Box alignItems="center">
-          <Text>{JSON.stringify(message)}</Text>
+        <Box padding="sm">
+          <Text textAlign="center" fontWeight="normal">
+            {message?.subject}
+          </Text>
+          <Text textAlign="center">{message?.createdAt.toLocaleString()}</Text>
+          <Text textAlign="left" fontWeight="normal" fontSize={14}>{`    ${message?.content}`}</Text>
         </Box>
       </BottomSheet>
     )

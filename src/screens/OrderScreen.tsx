@@ -7,7 +7,8 @@ import {
   StatusBar,
   StyleSheet,
   RefreshControl,
-  Dimensions
+  Dimensions,
+  useWindowDimensions
 } from 'react-native'
 import { Appbar, Badge, Button } from 'react-native-paper'
 import AntDesign from 'react-native-vector-icons/AntDesign'
@@ -17,13 +18,14 @@ import AppContext from '../app/context/AppContext'
 import useTheme from '../hooks/utils/useTheme'
 import { Auth } from '../app/models/Auth'
 import useFetch from '../hooks/useFetch'
+import { Message } from '@/app/models/Message'
 const { useQuery } = AppContext
 
-const { width, height } = Dimensions.get('screen')
-
 export default function OrderScreen() {
+  const { width, height } = useWindowDimensions()
   const store = useQuery(Store)
   const auth = useQuery(Auth)
+  const messages = useQuery<Message & Realm.Object>(Message)
   const { theme, userColorScheme } = useTheme()
   const { fetchData } = useFetch()
 
@@ -87,7 +89,7 @@ export default function OrderScreen() {
               size={26}
             />
             <Badge size={20} style={{ top: 0, position: 'absolute' }}>
-              21
+              {messages.length > 0 ? messages.filter(item => item?.isRead).length : 0}
             </Badge>
           </View>
         </TouchableOpacity>
@@ -104,7 +106,8 @@ export default function OrderScreen() {
             backgroundColor: '#D5E3EF',
             height: 60,
             alignItems: 'center',
-            padding: 2
+            padding: 2,
+            width: width
           }}
         >
           {products?.map((item: any) => (

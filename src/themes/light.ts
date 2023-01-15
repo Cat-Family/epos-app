@@ -16,7 +16,8 @@ const p = {
   paper900: '#202020',
   blue70: '#2185d0',
   navy20: '#171a21',
-  navy900: '#b9babc'
+  navy900: '#b9babc',
+  mainDelete: '#FF6666'
 }
 
 const theme = createTheme({
@@ -40,7 +41,7 @@ const theme = createTheme({
     red: p.red,
     blue: p.blue,
     yellow: p.yellow,
-
+    $mainDelete: p.mainDelete,
     $primary: p.blue70,
     $windowBackground: '#f0f0f0',
     $background: p.paper10,

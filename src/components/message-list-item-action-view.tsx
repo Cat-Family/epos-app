@@ -1,7 +1,7 @@
 import { AnimatedBox, Box } from '@/atoms'
 import React from 'react'
 import { SharedValue, useAnimatedStyle } from 'react-native-reanimated'
-import FeatherIcon from './icon'
+import {FeatherIcon} from './icon'
 
 interface Props {
   progress: Readonly<SharedValue<number>>
@@ -19,7 +19,7 @@ const MessageListItemActionView: React.FC<Props> = ({ progress }) => {
   return (
     <Box
       flex={1}
-      bg="$primary"
+      bg="$mainDelete"
       flexDirection="row"
       alignItems="center"
       justifyContent="flex-end"
@@ -34,8 +34,8 @@ const MessageListItemActionView: React.FC<Props> = ({ progress }) => {
       }}
     >
       <AnimatedBox flexDirection="row" alignItems="center" style={iconStyle}>
-        <FeatherIcon name="folder" color="white" size={18} />
-        <FeatherIcon name="arrow-right" color="white" size={12} />
+        <FeatherIcon name="trash-2" color="white" size={22} />
+        <FeatherIcon name="arrow-left" color="white" size={15} />
       </AnimatedBox>
     </Box>
   )

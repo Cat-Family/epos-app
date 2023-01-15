@@ -2,7 +2,7 @@ import React, { useCallback, useRef, useState } from 'react'
 import { Box, Container, Text, TouchableOpacity } from '@/atoms'
 import MessageList from '@/components/message-list'
 import HeaderBar from '@/components/header-bar'
-import FeatherIcon from '@/components/icon'
+import {FeatherIcon} from '@/components/icon'
 import { CompositeScreenProps } from '@react-navigation/native'
 import { DrawerScreenProps } from '@react-navigation/drawer'
 import { HomeDrawerParamList, RootStackParamList } from '@/navigation/AppNavs'
@@ -87,7 +87,7 @@ function MessageScreen({ navigation }: Props) {
   const handleRefreshMessage = useCallback(() => getMessagesHandler(), [msgs])
 
   return (
-    <Container justifyContent="center" alignItems="center">
+    <Container justifyContent="center" alignItems="center" >
       <MessageList
         isLoading={isLoading}
         onRefresh={handleRefreshMessage}
