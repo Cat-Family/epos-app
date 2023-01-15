@@ -26,7 +26,7 @@ const App = () => {
         `ws://82.157.67.120:18084/wss/${auth[0]?.tenantId}_${auth[0]?.userId}/${auth[0]?.token}`
       )
       ws?.addEventListener('open', () => {
-        ws?.send(JSON.stringify(auth[0]))
+        ws.send(JSON.stringify(auth[0]))
         console.log('websocket is ready!')
       })
 
@@ -34,6 +34,7 @@ const App = () => {
         const res = JSON.parse(event.data)
         console.log(res)
         ws?.send(JSON.stringify({ status: 'ok', ...event.data }))
+
 
         try {
           if (res?.code === 10000 && res?.info) {
@@ -46,6 +47,7 @@ const App = () => {
               }
             })
           } else if (res?.code === 1) {
+            ws = undefined
           } else {
             const results = realm.objectForPrimaryKey<
               DataVersion & Realm.Object

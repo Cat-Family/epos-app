@@ -60,11 +60,12 @@ const ActionMessageSheet = forwardRef<ActionMessageSheetHandle, Props>(
         style={{ marginHorizontal: 12 }}
         onClose={onClose}
       >
-        <Box alignItems="center">
-          <Text variant="messageTitle">{message?.subject}</Text>
-          <Text>{message?.content}</Text>
-          <Text>{message?.isTop}</Text>
-          <Text>{message?.createdAt.toDateString()}</Text>
+        <Box padding="sm">
+          <Text textAlign="center" fontWeight="normal">
+            {message?.subject}
+          </Text>
+          <Text textAlign="center">{message?.createdAt.toLocaleString()}</Text>
+          <Text textAlign="left" fontWeight="normal" fontSize={14}>{`    ${message?.content}`}</Text>
         </Box>
       </BottomSheet>
     )

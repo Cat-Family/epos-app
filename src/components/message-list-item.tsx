@@ -1,9 +1,11 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { Message } from '@/app/models/Message'
 import { Box, Text, TouchableOpacity } from '@/atoms'
 import { useWindowDimensions } from 'react-native'
 import MessageListItemActionView from './message-list-item-action-view'
 import SwipeableView, { BackViewProps } from './swipeable-view'
+import { FeatherIcon, OctIcon, FontAwesomeIcon } from './icon'
+import formateDate from '@/utils/dateUtils'
 
 const MessageListItem = ({
   item,
@@ -17,7 +19,6 @@ const MessageListItem = ({
   onSwipeLeft?: (messageId: string, done: () => void) => void
 }) => {
   const { width, height } = useWindowDimensions()
-
   const handlePress = useCallback(() => {
     onPress(item._id.toString())
   }, [item._id, onPress])
@@ -41,30 +42,46 @@ const MessageListItem = ({
   )
   return (
     <SwipeableView onSwipeLeft={handleSwipeLeft} backView={renderBackView}>
-      <Box bg="$windowBackground">
+      <Box bg="$windowBackground" >
         <TouchableOpacity
           onPress={handlePress}
           onLongPress={handleLongPress}
-          bg={item.isTop ? 'red' : '$windowBackground'}
+          bg={'white'}
           px="lg"
           py="sm"
           style={{
             marginHorizontal: 10,
             marginVertical: 6,
             padding: 10,
-            borderRadius: 10
+            borderRadius: 10,
+            flexDirection: 'row'
           }}
         >
-          <Text style={{}}>{`${item?.subject}`}</Text>
-          <Text fontSize={14}>{item.createdAt.toUTCString()}</Text>
-          <Text
-            numberOfLines={2}
-            ellipsizeMode="tail"
-            fontSize={14}
-            opacity={0.7}
-          >
-            {item.content}
-          </Text>
+          <Box flex={1}>
+            <Text
+              fontSize={13}
+              fontWeight={item.isTop ? 'bold' : 'normal'}
+              marginBottom="xs"
+            >
+              {`${item?.subject}`}
+            </Text>
+            <Text
+              numberOfLines={2}
+              ellipsizeMode="tail"
+              fontSize={12}
+              fontWeight={item.isTop ? 'bold' : 'normal'}
+              opacity={item.isTop ? 0.8 : 1}
+            >
+              {item.content}
+            </Text>
+          </Box>
+          <Box justifyContent="flex-start" alignItems="flex-end" marginLeft="md">
+            <Box flexDirection="row" justifyContent="center" alignItems="center" marginBottom="xs">
+              <Text fontSize={10} marginRight={"sm"}>{formateDate(item.createdAt)}</Text>
+              {!item.isRead && <FontAwesomeIcon name='circle' color={"$primary"} size={8} />}
+            </Box>
+            {item.isTop && <OctIcon name='pin' color={"$primary"} />}
+          </Box>
         </TouchableOpacity>
       </Box>
     </SwipeableView>

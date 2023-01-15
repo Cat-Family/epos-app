@@ -16,12 +16,14 @@ import AppContext from '../app/context/AppContext'
 import useTheme from '../hooks/utils/useTheme'
 import { Auth } from '../app/models/Auth'
 import useFetch from '../hooks/useFetch'
+import { Message } from '@/app/models/Message'
 const { useQuery } = AppContext
 
 export default function OrderScreen() {
   const { width, height } = useWindowDimensions()
   const store = useQuery(Store)
   const auth = useQuery(Auth)
+  const messages = useQuery<Message & Realm.Object>(Message)
   const { theme, userColorScheme } = useTheme()
   const { fetchData } = useFetch()
   const [cateIndex, setCateIndex] = useState(0)
@@ -84,7 +86,7 @@ export default function OrderScreen() {
               size={26}
             />
             <Badge size={20} style={{ top: 0, position: 'absolute' }}>
-              21
+              {messages.length > 0 ? messages.filter(item => item?.isRead).length : 0}
             </Badge>
           </View>
         </TouchableOpacity>
