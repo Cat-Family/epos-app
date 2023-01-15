@@ -27,7 +27,10 @@ const ActionMessageSheet = forwardRef<ActionMessageSheetHandle, Props>(
     const refButtomSheet = useRef<RNButtomSheet>(null)
     const snapPoints = useMemo(() => ['60%', '90%'], [])
     const [messageId, setMessageId] = useState<string>('')
-    const message = useObject<Message & Realm.Object>('Message', Number(messageId))
+    const message = useObject<Message & Realm.Object>(
+      'Message',
+      Number(messageId)
+    )
 
     useImperativeHandle(ref, () => ({
       setMessageId,

@@ -75,7 +75,11 @@ const theme = createTheme({
     },
     navbar: {
       fontSize: 20
-    }
+    },
+    messageTitle: {
+      fontSize: 20
+    },
+    messageContent: {}
   },
   barVariants: {
     headerBar: {

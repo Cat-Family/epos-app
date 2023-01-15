@@ -24,7 +24,7 @@ const Drawer = createDrawerNavigator<HomeDrawerParamList>()
 const Home = () => {
   return (
     <Drawer.Navigator
-      initialRouteName="Message"
+      initialRouteName="Main"
       screenOptions={{ drawerType: 'back', swipeEdgeWidth: 60 }}
       drawerContent={props => <Sidebar {...props} />}
     >

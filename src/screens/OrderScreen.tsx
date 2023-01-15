@@ -2,12 +2,10 @@ import { useNavigation } from '@react-navigation/native'
 import React, { useLayoutEffect, useRef, useState } from 'react'
 import {
   View,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
   RefreshControl,
-  Dimensions,
   useWindowDimensions
 } from 'react-native'
 import { Appbar, Badge, Button } from 'react-native-paper'
@@ -28,7 +26,6 @@ export default function OrderScreen() {
   const messages = useQuery<Message & Realm.Object>(Message)
   const { theme, userColorScheme } = useTheme()
   const { fetchData } = useFetch()
-
   const [cateIndex, setCateIndex] = useState(0)
   const [refreshing, setRefreshing] = React.useState(false)
   const [products, setProducts] = useState<any>()
