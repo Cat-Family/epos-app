@@ -1,4 +1,5 @@
 import CryptoJS from 'crypto-js'
+import Snackbar from 'react-native-snackbar'
 import {
   getAndroidIdSync,
   getCarrierSync,
@@ -61,7 +62,7 @@ const useFetch = (): {
     userAggent
   }
 
-  const fetchData = async (
+  const fetchData = (
     url?: string,
     method?: string | undefined,
     body?: any,
@@ -73,58 +74,131 @@ const useFetch = (): {
     referrer?: string | undefined,
     window?: any,
     signal?: AbortSignal | undefined
-  ): Promise<any> => {
-    let response
-    try {
-      response = await fetch(baseURL + url, {
-        method: method,
-        mode: mode,
-        credentials: credentials,
-        headers: {
-          'Content-Type': 'application/json',
-          ...headers
-        },
-        integrity,
-        keepalive,
-        referrer,
-        window,
-        signal,
-        body: JSON.stringify({
-          authInfo: {
-            tenantId: auth[0]?.tenantId,
-            clientVersion: auth[0]?.clientVersion,
-            userName: auth[0]?.userName,
-            userId: auth[0]?.userId,
-            token: auth[0]?.token,
-            reqTime: new Date().getTime(),
-            reqUid: CryptoJS.MD5(new Date().getTime().toString()).toString()
+  ) =>
+    new Promise(async (resolve, reject) => {
+      let response
+      try {
+        response = await fetch(baseURL + url, {
+          method: method,
+          mode: mode,
+          credentials: credentials,
+          headers: {
+            'Content-Type': 'application/json',
+            ...headers
           },
-          deviceInfo,
-          ...body
-        })
-      })
-
-      if (response.ok) {
-        const parseResponse = await response.json()
-
-        if (parseResponse.code === 10000) {
-          return Promise.resolve(parseResponse.data)
-        } else if (parseResponse.code === -14444) {
-          // logout
-          realm.write(() => {
-            realm.deleteAll()
+          integrity,
+          keepalive,
+          referrer,
+          window,
+          signal,
+          body: JSON.stringify({
+            authInfo: {
+              tenantId: auth[0]?.tenantId,
+              clientVersion: auth[0]?.clientVersion,
+              userName: auth[0]?.userName,
+              userId: auth[0]?.userId,
+              token: auth[0]?.token,
+              reqTime: new Date().getTime(),
+              reqUid: CryptoJS.MD5(new Date().getTime().toString()).toString()
+            },
+            deviceInfo,
+            ...body
           })
-          return Promise.reject(parseResponse)
+        })
+
+        if (response.ok) {
+          const parseResponse = await response.json()
+
+          if (parseResponse.code === 10000) {
+            return resolve(parseResponse.data)
+          } else if (parseResponse.code === -14444) {
+            Snackbar.show({
+              text: parseResponse.message,
+              duration: Snackbar.LENGTH_INDEFINITE,
+              numberOfLines: 2,
+              textColor: 'white',
+              backgroundColor: 'rgba(0,0,0,0.64)',
+              action: {
+                textColor: '#2185d0',
+                text: '确定',
+                onPress: () => {
+                  realm.write(() => {
+                    realm.deleteAll()
+                  })
+                }
+              }
+            })
+            return reject(parseResponse)
+          } else if (parseResponse.code === -14445) {
+            Snackbar.show({
+              text: parseResponse.message,
+              duration: Snackbar.LENGTH_INDEFINITE,
+              numberOfLines: 2,
+              textColor: 'white',
+              backgroundColor: 'rgba(0,0,0,0.64)',
+              action: {
+                textColor: '#2185d0',
+                text: '确定',
+                onPress: () => {
+                  realm.write(() => {
+                    realm.deleteAll()
+                  })
+                }
+              }
+            })
+            return reject(parseResponse)
+          } else {
+            Snackbar.show({
+              text: parseResponse.message,
+              duration: Snackbar.LENGTH_SHORT,
+              numberOfLines: 2,
+              textColor: 'white',
+              backgroundColor: 'rgba(0,0,0,0.64)',
+              action: {
+                textColor: '#2185d0',
+                text: '确定',
+                onPress: () => {
+                  Snackbar.dismiss()
+                }
+              }
+            })
+            return reject(parseResponse)
+          }
         } else {
-          return Promise.reject(parseResponse)
+          Snackbar.show({
+            text: response.toString(),
+            duration: Snackbar.LENGTH_SHORT,
+            numberOfLines: 2,
+            textColor: 'white',
+            backgroundColor: 'rgba(0,0,0,0.64)',
+            action: {
+              textColor: '#2185d0',
+              text: '确定',
+              onPress: () => {
+                Snackbar.dismiss()
+              }
+            }
+          })
+          return reject(response)
         }
-      } else {
-        return Promise.reject(response)
+      } catch (error: any) {
+        Snackbar.show({
+          text: error.message || '网络异常',
+          duration: Snackbar.LENGTH_SHORT,
+          numberOfLines: 2,
+          textColor: 'white',
+          backgroundColor: 'rgba(0,0,0,0.64)',
+          action: {
+            textColor: '#2185d0',
+            text: '确定',
+            onPress: () => {
+              Snackbar.dismiss()
+            }
+          }
+        })
+        return reject(error)
       }
-    } catch (error: any) {
-      return Promise.reject(error)
-    }
-  }
+    })
 
   return { fetchData }
 }

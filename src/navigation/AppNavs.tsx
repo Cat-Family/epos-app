@@ -1,24 +1,32 @@
 import React from 'react'
 import { createDrawerNavigator } from '@react-navigation/drawer'
-import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import Sidebar from '../components/sidebar'
+import {
+  CardStyleInterpolators,
+  HeaderStyleInterpolators,
+  TransitionPresets,
+  TransitionSpecs,
+  createStackNavigator
+} from '@react-navigation/stack'
 import { NavigatorScreenParams } from '@react-navigation/native'
 import TabNavigator from './TabNavigator'
 import MessageScreen from '@/screens/message'
+import MessageDetail from '@/screens/message-detail'
 
 export type HomeDrawerParamList = {
   Main: {}
-  Message: {}
 }
 
 export type RootStackParamList = {
   Home: NavigatorScreenParams<HomeDrawerParamList>
-  Detail: {
-    defailId: string
+  Message: {}
+  MessageDetail: {
+    messageId: number
   }
 }
 
-const Stack = createNativeStackNavigator<RootStackParamList>()
+const NativeStack = createStackNavigator<RootStackParamList>()
+
 const Drawer = createDrawerNavigator<HomeDrawerParamList>()
 
 const Home = () => {
@@ -33,24 +41,27 @@ const Home = () => {
         component={TabNavigator}
         options={{ headerShown: false }}
       />
-
-      <Drawer.Screen
-        name="Message"
-        component={MessageScreen}
-        options={{ headerShown: false }}
-      />
     </Drawer.Navigator>
   )
 }
 
 export default function Navigations() {
   return (
-    <Stack.Navigator initialRouteName="Home">
-      <Stack.Screen
-        name="Home"
-        component={Home}
-        options={{ headerShown: false }}
+    <NativeStack.Navigator
+      initialRouteName="Home"
+      screenOptions={({ route, navigation }) => ({
+        headerShown: false,
+        gestureEnabled: true,
+        ...TransitionPresets.ModalPresentationIOS
+      })}
+    >
+      <NativeStack.Screen name="Home" component={Home} />
+      <NativeStack.Screen name="Message" component={MessageScreen} />
+      <NativeStack.Screen
+        name="MessageDetail"
+        initialParams={{ messageId: 0 }}
+        component={MessageDetail}
       />
-    </Stack.Navigator>
+    </NativeStack.Navigator>
   )
 }

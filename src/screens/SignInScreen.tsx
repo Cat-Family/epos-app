@@ -250,34 +250,6 @@ const SignInScreen = () => {
           </Button>
         </View>
       </Animatable.View>
-
-      <Portal>
-        <Dialog
-          visible={Boolean(error)}
-          style={{
-            backgroundColor: theme.colors.background
-          }}
-          onDismiss={() => {
-            dispatch({ type: 'RESTORE' })
-          }}
-        >
-          <Dialog.Icon icon="alert" color={theme.colors.error} />
-          <Dialog.Title style={{ textAlign: 'center' }}>登录失败</Dialog.Title>
-          <Dialog.Content>
-            <Paragraph>{error}</Paragraph>
-          </Dialog.Content>
-          <Dialog.Actions>
-            <Button
-              labelStyle={{ color: theme.colors.primary }}
-              onPress={() => {
-                dispatch({ type: 'RESTORE' })
-              }}
-            >
-              确定
-            </Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
     </View>
   )
 }

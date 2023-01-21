@@ -26,7 +26,7 @@ const ActionMessageSheet = forwardRef<ActionMessageSheetHandle, Props>(
   ({ onClose }, ref) => {
     const refButtomSheet = useRef<RNButtomSheet>(null)
     const snapPoints = useMemo(() => ['60%', '90%'], [])
-    const [messageId, setMessageId] = useState<string>('')
+    const [messageId, setMessageId] = useState<string>('1')
     const message = useObject<Message & Realm.Object>(
       'Message',
       Number(messageId)
@@ -65,7 +65,11 @@ const ActionMessageSheet = forwardRef<ActionMessageSheetHandle, Props>(
             {message?.subject}
           </Text>
           <Text textAlign="center">{message?.createdAt.toLocaleString()}</Text>
-          <Text textAlign="left" fontWeight="normal" fontSize={14}>{`    ${message?.content}`}</Text>
+          <Text
+            textAlign="left"
+            fontWeight="normal"
+            fontSize={14}
+          >{`    ${message?.content}`}</Text>
         </Box>
       </BottomSheet>
     )

@@ -21,12 +21,13 @@ const App = () => {
   const [activeTheme] = useAtom(activeThemeAtom)
 
   useEffect(() => {
+    let ws: WebSocket | undefined
     if (auth[0]?.tenantId && auth[0]?.userId && auth[0]?.token) {
-      let ws: WebSocket | undefined = new WebSocket(
+      ws = new WebSocket(
         `ws://82.157.67.120:18084/wss/${auth[0]?.tenantId}_${auth[0]?.userId}/${auth[0]?.token}`
       )
       ws?.addEventListener('open', () => {
-        ws.send(JSON.stringify(auth[0]))
+        ws?.send(JSON.stringify(auth[0]))
         console.log('websocket is ready!')
       })
 
@@ -34,7 +35,6 @@ const App = () => {
         const res = JSON.parse(event.data)
         console.log(res)
         ws?.send(JSON.stringify({ status: 'ok', ...event.data }))
-
 
         try {
           if (res?.code === 10000 && res?.info) {
@@ -66,8 +66,11 @@ const App = () => {
       })
 
       ws?.addEventListener('close', event => {
-        console.log('websocket close:', event.code)
+        console.log('websocket close:', event.code, event.reason)
       })
+    }
+    return () => {
+      ws?.readyState === 1 ? ws.close(1001, 'User logout') : (ws = undefined)
     }
   }, [auth[0]?.tenantId, auth[0]?.userId, auth[0]?.token])
 

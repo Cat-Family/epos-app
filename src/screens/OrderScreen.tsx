@@ -1,5 +1,5 @@
-import { useNavigation } from '@react-navigation/native'
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import { CompositeScreenProps, useNavigation } from '@react-navigation/native'
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react'
 import {
   View,
   ScrollView,
@@ -8,20 +8,30 @@ import {
   RefreshControl,
   useWindowDimensions
 } from 'react-native'
-import { Appbar, Badge, Button } from 'react-native-paper'
-import AntDesign from 'react-native-vector-icons/AntDesign'
-import { TouchableOpacity } from 'react-native-gesture-handler'
+import { Badge, Button } from 'react-native-paper'
 import { Store } from '../app/models/Store'
 import AppContext from '../app/context/AppContext'
 import useTheme from '../hooks/utils/useTheme'
 import { Auth } from '../app/models/Auth'
 import useFetch from '../hooks/useFetch'
 import { Message } from '@/app/models/Message'
+import { Bar, Box, Container, Text, TouchableOpacity } from '@/atoms'
+import HeaderBar from '@/components/header-bar'
+import { FeatherIcon } from '@/components/icon'
+import useStickyHeader from '@/hooks/use-sticky-header'
+import { DrawerScreenProps } from '@react-navigation/drawer'
+import { HomeDrawerParamList, RootStackParamList } from '@/navigation/AppNavs'
+import { NativeStackScreenProps } from '@react-navigation/native-stack'
 const { useQuery } = AppContext
 
-export default function OrderScreen() {
+type Props = CompositeScreenProps<
+  DrawerScreenProps<HomeDrawerParamList, 'Main'>,
+  NativeStackScreenProps<RootStackParamList>
+>
+
+export default function OrderScreen({ navigation }: Props) {
   const { width, height } = useWindowDimensions()
-  const store = useQuery(Store)
+  const store = useQuery<Store & Realm.Object>(Store)
   const auth = useQuery(Auth)
   const messages = useQuery<Message & Realm.Object>(Message)
   const { theme, userColorScheme } = useTheme()
@@ -32,7 +42,16 @@ export default function OrderScreen() {
   const [loading, setLoading] = useState<boolean>(false)
 
   let tagRef = useRef<any>()
-  const navigation = useNavigation()
+  const {
+    handleMessageListLayout,
+    handleScroll,
+    headerBarStyle,
+    headerBarHeight
+  } = useStickyHeader()
+
+  const handleSidebarToggle = useCallback(() => {
+    navigation.toggleDrawer()
+  }, [navigation])
 
   const getGoods = async () => {
     try {
@@ -65,32 +84,42 @@ export default function OrderScreen() {
   }, [])
 
   return (
-    <>
-      <Appbar.Header
-        style={{
-          backgroundColor: theme.colors.background
-        }}
+    <Container flex={1}>
+      <Bar
+        variant={'headerBar'}
+        flexDirection="row"
+        alignItems="center"
+        mx="lg"
+        my="md"
+        px="sm"
+        minHeight={44}
       >
-        <Appbar.Action
-          icon="menu"
-          onPress={() => {
-            navigation.toggleDrawer()
-          }}
-        />
-        <Appbar.Content title={store[0]?.storeName} />
-        <TouchableOpacity onPress={() => navigation.navigate('Message')}>
-          <View style={styles.badgeContainer}>
-            <AntDesign
-              name="message1"
-              color={theme.colors.secondary}
-              size={26}
-            />
-            <Badge size={20} style={{ top: 0, position: 'absolute' }}>
-              {messages.length > 0 ? messages.filter(item => item?.isRead).length : 0}
-            </Badge>
-          </View>
+        <TouchableOpacity
+          m="xs"
+          p="xs"
+          rippleBorderless
+          onPress={handleSidebarToggle}
+        >
+          <FeatherIcon name="menu" size={24} />
         </TouchableOpacity>
-      </Appbar.Header>
+        <Box flex={1} alignItems="center">
+          <Text fontWeight="bold">{store[0].storeName}</Text>
+        </Box>
+        <TouchableOpacity
+          m="xs"
+          p="xs"
+          rippleBorderless
+          onPress={() => navigation.navigate('Message', {})}
+        >
+          <FeatherIcon name="message-circle" size={24} />
+          <Badge size={16} style={{ position: 'absolute', top: 0 }}>
+            {messages.length > 0
+              ? messages.filter(item => !item?.isRead).length
+              : 0}
+          </Badge>
+        </TouchableOpacity>
+      </Bar>
+
       <View
         style={{
           backgroundColor: theme.colors.mainbackground
@@ -176,7 +205,7 @@ export default function OrderScreen() {
               </Button>
             ))}
       </ScrollView>
-    </>
+    </Container>
   )
 }
 
