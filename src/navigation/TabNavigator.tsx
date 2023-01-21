@@ -2,30 +2,48 @@ import React from 'react'
 import OrderScreen from '../screens/OrderScreen'
 import CartScreen from '../screens/CartScreen'
 import FavoriteScreen from '../screens/FavoriteScreen'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import {
+  FontAwesome5Icon,
+  MaterialCommunityIcon,
+  MaterialIcon
+} from '@/components/icon'
+import { CompositeScreenProps } from '@react-navigation/native'
+import { DrawerScreenProps } from '@react-navigation/drawer'
+import { HomeDrawerParamList, RootStackParamList } from './AppNavs'
+import { NativeStackScreenProps } from '@react-navigation/native-stack'
 
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
-import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs'
-import useTheme from '../hooks/utils/useTheme'
+export type TabParamList = {
+  Order: {}
+  Bill: {}
+  Assignment: {}
+}
 
-const Tab = createMaterialBottomTabNavigator()
+const Tab = createBottomTabNavigator<TabParamList>()
 
-const TabNavigator = () => {
-  const { theme } = useTheme()
+type Props = CompositeScreenProps<
+  DrawerScreenProps<HomeDrawerParamList, 'Main'>,
+  NativeStackScreenProps<RootStackParamList>
+>
 
+function TabNavigator({ navigation, route }: Props) {
   return (
-    <Tab.Navigator activeColor={theme.colors.primary}>
+    <Tab.Navigator
+      initialRouteName="Order"
+      screenOptions={{
+        headerShown: false
+      }}
+    >
       <Tab.Screen
         name="Order"
         component={OrderScreen}
-        options={({ route }) => ({
+        options={({ route, navigation }) => ({
           tabBarLabel: '点餐',
           tabBarAccessibilityLabel: 'Order',
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons
+            <MaterialCommunityIcon
               name="cash-register"
-              color={color}
+              color={navigation.isFocused() ? '$primary' : '$sidebarForeground'}
               size={24}
             />
           )
@@ -34,24 +52,32 @@ const TabNavigator = () => {
       <Tab.Screen
         name="Bill"
         component={CartScreen}
-        options={{
+        options={({ route, navigation }) => ({
           tabBarLabel: '账单',
           tabBarAccessibilityLabel: 'Bill',
           tabBarIcon: ({ color }) => (
-            <FontAwesome5 name="money-check-alt" color={color} size={24} />
+            <FontAwesome5Icon
+              name="money-check-alt"
+              color={navigation.isFocused() ? '$primary' : '$sidebarForeground'}
+              size={24}
+            />
           )
-        }}
+        })}
       />
       <Tab.Screen
         name="Assignment"
         component={FavoriteScreen}
-        options={{
+        options={({ route, navigation }) => ({
           tabBarLabel: '报表',
           tabBarAccessibilityLabel: 'Assignment',
           tabBarIcon: ({ color }) => (
-            <MaterialIcons name="assignment" color={color} size={24} />
+            <MaterialIcon
+              name="assignment"
+              color={navigation.isFocused() ? '$primary' : '$sidebarForeground'}
+              size={24}
+            />
           )
-        }}
+        })}
       />
     </Tab.Navigator>
   )

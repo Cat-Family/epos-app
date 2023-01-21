@@ -40,7 +40,7 @@ function MessageDetail({ navigation, route }: Props) {
           <FeatherIcon name="more-vertical" size={22} />
         </TouchableOpacity>
       </Bar>
-      {message?.isHtml ? (
+      {!message?.isHtml ? (
         <Box paddingHorizontal="lg">
           <Text textAlign="center">{message?.createdAt.toLocaleString()}</Text>
           <Text

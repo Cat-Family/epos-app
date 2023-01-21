@@ -16,17 +16,21 @@ import { Auth } from '../app/models/Auth'
 import useFetch from '../hooks/useFetch'
 import { Message } from '@/app/models/Message'
 import { Bar, Box, Container, Text, TouchableOpacity } from '@/atoms'
-import HeaderBar from '@/components/header-bar'
 import { FeatherIcon } from '@/components/icon'
 import useStickyHeader from '@/hooks/use-sticky-header'
 import { DrawerScreenProps } from '@react-navigation/drawer'
 import { HomeDrawerParamList, RootStackParamList } from '@/navigation/AppNavs'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import { TabParamList } from '@/navigation/TabNavigator'
+import { BottomTabScreenProps } from '@react-navigation/bottom-tabs/lib/typescript/src/types'
 const { useQuery } = AppContext
 
 type Props = CompositeScreenProps<
-  DrawerScreenProps<HomeDrawerParamList, 'Main'>,
-  NativeStackScreenProps<RootStackParamList>
+  BottomTabScreenProps<TabParamList, 'Order'>,
+  CompositeScreenProps<
+    DrawerScreenProps<HomeDrawerParamList, 'Main'>,
+    NativeStackScreenProps<RootStackParamList>
+  >
 >
 
 export default function OrderScreen({ navigation }: Props) {
